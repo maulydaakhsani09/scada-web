@@ -175,7 +175,6 @@ body{
 
 <div class="content">
 
-<!-- MONITOR -->
 <div id="monitor" class="page active">
 
 <h2 id="modeText">SYSTEM READY</h2>
@@ -198,6 +197,10 @@ body{
 <div class="card"><h3>Tegangan</h3><p id="bat_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="bat_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="bat_p">0 W</p></div>
+
+<div class="card"><h3>Frekuensi</h3><p id="bat_f">0 Hz</p></div>
+<div class="card"><h3>PF</h3><p id="bat_pf">0</p></div>
+<div class="card"><h3>Energi</h3><p id="bat_e">0 Wh</p></div>
 </div>
 
 <!-- PLN -->
@@ -205,175 +208,43 @@ body{
 <div class="card"><h3>Tegangan</h3><p id="pln_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="pln_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="pln_p">0 W</p></div>
-</div>
 
-<!-- GRAFIK -->
-<h3 style="margin-top:30px;">PLN Voltage (200–230V)</h3>
-<canvas id="chartPLN" height="100"></canvas>
-
-<h3 style="margin-top:30px;">Battery Voltage (10–14V)</h3>
-<canvas id="chartBAT" height="100"></canvas>
-
-</div>
-
-<!-- MANUAL -->
-<div id="manual" class="page">
-<h2>Manual Control Assistant</h2>
-
-<div class="control">
-<button class="batt" onclick="sendCmd('INV')">BATERAI</button>
-<button class="pln" onclick="sendCmd('PLN')">PLN</button>
-<button class="auto" onclick="sendCmd('AUTO')">AUTO</button>
-</div>
-
-<div class="status-box">
-<h3 id="status">Status: -</h3>
-</div>
+<div class="card"><h3>Frekuensi</h3><p id="pln_f">0 Hz</p></div>
+<div class="card"><h3>PF</h3><p id="pln_pf">0</p></div>
+<div class="card"><h3>Energi</h3><p id="pln_e">0 Wh</p></div>
 </div>
 
 </div>
 
 <script>
 
-// NAV
-function showPage(page){
-document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
-document.getElementById(page).classList.add("active");
-}
+function f(x){return parseFloat(x).toFixed(2);}
 
-// TAB
-function setTab(btn,tab){
-document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
-btn.classList.add("active");
-
-document.querySelectorAll(".monitorTab").forEach(el=>el.style.display="none");
-document.getElementById(tab).style.display="block";
-}
-
-// COMMAND
-function sendCmd(cmd){
-fetch("send.php?cmd="+cmd);
-document.getElementById("status").innerText="Status: "+cmd+" ACTIVE";
-}
-
-// FORMAT
-function f(x){
-return parseFloat(x).toFixed(2);
-}
-
-// FLOW
-setInterval(()=>{
-fetch("status.txt?t="+Date.now())
-.then(res=>res.text())
-.then(status=>{
-let pln=document.getElementById("plnNode");
-let batt=document.getElementById("battNode");
-let l1=document.getElementById("line1");
-let l2=document.getElementById("line2");
-
-pln.classList.remove("active-node");
-batt.classList.remove("active-node");
-l1.classList.remove("active");
-l2.classList.remove("active");
-
-if(status.trim()=="PLN"){
-pln.classList.add("active-node");
-l1.classList.add("active");
-l1.style.background="#ef4444";
-}else{
-batt.classList.add("active-node");
-l2.classList.add("active");
-l2.style.background="#22c55e";
-}
-});
-},1000);
-
-// ===== CHART =====
-let labels=[];
-let dataPLN=[];
-let dataBAT=[];
-
-const chartPLN=new Chart(document.getElementById("chartPLN"),{
-type:"line",
-data:{
-labels:labels,
-datasets:[{
-label:"PLN Voltage",
-data:dataPLN,
-borderColor:"#ef4444",
-tension:0.3
-}]
-},
-options:{
-animation:false,
-scales:{
-y:{min:200,max:230},
-x:{ticks:{color:"#94a3b8"}},
-y:{ticks:{color:"#94a3b8"}}
-}
-}
-});
-
-const chartBAT=new Chart(document.getElementById("chartBAT"),{
-type:"line",
-data:{
-labels:labels,
-datasets:[{
-label:"Battery Voltage",
-data:dataBAT,
-borderColor:"#22c55e",
-tension:0.3
-}]
-},
-options:{
-animation:false,
-scales:{
-y:{min:10,max:14},
-x:{ticks:{color:"#94a3b8"}},
-y:{ticks:{color:"#94a3b8"}}
-}
-}
-});
-
-// LOOP REALTIME
 async function loop(){
 while(true){
 try{
 let res=await fetch("monitor.php");
 let d=await res.json();
 
-document.getElementById("bat_v").innerText=f(d.bat_v)+" V";
-document.getElementById("bat_i").innerText=f(d.bat_i)+" A";
-document.getElementById("bat_p").innerText=f(d.bat_p)+" W";
+// BASIC
+bat_v.innerText=f(d.bat_v)+" V";
+bat_i.innerText=f(d.bat_i)+" A";
+bat_p.innerText=f(d.bat_p)+" W";
 
-document.getElementById("pln_v").innerText=f(d.pln_v)+" V";
-document.getElementById("pln_i").innerText=f(d.pln_i)+" A";
-document.getElementById("pln_p").innerText=f(d.pln_p)+" W";
+pln_v.innerText=f(d.pln_v)+" V";
+pln_i.innerText=f(d.pln_i)+" A";
+pln_p.innerText=f(d.pln_p)+" W";
 
-if(d.pln_v>200){
-document.getElementById("modeText").innerText="⚡ PLN ACTIVE";
-}else{
-document.getElementById("modeText").innerText="🔋 BATTERY ACTIVE";
-}
+// TAMBAHAN
+bat_f.innerText=f(d.bat_f)+" Hz";
+bat_pf.innerText=f(d.bat_pf);
+bat_e.innerText=f(d.bat_e)+" Wh";
 
-// CHART UPDATE
-let time=new Date().toLocaleTimeString();
-
-labels.push(time);
-dataPLN.push(d.pln_v);
-dataBAT.push(d.bat_v);
-
-if(labels.length>20){
-labels.shift();
-dataPLN.shift();
-dataBAT.shift();
-}
-
-chartPLN.update();
-chartBAT.update();
+pln_f.innerText=f(d.pln_f)+" Hz";
+pln_pf.innerText=f(d.pln_pf);
+pln_e.innerText=f(d.pln_e)+" Wh";
 
 }catch(e){console.log(e);}
-
 await new Promise(r=>setTimeout(r,2000));
 }
 }
