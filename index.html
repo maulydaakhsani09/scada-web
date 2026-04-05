@@ -139,71 +139,10 @@ body{
     font-size:18px;
     font-weight:bold;
 }
-
-/* ===== TAMBAHAN LOGIN ===== */
-#loginScreen{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-background:#020617;
-display:flex;
-justify-content:center;
-align-items:center;
-z-index:9999;
-}
-.login-box{
-width:350px;
-padding:40px;
-background:#020617;
-border:1px solid #1e293b;
-border-radius:15px;
-box-shadow:0 0 25px rgba(0,255,255,0.2);
-text-align:center;
-}
-.login-box h2{
-margin-bottom:20px;
-color:#00f0ff;
-}
-.login-box input{
-width:100%;
-padding:12px;
-margin:10px 0;
-border:none;
-border-radius:8px;
-background:#0f172a;
-color:white;
-}
-.login-box button{
-width:100%;
-padding:12px;
-margin-top:15px;
-border:none;
-border-radius:10px;
-background:#00f0ff;
-color:#020617;
-font-weight:bold;
-cursor:pointer;
-}
-.login-box button:hover{
-opacity:0.8;
-}
 </style>
 </head>
 
 <body>
-
-<!-- LOGIN -->
-<div id="loginScreen">
-    <div class="login-box">
-        <h2>SCADA LOGIN</h2>
-        <input type="text" id="username" placeholder="Username">
-        <input type="password" id="password" placeholder="Password">
-        <button onclick="login()">LOGIN</button>
-        <p id="loginError" style="color:red;"></p>
-    </div>
-</div>
 
 <div class="header">
 ⚡ SCADA ENERGY SYSTEM
@@ -239,16 +178,12 @@ opacity:0.8;
 <div class="card"><h3>Tegangan</h3><p id="bat_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="bat_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="bat_p">0 W</p></div>
-<div class="card"><h3>Energi</h3><p id="bat_e">0 Wh</p></div>
 </div>
 
 <div id="pln" class="monitorTab" style="display:none;">
 <div class="card"><h3>Tegangan</h3><p id="pln_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="pln_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="pln_p">0 W</p></div>
-<div class="card"><h3>Frekuensi</h3><p id="pln_f">0 Hz</p></div>
-<div class="card"><h3>Energi</h3><p id="pln_e">0 Wh</p></div>
-<div class="card"><h3>Power Factor</h3><p id="pln_pf">0</p></div>
 </div>
 
 <h3>PLN Voltage (200–230V)</h3>
@@ -278,35 +213,13 @@ opacity:0.8;
 
 <script>
 
-// ===== LOGIN FIX =====
-console.log("SCRIPT LOADED");
-
-window.login = function(){
-console.log("LOGIN DIKLIK");
-
-let u=document.getElementById("username").value.trim().toLowerCase();
-let p=document.getElementById("password").value.trim();
-
-if(u==="admin" && p==="12345"){
-localStorage.setItem("login","true");
-document.getElementById("loginScreen").style.display="none";
-}else{
-document.getElementById("loginError").innerText="Login gagal!";
-}
-};
-
-window.addEventListener("load", function(){
-if(localStorage.getItem("login")==="true"){
-document.getElementById("loginScreen").style.display="none";
-}
-});
-
-// ===== KODE LAMA =====
+// NAV
 function showPage(page){
 document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
 document.getElementById(page).classList.add("active");
 }
 
+// TAB
 function setTab(btn,tab){
 document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
 btn.classList.add("active");
@@ -314,14 +227,91 @@ document.querySelectorAll(".monitorTab").forEach(el=>el.style.display="none");
 document.getElementById(tab).style.display="block";
 }
 
+// ===== MQTT CONNECT =====
 const client = mqtt.connect("wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt", {
-username:"esp32",password:"123456"
+  username: "esp32",
+  password: "123456"
 });
 
 client.on("connect", ()=>{
-console.log("MQTT CONNECTED 🔥");
-client.subscribe("test/monitor");
+  console.log("MQTT CONNECTED 🔥");
+  client.subscribe("test/monitor");
 });
+
+// ===== CHART =====
+let labels=[], dataPLN=[], dataBAT=[];
+
+const chartPLN=new Chart(document.getElementById("chartPLN"),{
+type:"line",
+data:{labels:labels,datasets:[{data:dataPLN,borderColor:"#ef4444"}]},
+options:{animation:false,scales:{y:{min:200,max:230}}}
+});
+
+const chartBAT=new Chart(document.getElementById("chartBAT"),{
+type:"line",
+data:{labels:labels,datasets:[{data:dataBAT,borderColor:"#22c55e"}]},
+options:{animation:false,scales:{y:{min:10,max:14}}}
+});
+
+// ===== TERIMA DATA =====
+client.on("message",(topic,message)=>{
+
+let d=JSON.parse(message.toString());
+
+document.getElementById("bat_v").innerText=d.bat_v.toFixed(2)+" V";
+document.getElementById("bat_i").innerText=d.bat_i.toFixed(2)+" A";
+document.getElementById("bat_p").innerText=d.bat_p.toFixed(2)+" W";
+
+document.getElementById("pln_v").innerText=d.pln_v.toFixed(2)+" V";
+document.getElementById("pln_i").innerText=d.pln_i.toFixed(2)+" A";
+document.getElementById("pln_p").innerText=d.pln_p.toFixed(2)+" W";
+
+if(d.pln_v>200){
+document.getElementById("modeText").innerText="⚡ PLN ACTIVE";
+}else{
+document.getElementById("modeText").innerText="🔋 BATTERY ACTIVE";
+}
+
+// FLOW
+let pln=document.getElementById("plnNode");
+let batt=document.getElementById("battNode");
+let l1=document.getElementById("line1");
+let l2=document.getElementById("line2");
+
+pln.classList.remove("active-node");
+batt.classList.remove("active-node");
+l1.classList.remove("active");
+l2.classList.remove("active");
+
+if(d.pln_v>200){
+pln.classList.add("active-node");
+l1.classList.add("active");
+}else{
+batt.classList.add("active-node");
+l2.classList.add("active");
+}
+
+// CHART
+let time=new Date().toLocaleTimeString();
+labels.push(time);
+dataPLN.push(d.pln_v);
+dataBAT.push(d.bat_v);
+
+if(labels.length>20){
+labels.shift();dataPLN.shift();dataBAT.shift();
+}
+
+chartPLN.update();
+chartBAT.update();
+
+});
+
+// CONTROL MQTT
+function sendCmd(cmd){
+client.publish("test/control",cmd);
+document.getElementById("status").innerText="Status: "+cmd+" ACTIVE";
+}
+
 </script>
 
 </body>
