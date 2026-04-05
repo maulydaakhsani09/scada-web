@@ -178,12 +178,22 @@ body{
 <div class="card"><h3>Tegangan</h3><p id="bat_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="bat_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="bat_p">0 W</p></div>
+
+<!-- TAMBAHAN -->
+<div class="card"><h3>Energi</h3><p id="bat_e">0 Wh</p></div>
+
 </div>
 
 <div id="pln" class="monitorTab" style="display:none;">
 <div class="card"><h3>Tegangan</h3><p id="pln_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="pln_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="pln_p">0 W</p></div>
+
+<!-- TAMBAHAN -->
+<div class="card"><h3>Frekuensi</h3><p id="pln_f">0 Hz</p></div>
+<div class="card"><h3>Energi</h3><p id="pln_e">0 Wh</p></div>
+<div class="card"><h3>Power Factor</h3><p id="pln_pf">0</p></div>
+
 </div>
 
 <h3>PLN Voltage (200–230V)</h3>
@@ -262,9 +272,25 @@ document.getElementById("bat_v").innerText=d.bat_v.toFixed(2)+" V";
 document.getElementById("bat_i").innerText=d.bat_i.toFixed(2)+" A";
 document.getElementById("bat_p").innerText=d.bat_p.toFixed(2)+" W";
 
+/* TAMBAHAN */
+if(d.bat_e!==undefined){
+document.getElementById("bat_e").innerText=d.bat_e.toFixed(2)+" Wh";
+}
+
 document.getElementById("pln_v").innerText=d.pln_v.toFixed(2)+" V";
 document.getElementById("pln_i").innerText=d.pln_i.toFixed(2)+" A";
 document.getElementById("pln_p").innerText=d.pln_p.toFixed(2)+" W";
+
+/* TAMBAHAN */
+if(d.pln_f!==undefined){
+document.getElementById("pln_f").innerText=d.pln_f.toFixed(2)+" Hz";
+}
+if(d.pln_e!==undefined){
+document.getElementById("pln_e").innerText=d.pln_e.toFixed(2)+" Wh";
+}
+if(d.pln_pf!==undefined){
+document.getElementById("pln_pf").innerText=d.pln_pf.toFixed(2);
+}
 
 if(d.pln_v>200){
 document.getElementById("modeText").innerText="⚡ PLN ACTIVE";
