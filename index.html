@@ -140,7 +140,7 @@ body{
     font-weight:bold;
 }
 
-/* ===== TAMBAHAN LOGIN (TIDAK MENGUBAH CSS LAMA) ===== */
+/* ===== TAMBAHAN LOGIN ===== */
 #loginScreen{
 position:fixed;
 top:0;
@@ -194,7 +194,7 @@ opacity:0.8;
 
 <body>
 
-<!-- ===== TAMBAHAN LOGIN (TIDAK MENGUBAH BODY LAMA) ===== -->
+<!-- LOGIN -->
 <div id="loginScreen">
     <div class="login-box">
         <h2>SCADA LOGIN</h2>
@@ -216,8 +216,6 @@ opacity:0.8;
 </div>
 
 <div class="content">
-
-<!-- (SEMUA KODE LAMA DIBAWAH INI TIDAK DISENTUH SAMA SEKALI) -->
 
 <!-- MONITOR -->
 <div id="monitor" class="page active">
@@ -241,22 +239,16 @@ opacity:0.8;
 <div class="card"><h3>Tegangan</h3><p id="bat_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="bat_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="bat_p">0 W</p></div>
-
-<!-- TAMBAHAN -->
 <div class="card"><h3>Energi</h3><p id="bat_e">0 Wh</p></div>
-
 </div>
 
 <div id="pln" class="monitorTab" style="display:none;">
 <div class="card"><h3>Tegangan</h3><p id="pln_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="pln_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="pln_p">0 W</p></div>
-
-<!-- TAMBAHAN -->
 <div class="card"><h3>Frekuensi</h3><p id="pln_f">0 Hz</p></div>
 <div class="card"><h3>Energi</h3><p id="pln_e">0 Wh</p></div>
 <div class="card"><h3>Power Factor</h3><p id="pln_pf">0</p></div>
-
 </div>
 
 <h3>PLN Voltage (200–230V)</h3>
@@ -286,9 +278,22 @@ opacity:0.8;
 
 <script>
 
-/* ===== TAMBAHAN LOGIN (TIDAK MENGGANGGU SCRIPT LAMA) ===== */
-const USERNAME = "admin";
-const PASSWORD = "12345";
+// ===== LOGIN FIX =====
+console.log("SCRIPT LOADED");
+
+window.login = function(){
+console.log("LOGIN DIKLIK");
+
+let u=document.getElementById("username").value.trim().toLowerCase();
+let p=document.getElementById("password").value.trim();
+
+if(u==="admin" && p==="12345"){
+localStorage.setItem("login","true");
+document.getElementById("loginScreen").style.display="none";
+}else{
+document.getElementById("loginError").innerText="Login gagal!";
+}
+};
 
 window.addEventListener("load", function(){
 if(localStorage.getItem("login")==="true"){
@@ -296,22 +301,28 @@ document.getElementById("loginScreen").style.display="none";
 }
 });
 
-function login(){
-let u=document.getElementById("username").value;
-let p=document.getElementById("password").value;
-
-if(u===USERNAME && p===PASSWORD){
-localStorage.setItem("login","true");
-document.getElementById("loginScreen").style.display="none";
-}else{
-document.getElementById("loginError").innerText="Login gagal!";
-}
-}
-
-/* ===== KODE LAMA TETAP ===== */
-
-// NAV
+// ===== KODE LAMA =====
 function showPage(page){
 document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
 document.getElementById(page).classList.add("active");
 }
+
+function setTab(btn,tab){
+document.querySelectorAll(".tab").forEach(b=>b.classList.remove("active"));
+btn.classList.add("active");
+document.querySelectorAll(".monitorTab").forEach(el=>el.style.display="none");
+document.getElementById(tab).style.display="block";
+}
+
+const client = mqtt.connect("wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt", {
+username:"esp32",password:"123456"
+});
+
+client.on("connect", ()=>{
+console.log("MQTT CONNECTED 🔥");
+client.subscribe("test/monitor");
+});
+</script>
+
+</body>
+</html>
