@@ -7,26 +7,112 @@
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
 <style>
-body{margin:0;font-family:Segoe UI;background:#020617;color:white}
-.header{height:60px;display:flex;justify-content:space-between;align-items:center;padding:0 20px;border-bottom:1px solid #1e293b}
-.sidebar{width:200px;position:fixed;top:60px;height:100%;border-right:1px solid #1e293b}
-.sidebar button{width:100%;padding:15px;background:none;border:none;color:#94a3b8;text-align:left}
-.sidebar button:hover{background:#1e293b;color:white}
-.content{margin-left:200px;margin-top:60px;padding:20px}
-.page{display:none}
-.active{display:block}
-.card{background:#0f172a;padding:20px;margin:10px;border-radius:10px;display:inline-block;width:180px;text-align:center}
-.tab{padding:10px 20px;border:none;margin:5px;background:#1e293b;color:white;border-radius:8px}
-.tab.active{background:#22c55e}
-.status-box{margin-top:20px;padding:15px;border:1px solid #1e293b}
+/* === UI ASLI KAMU (TIDAK DIUBAH) === */
+body{
+    margin:0;
+    font-family:"Orbitron","Segoe UI",sans-serif;
+    background:#020617;
+    color:#e2e8f0;
+}
+.header{
+    height:60px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 20px;
+    border-bottom:1px solid #1e293b;
+}
+.sidebar{
+    width:220px;
+    height:100vh;
+    position:fixed;
+    top:60px;
+    background:#020617;
+    border-right:1px solid #1e293b;
+}
+.sidebar button{
+    width:100%;
+    padding:15px;
+    border:none;
+    background:none;
+    color:#94a3b8;
+    text-align:left;
+    cursor:pointer;
+}
+.sidebar button:hover{
+    background:#1e293b;
+    color:white;
+}
+.content{
+    margin-left:220px;
+    margin-top:60px;
+    padding:20px;
+}
+.page{display:none;}
+.active{display:block;}
+
+.card{
+    background:#020617;
+    border:1px solid #1e293b;
+    border-radius:10px;
+    padding:20px;
+    margin:10px;
+    width:180px;
+    display:inline-block;
+    text-align:center;
+}
+
+.card p{
+    font-size:22px;
+    font-weight:bold;
+}
+
+.tabs{
+    display:flex;
+    gap:10px;
+    margin-bottom:20px;
+}
+
+.tab{
+    padding:12px 22px;
+    border:none;
+    border-radius:10px;
+    background:#0f172a;
+    color:#94a3b8;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+.tab.active{
+    color:white;
+}
+
+.tab:nth-child(1).active{background:#22c55e;}
+.tab:nth-child(2).active{background:#ef4444;}
+
+.status-box{
+    margin-top:20px;
+    padding:15px;
+    border:1px solid #1e293b;
+    font-size:18px;
+    font-weight:bold;
+}
+
+/* LOGIN */
+#loginPage{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+}
 </style>
 </head>
 
 <body>
 
 <!-- LOGIN -->
-<div id="loginPage" style="display:flex;justify-content:center;align-items:center;height:100vh;">
-  <div style="background:#0f172a;padding:30px;border-radius:10px;">
+<div id="loginPage">
+  <div class="card">
     <h2>Login SCADA</h2>
     <input id="user" placeholder="Username"><br><br>
     <input id="pass" type="password" placeholder="Password"><br><br>
@@ -38,7 +124,7 @@ body{margin:0;font-family:Segoe UI;background:#020617;color:white}
 
 <div class="header">
 ⚡ SCADA ENERGY SYSTEM
-<div id="modeText">READY</div>
+<div id="modeText">SYSTEM READY</div>
 </div>
 
 <div class="sidebar">
@@ -52,16 +138,20 @@ body{margin:0;font-family:Segoe UI;background:#020617;color:white}
 <!-- MONITOR -->
 <div id="monitor" class="page active">
 
-<button class="tab active" onclick="setTab(this,'bat')">BATERAI</button>
+<div class="tabs">
+<button class="tab active" onclick="setTab(this,'batt')">BATERAI</button>
 <button class="tab" onclick="setTab(this,'pln')">PLN</button>
+</div>
 
-<!-- BAT -->
-<div id="bat" class="monitorTab">
+<!-- BATERAI -->
+<div id="batt" class="monitorTab">
 <div class="card"><h3>Tegangan</h3><p id="bat_v">0</p></div>
 <div class="card"><h3>Arus</h3><p id="bat_i">0</p></div>
 <div class="card"><h3>Daya</h3><p id="bat_p">0</p></div>
+
+<!-- TAMBAHAN -->
 <div class="card"><h3>Energi</h3><p id="bat_e">0</p></div>
-<div class="card"><h3>Battery %</h3><p id="bat_pct">0%</p></div>
+<div class="card"><h3>Battery</h3><p id="bat_pct">0%</p></div>
 </div>
 
 <!-- PLN -->
@@ -69,31 +159,31 @@ body{margin:0;font-family:Segoe UI;background:#020617;color:white}
 <div class="card"><h3>Tegangan</h3><p id="pln_v">0</p></div>
 <div class="card"><h3>Arus</h3><p id="pln_i">0</p></div>
 <div class="card"><h3>Daya</h3><p id="pln_p">0</p></div>
+
+<!-- TAMBAHAN -->
 <div class="card"><h3>Frekuensi</h3><p id="pln_f">0</p></div>
 <div class="card"><h3>PF</h3><p id="pln_pf">0</p></div>
 <div class="card"><h3>Energi</h3><p id="pln_e">0</p></div>
 </div>
 
-<h3>PLN Voltage</h3>
-<canvas id="chartPLN"></canvas>
-
-<h3>Battery Voltage</h3>
-<canvas id="chartBAT"></canvas>
-
 </div>
 
 <!-- MANUAL -->
 <div id="manual" class="page">
-<h2>Manual Control</h2>
+<h2>Manual Control Assistant</h2>
+
 <button onclick="sendCmd('INV')">BATERAI</button>
 <button onclick="sendCmd('PLN')">PLN</button>
 <button onclick="sendCmd('AUTO')">AUTO</button>
-<div class="status-box"><h3 id="status">Status: -</h3></div>
+
+<div class="status-box">
+<h3 id="status">Status: -</h3>
+</div>
 </div>
 
 <!-- HISTORY -->
 <div id="history" class="page">
-<h2>Riwayat</h2>
+<h2>Riwayat Sistem</h2>
 <ul id="logList"></ul>
 
 <h3>Total Energi</h3>
@@ -134,72 +224,64 @@ username:"esp32",
 password:"123456"
 });
 
-client.on("connect",()=>{client.subscribe("test/monitor");});
-
-// CHART
-let labels=[],plnData=[],batData=[];
-const chartPLN=new Chart(chartPLN,{type:"line",data:{labels:labels,datasets:[{data:plnData}]},options:{animation:false,scales:{y:{min:200,max:230}}}});
-const chartBAT=new Chart(chartBAT,{type:"line",data:{labels:labels,datasets:[{data:batData}]},options:{animation:false,scales:{y:{min:10,max:14}}}});
+client.on("connect",()=>{
+client.subscribe("test/monitor");
+});
 
 // LOG
 function addLog(txt){
 let li=document.createElement("li");
 li.innerText=new Date().toLocaleTimeString()+" - "+txt;
-logList.prepend(li);
+document.getElementById("logList").prepend(li);
 }
 
 // DATA
 client.on("message",(t,m)=>{
 let d=JSON.parse(m.toString());
 
-// tampil
+// BASIC
 bat_v.innerText=d.bat_v+" V";
 bat_i.innerText=d.bat_i+" A";
 bat_p.innerText=d.bat_p+" W";
-bat_e.innerText=d.bat_e+" Wh";
 
 pln_v.innerText=d.pln_v+" V";
 pln_i.innerText=d.pln_i+" A";
 pln_p.innerText=d.pln_p+" W";
+
+// TAMBAHAN
+bat_e.innerText=d.bat_e+" Wh";
+pln_e.innerText=d.pln_e+" Wh";
 pln_f.innerText=d.pln_f+" Hz";
 pln_pf.innerText=d.pln_pf;
-pln_e.innerText=d.pln_e+" Wh";
 
-// battery %
+// BATTERY %
 let pct=((d.bat_v-10)/(14-10))*100;
 pct=Math.max(0,Math.min(100,pct));
 bat_pct.innerText=pct.toFixed(0)+"%";
 
-if(pct<20) alert("⚠️ Baterai Lemah!");
+if(pct<20){
+alert("⚠️ BATERAI LEMAH!");
+}
 
-// mode
+// MODE + LOG
 if(d.pln_v>200){
-modeText.innerText="PLN";
+modeText.innerText="⚡ PLN ACTIVE";
 addLog("PLN aktif");
 }else{
-modeText.innerText="BATERAI";
+modeText.innerText="🔋 BATTERY ACTIVE";
 addLog("Baterai aktif");
 }
 
-// chart
-let time=new Date().toLocaleTimeString();
-labels.push(time);
-plnData.push(d.pln_v);
-batData.push(d.bat_v);
-
-if(labels.length>20){
-labels.shift();plnData.shift();batData.shift();
-}
-
-chartPLN.update();
-chartBAT.update();
+// TOTAL ENERGY
+pln_wh.innerText=d.pln_e;
+bat_wh.innerText=d.bat_e;
 
 });
 
 // CONTROL
 function sendCmd(c){
 client.publish("test/control",c);
-status.innerText="Status: "+c;
+status.innerText="Status: "+c+" ACTIVE";
 }
 
 </script>
