@@ -178,16 +178,12 @@ body{
 <div class="card"><h3>Tegangan</h3><p id="bat_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="bat_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="bat_p">0 W</p></div>
-<div class="card"><h3>Energi</h3><p id="bat_Wh">0 Wh</p></div>
 </div>
 
 <div id="pln" class="monitorTab" style="display:none;">
 <div class="card"><h3>Tegangan</h3><p id="pln_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="pln_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="pln_p">0 W</p></div>
-<div class="card"><h3>Frekuensi</h3><p id="pln_hz">0 Hz</p></div>
-<div class="card"><h3>Energi</h3><p id="pln_wh">0 Wh</p></div>
-<div class="card"><h3>Power Factor</h3><p id="pln_Pf">0 Pf</p></div>
 </div>
 
 <h3>PLN Voltage (200–230V)</h3>
@@ -203,7 +199,7 @@ body{
 <h2>Manual Control Assistant</h2>
 
 <div class="control">
-<button class="batt" onclick="sendCmd('BATT')">BATERAI</button>
+<button class="batt" onclick="sendCmd('INV')">BATERAI</button>
 <button class="pln" onclick="sendCmd('PLN')">PLN</button>
 <button class="auto" onclick="sendCmd('AUTO')">AUTO</button>
 </div>
