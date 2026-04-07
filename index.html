@@ -212,6 +212,7 @@ cursor:pointer;
 <div class="sidebar">
     <button onclick="showPage('monitor')">📊 Monitoring</button>
     <button onclick="showPage('manual')">🎮 Manual</button>
+    <button onclick="showPage('history')">📜 History</button>
 </div>
 
 <div class="content">
@@ -277,6 +278,24 @@ cursor:pointer;
 <div class="status-box">
 <h3 id="status">Status: -</h3>
 </div>
+
+</div>
+
+<!-- HISTORY -->
+<div id="history" class="page">
+<h2>📜 History Switching</h2>
+
+<table style="width:100%; margin-top:20px; border-collapse:collapse;">
+<thead>
+<tr style="color:#00f0ff;">
+<th style="padding:10px;">Waktu</th>
+<th style="padding:10px;">Energi (Wh)</th>
+</tr>
+</thead>
+
+<tbody id="historyTable"></tbody>
+
+</table>
 </div>
 
 </div>
@@ -298,6 +317,8 @@ document.getElementById(tab).style.display="block";
 }
 
 // ===== MQTT CONNECT =====
+let historyData = [];
+
 const client = mqtt.connect("wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt", {
   username: "esp32",
   password: "123456"
@@ -390,6 +411,21 @@ labels.shift();dataPLN.shift();dataBAT.shift();
 chartPLN.update();
 chartBAT.update();
 
+// ===== HISTORY =====
+if(d.bat_cycle !== undefined && d.bat_cycle > 0){
+
+    let waktu = new Date().toLocaleString();
+
+    historyData.unshift({
+        time: waktu,
+        energy: d.bat_cycle.toFixed(2)
+    });
+
+    if(historyData.length > 20) historyData.pop();
+
+    updateHistory();
+}
+
 });
 
 // CONTROL MQTT
@@ -414,6 +450,22 @@ document.getElementById("loginError").innerText="Login gagal!";
 
 if(localStorage.getItem("login")==="true"){
 document.getElementById("loginScreen").style.display="none";
+}
+
+function updateHistory(){
+
+let table = document.getElementById("historyTable");
+table.innerHTML = "";
+
+historyData.forEach(item => {
+
+    table.innerHTML += `
+    <tr>
+        <td style="padding:10px;">${item.time}</td>
+        <td style="padding:10px; color:#22c55e;">${item.energy} Wh</td>
+    </tr>
+    `;
+});
 }
 
 </script>
