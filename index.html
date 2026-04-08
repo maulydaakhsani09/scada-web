@@ -139,6 +139,35 @@ body{
     font-size:18px;
     font-weight:bold;
 }
+.battery{
+    width:120px;
+    height:40px;
+    border:3px solid #64748b;
+    border-radius:8px;
+    position:relative;
+    margin:auto;
+    background:#020617;
+}
+
+.battery::after{
+    content:"";
+    width:6px;
+    height:18px;
+    background:#64748b;
+    position:absolute;
+    right:-10px;
+    top:50%;
+    transform:translateY(-50%);
+    border-radius:2px;
+}
+
+.battery-fill{
+    height:100%;
+    width:0%;
+    border-radius:5px;
+    transition:width 0.5s ease;
+    box-shadow:0 0 10px #22c55e;
+}
 
 </style>
 </head>
@@ -239,9 +268,17 @@ cursor:pointer;
 <div class="card"><h3>Tegangan</h3><p id="bat_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="bat_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="bat_p">0 W</p></div>
-
-<!-- TAMBAHAN -->
 <div class="card"><h3>Energi</h3><p id="bat_e">0 Wh</p></div>
+
+<div class="card">
+  <h3>Battery Level</h3>
+
+  <div class="battery">
+    <div class="battery-fill" id="batteryFill"></div>
+  </div>
+
+  <p id="batteryPercent">0%</p>
+</div>
 
 </div>
 
@@ -441,6 +478,32 @@ if(d.bat_cycle !== undefined && d.bat_cycle > 0){
     if(historyData.length > 20) historyData.pop();
 
     updateHistory();
+}
+// ===== BATTERY LEVEL =====
+let v = d.bat_v;
+
+let percent = ((v - 11.8) / (13 - 11.8)) * 100;
+
+// batas aman
+if(percent < 0) percent = 0;
+if(percent > 100) percent = 100;
+
+// tampilkan persen
+document.getElementById("batteryPercent").innerText = percent.toFixed(0) + "%";
+
+// animasi bar
+let fill = document.getElementById("batteryFill");
+fill.style.width = percent + "%";
+
+// warna dinamis
+if(percent < 30){
+  fill.style.background = "#ef4444";
+}
+else if(percent < 70){
+  fill.style.background = "#facc15";
+}
+else{
+  fill.style.background = "#22c55e";
 }
 
 });
