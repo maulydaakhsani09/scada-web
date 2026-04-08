@@ -412,13 +412,29 @@ chartPLN.update();
 chartBAT.update();
 
 // ===== HISTORY =====
+if(d.pln_cycle !== undefined && d.pln_cycle > 0){
+
+    let waktu = new Date().toLocaleString();
+
+    historyData.unshift({
+        time: waktu,
+        energy: d.pln_cycle.toFixed(2),
+        source: "PLN"
+    });
+
+    if(historyData.length > 20) historyData.pop();
+
+    updateHistory();
+}
+
 if(d.bat_cycle !== undefined && d.bat_cycle > 0){
 
     let waktu = new Date().toLocaleString();
 
     historyData.unshift({
         time: waktu,
-        energy: d.bat_cycle.toFixed(2)
+        energy: d.bat_cycle.toFixed(2),
+        source: "BAT"
     });
 
     if(historyData.length > 20) historyData.pop();
@@ -462,7 +478,7 @@ historyData.forEach(item => {
     table.innerHTML += `
     <tr>
         <td style="padding:10px;">${item.time}</td>
-        <td style="padding:10px; color:#22c55e;">${item.energy} Wh</td>
+        <td style="padding:10px; color:#22c55e;">${item.energy} Wh (${item.source})</td>
     </tr>
     `;
 });
