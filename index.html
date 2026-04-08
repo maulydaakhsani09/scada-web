@@ -190,8 +190,6 @@ body{
     transition:height 0.6s ease;
 }
 
-}
-
 </style>
 </head>
 
@@ -414,32 +412,30 @@ options:{animation:false,scales:{y:{min:10,max:14}}}
 // ===== TERIMA DATA =====
 client.on("message",(topic,message)=>{
 
+let d = JSON.parse(message.toString()); // 🔥 HARUS PALING ATAS
+
 // 🔋 BATTERY LEVEL
 let percent = ((d.bat_v - 11.8) / (13 - 11.8)) * 100;
 
 if(percent < 0) percent = 0;
 if(percent > 100) percent = 100;
 
-// tampilkan %
-document.getElementById("batteryPercent").innerText = percent.toFixed(0) + "%";
-
-// isi battery
-document.getElementById("batteryFill").style.height = percent + "%";
-
-// warna dinamis
 let fill = document.getElementById("batteryFill");
+let percentText = document.getElementById("batteryPercent");
 
-if(percent > 60){
-    fill.style.background = "#22c55e"; // hijau
-}
-else if(percent > 30){
-    fill.style.background = "#facc15"; // kuning
-}
-else{
-    fill.style.background = "#ef4444"; // merah
+if(fill && percentText){
+    percentText.innerText = percent.toFixed(0) + "%";
+    fill.style.height = percent + "%";
+
+    if(percent > 60){
+        fill.style.background = "#22c55e";
+    } else if(percent > 30){
+        fill.style.background = "#facc15";
+    } else{
+        fill.style.background = "#ef4444";
+    }
 }
     
-let d = JSON.parse(message.toString());
 console.log(d); 
 
 document.getElementById("bat_v").innerText=d.bat_v.toFixed(2)+" V";
