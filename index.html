@@ -165,6 +165,24 @@ body{
     border-radius:2px;
 }
 
+/* 🔋 FORCE BIG BATTERY */
+.battery-vertical.big-battery{
+    width:45px !important;
+    height:80px !important;
+    border:3px solid #334155 !important;
+    border-radius:10px !important;
+}
+
+.battery-vertical.big-battery::before{
+    width:18px !important;
+    height:6px !important;
+    top:-8px !important;
+}
+
+.battery-fill-vertical{
+    background:linear-gradient(to top, #22c55e, #00ffcc) !important;
+}
+
 }
 
 </style>
@@ -254,7 +272,7 @@ cursor:pointer;
     <div class="line" id="line1"></div>
     <div class="node">LOAD</div>
     <div class="line" id="line2"></div>
-    <div style="display:flex; align-items:center; gap:40px; min-width:400px;">
+    <div style="display:flex; align-items:center; gap:80px; min-width:600px;">
 
   <div class="node" id="battNode">BATERAI</div>
 
