@@ -83,18 +83,23 @@ body{
 }
 .tab:nth-child(1).active{background:#22c55e;}
 .tab:nth-child(2).active{background:#ef4444;}
+
 .flow{
     display:flex;
     align-items:center;
     justify-content:center;
     gap:20px;
-    margin:20px 0;
+    margin:20px auto;
+    width:fit-content;
 }
 .node{
     padding:15px 25px;
     border-radius:10px;
     background:#1e293b;
     font-weight:bold;
+
+    min-width:110px;
+    text-align:center;
 }
 .line{
     width:120px;
@@ -311,7 +316,7 @@ cursor:pointer;
 <div class="header">
   ⚡ SCADA ENERGY SYSTEM
 
-  <div style="display:flex; align-items:center; gap:12px; margin-left:auto;">
+  <div style="display:flex; align-items:center; gap:10px; min-width:200px;">
 
     <!-- MODE -->
     <div style="font-weight:600; letter-spacing:1px;">
@@ -354,6 +359,7 @@ cursor:pointer;
 
   </div>
 
+</div>
 </div>
 
 <div class="tabs">
