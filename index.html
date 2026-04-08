@@ -273,35 +273,24 @@ cursor:pointer;
 <h2 id="modeText">SYSTEM READY</h2>
 
 <div class="flow">
-
     <div class="node" id="plnNode">PLN</div>
     <div class="line" id="line1"></div>
-
     <div class="node">LOAD</div>
     <div class="line" id="line2"></div>
+    <div style="display:flex; align-items:center; gap:80px; min-width:600px;">
 
-    <div class="node" id="battNode">BATERAI</div>
+  <div class="node" id="battNode">BATERAI</div>
 
-    <!-- 🔋 BATTERY -->
-    <div class="battery-box" style="
-        flex-direction:column;
-        align-items:center;
-        margin-left:20px;
-    ">
+  <!-- 🔋 BATTERY -->
+  <div class="battery-box">
 
-        <div style="font-size:11px; color:#64748b; margin-bottom:6px;">
-            BATTERY LEVEL
-        </div>
+  <div class="battery-vertical big-battery">
+    <div class="battery-fill-vertical" id="batteryFill"></div>
+  </div>
 
-        <div class="battery-vertical big-battery">
-            <div class="battery-fill-vertical" id="batteryFill"></div>
-        </div>
+  <div id="batteryPercent">0%</div>
 
-        <div id="batteryPercent" style="font-size:24px; font-weight:900;">
-            0%
-        </div>
-
-    </div>
+</div>
 
 </div>
 </div>
