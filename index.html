@@ -346,6 +346,7 @@ options:{animation:false,scales:{y:{min:10,max:14}}}
 
 // ===== TERIMA DATA =====
 client.on("message",(topic,message)=>{
+console.log(d); 
 
 let d=JSON.parse(message.toString());
 
