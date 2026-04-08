@@ -346,9 +346,9 @@ options:{animation:false,scales:{y:{min:10,max:14}}}
 
 // ===== TERIMA DATA =====
 client.on("message",(topic,message)=>{
+    
+let d = JSON.parse(message.toString());
 console.log(d); 
-
-let d=JSON.parse(message.toString());
 
 document.getElementById("bat_v").innerText=d.bat_v.toFixed(2)+" V";
 document.getElementById("bat_i").innerText=d.bat_i.toFixed(2)+" A";
