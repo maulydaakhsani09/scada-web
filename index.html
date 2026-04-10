@@ -147,53 +147,133 @@ body{
     font-weight:bold;
 }
 
-/* 🔋 BATTERY (HARUS DI LUAR) */
-.battery-box{
+/* 🔋 BATTERY HORIZONTAL FIX */
+.battery-wrapper{
     display:flex;
+    flex-direction:column;
     align-items:center;
     gap:10px;
 }
 
-.battery-vertical{
-    width:45px;
-    height:80px;
+.battery-title{
+    font-size:20px;
+    font-weight:900;
+    letter-spacing:2px;
+}
+
+.battery-row{
+    display:flex;
+    align-items:center;
+    gap:15px;
+}
+
+.battery-horizontal{
+    width:140px;
+    height:60px;
     border:3px solid #334155;
-    border-radius:10px;
+    border-radius:12px;
     position:relative;
     background:#020617;
-    display:flex;
-    align-items:flex-end;
     overflow:hidden;
 }
 
-.battery-vertical::before{
+/* kepala baterai */
+.battery-horizontal::after{
     content:"";
-    width:16px;
-    height:6px;
+    width:8px;
+    height:20px;
     background:#334155;
     position:absolute;
-    top:-8px;
-    left:50%;
-    transform:translateX(-50%);
+    right:-10px;
+    border-radius:3px;
 }
 
-.battery-fill-vertical{
+/* isi baterai */
+.battery-fill-horizontal{
+    height:100%;
+    width:0%;
+    position:relative;
+    overflow:hidden;
+
+    background:linear-gradient(
+        90deg,
+        #22c55e 0%,
+        #00ffcc 50%,
+        #22c55e 100%
+    );
+
+    transition:width 0.5s ease;
+
+    box-shadow:
+        inset 0 0 20px rgba(0,255,200,0.7),
+        inset 0 -10px 20px rgba(0,0,0,0.4),
+        0 0 15px rgba(0,255,200,0.4);
+}
+
+.battery-text{
+    font-size:20px;
+    font-weight:bold;
+}
+.battery-fill-horizontal::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-50%;
+    width:200%;
+    height:100%;
+    background:linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.3),
+        transparent
+    );
+    animation:wave 2s linear infinite;
+}
+.battery-horizontal{
+    box-shadow:0 0 15px rgba(0,255,200,0.2);
+}
+
+@keyframes wave{
+    from{left:-50%;}
+    to{left:100%;}
+}
+.battery-fill-horizontal::after{
+    content:"";
+    position:absolute;
+    top:0;
+    left:-100%;
+    width:200%;
+    height:100%;
+
+    background:linear-gradient(
+        120deg,
+        transparent,
+        rgba(255,255,255,0.4),
+        transparent
+    );
+
+    animation:flowLight 2s linear infinite;
+}
+
+@keyframes flowLight{
+    from{left:-100%;}
+    to{left:100%;}
+}
+.battery-horizontal::before{
+    content:"";
+    position:absolute;
+    top:0;
+    left:0;
     width:100%;
-    height:0%;
-    background:linear-gradient(to top,#22c55e,#00ffcc);
-}
+    height:100%;
 
-.big-battery{
-    width:55px;
-    height:95px;
-    border:3px solid #334155;
-    border-radius:12px;
-}
-
-.battery-fill-vertical{
-    width:100%;
-    height:0%;
-    transition:height 0.6s ease;
+    background:repeating-linear-gradient(
+        to right,
+        transparent,
+        transparent 18px,
+        rgba(255,255,255,0.05) 20px
+    );
+    pointer-events:none;
 }
 
 </style>
@@ -288,23 +368,19 @@ cursor:pointer;
   <div class="node" id="battNode">BATERAI</div>
 
   <!-- 🔋 BATTERY -->
-  <div class="battery-box">
-    <div style="
-      font-size:18px;
-      font-weight:900;
-      color:#e2e8f0;
-      margin-bottom:6px;
-  ">
-      BATTERY LEVEL
+ <div class="battery-wrapper">
+
+  <div class="battery-title">BATTERY LEVEL</div>
+
+  <div class="battery-row">
+    
+    <div class="battery-horizontal">
+      <div class="battery-fill-horizontal" id="batteryFill"></div>
+    </div>
+
+    <div id="batteryPercent" class="battery-text">0%</div>
+
   </div>
-
-  <div class="battery-vertical big-battery">
-    <div class="battery-fill-vertical" id="batteryFill"></div>
-  </div>
-
-  <div id="batteryPercent">0%</div>
-
-</div>
 
 </div>
 </div>
@@ -439,15 +515,15 @@ let percentText = document.getElementById("batteryPercent");
 
 if(fill && percentText){
     percentText.innerText = percent.toFixed(0) + "%";
-    fill.style.height = percent + "%";
+    fill.style.width = percent + "%";
 
     if(percent > 60){
-        fill.style.background = "#22c55e";
-    } else if(percent > 30){
-        fill.style.background = "#facc15";
-    } else{
-        fill.style.background = "#ef4444";
-    }
+    fill.style.background = "linear-gradient(90deg,#22c55e,#00ffcc)";
+}else if(percent > 30){
+    fill.style.background = "linear-gradient(90deg,#facc15,#fde047)";
+}else{
+    fill.style.background = "linear-gradient(90deg,#ef4444,#f87171)";
+}
 }
     
 console.log(d); 
