@@ -226,28 +226,31 @@ body{
     50%{opacity:0.3;}
     100%{opacity:1;}
 }
-
-/* hilang kalau kosong */
 .battery-alert:empty{
     display:none;
 }
 .system-alert{
     width:100%;
     text-align:center;
-    margin-top:12px; /* 🔥 tambah jarak */
+    margin-top:12px;
     font-size:14px;
     font-weight:bold;
-    min-height:20px; /* 🔥 biar space tetap ada walau kosong */
+    min-height:20px;
+    opacity:0;
+    transform:translateY(-5px);
+    transition:all 0.4s ease;
 }
-
+.system-alert.show{
+    opacity:1;
+    transform:translateY(0) scale(1);
+}
 .system-alert.alert-low{
     color:#ef4444;
     text-shadow:0 0 10px #ef4444;
     animation:blink 1s infinite;
 }
-
 .system-alert:empty{
-    visibility:hidden; /* 🔥 tetap ada space */
+    visibility:hidden;
 }
 .load-box{
     display:flex;
@@ -256,6 +259,45 @@ body{
     justify-content:flex-start;
     min-width:100px;
     height:70px; /* 🔥 kunci tinggi biar ga geser */
+}
+/* 🔋 BATTERY HORIZONTAL */
+.battery-horizontal{
+    width:120px;
+    height:45px;
+    border:3px solid #334155;
+    border-radius:10px;
+    position:relative;
+    background:#020617;
+    overflow:hidden;
+    display:flex;
+}
+
+/* kepala baterai */
+.battery-horizontal::after{
+    content:"";
+    width:8px;
+    height:20px;
+    background:#334155;
+    position:absolute;
+    right:-10px;
+    top:50%;
+    transform:translateY(-50%);
+    border-radius:2px;
+}
+
+/* isi baterai */
+.battery-fill-horizontal{
+    height:100%;
+    width:0%;
+    transition:width 0.6s ease;
+    background:linear-gradient(to right,#22c55e,#00ffcc);
+}
+.battery-horizontal{
+    box-shadow:0 0 10px rgba(0,255,200,0.2);
+}
+
+.battery-fill-horizontal{
+    box-shadow:inset 0 0 8px rgba(255,255,255,0.3);
 }
 
 </style>
@@ -363,8 +405,8 @@ cursor:pointer;
       BATTERY LEVEL
   </div>
 
-  <div class="battery-vertical big-battery">
-    <div class="battery-fill-vertical" id="batteryFill"></div>
+  <div class="battery-horizontal big-battery">
+    <div class="battery-fill-horizontal" id="batteryFill"></div>
   </div>
 
   <div id="batteryPercent">0%</div>
@@ -504,7 +546,11 @@ function showTempAlert(message, type){
         clearTimeout(alarmTimer);
     }
 
-    alertBox.innerText = message;
+   alertBox.innerText = message;
+
+    setTimeout(()=>{
+    alertBox.classList.add("show");
+    },10); 
 
     alertBox.classList.remove("alert-low","alert-full");
 
@@ -515,9 +561,15 @@ function showTempAlert(message, type){
     }
 
     alarmTimer = setTimeout(()=>{
+
+    alertBox.classList.remove("show"); // 🔥 fade out dulu
+
+    setTimeout(()=>{
         alertBox.innerText = "";
         alertBox.classList.remove("alert-low","alert-full");
-    },15000);
+    },400); // tunggu animasi selesai
+
+},15000);
 }
 client.on("message",(topic,message)=>{
 
@@ -571,7 +623,7 @@ if(batteryAlert){
     }
 }
     percentText.innerText = percent.toFixed(0) + "%";
-    fill.style.height = percent + "%";
+    fill.style.width = percent + "%";
 
     if(percent > 60){
         fill.style.background = "#22c55e";
