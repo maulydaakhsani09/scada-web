@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html>
 <head>
 <title>SCADA ENERGY SYSTEM</title>
@@ -299,6 +299,27 @@ body{
 .battery-fill-horizontal{
     box-shadow:inset 0 0 8px rgba(255,255,255,0.3);
 }
+/* container utama */
+.battery-box{
+    display:flex;
+    flex-direction:column; /* 🔥 bikin ke bawah */
+    align-items:flex-start; /* 🔥 geser kiri */
+    gap:6px;
+}
+
+/* judul */
+.battery-title{
+    font-size:18px;
+    font-weight:900;
+    color:#e2e8f0;
+}
+
+/* baris battery + persen */
+.battery-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
 
 </style>
 </head>
@@ -390,28 +411,27 @@ cursor:pointer;
     <div id="systemAlert" class="system-alert"></div>
 </div>
     <div class="line" id="line2"></div>
-    <div style="display:flex; align-items:center; gap:80px; min-width:600px;">
+    <div style="display:flex; align-items:center; gap:30px;">
 
   <div class="node" id="battNode">BATERAI</div>
 
   <!-- 🔋 BATTERY -->
-  <div class="battery-box">
-    <div style="
-      font-size:18px;
-      font-weight:900;
-      color:#e2e8f0;
-      margin-bottom:6px;
-  ">
-      BATTERY LEVEL
-  </div>
+ <div class="battery-box">
 
-  <div class="battery-horizontal">
-    <div class="battery-fill-horizontal" id="batteryFill"></div>
-  </div>
+    <!-- JUDUL -->
+    <div class="battery-title">BATTERY LEVEL</div>
 
-  <div id="batteryPercent">0%</div>
+    <!-- BARIS BATTERY + PERSEN -->
+    <div class="battery-row">
+        <div class="battery-horizontal">
+            <div class="battery-fill-horizontal" id="batteryFill"></div>
+        </div>
 
-  <div id="batteryAlert" class="battery-alert"></div>
+        <div id="batteryPercent">0%</div>
+    </div>
+
+    <!-- ALERT -->
+    <div id="batteryAlert" class="battery-alert"></div>
 
 </div>
 
