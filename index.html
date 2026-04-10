@@ -470,12 +470,6 @@ if(d.pln_pf!==undefined){
 document.getElementById("pln_pf").innerText=d.pln_pf.toFixed(2);
 }
 
-if(d.pln_v>200){
-document.getElementById("modeText").innerText="⚡ PLN ACTIVE";
-}else{
-document.getElementById("modeText").innerText="🔋 BATTERY ACTIVE";
-}
-
 // FLOW
 let pln=document.getElementById("plnNode");
 let batt=document.getElementById("battNode");
@@ -487,12 +481,17 @@ batt.classList.remove("active-node");
 l1.classList.remove("active");
 l2.classList.remove("active");
 
-if(d.pln_v>200){
-pln.classList.add("active-node");
-l1.classList.add("active");
-}else{
-batt.classList.add("active-node");
-l2.classList.add("active");
+if(d.source === "PLN"){
+    document.getElementById("modeText").innerText = "⚡ PLN ACTIVE";
+
+    pln.classList.add("active-node");
+    l1.classList.add("active");
+
+}else if(d.source === "BAT"){
+    document.getElementById("modeText").innerText = "🔋 BATTERY ACTIVE";
+
+    batt.classList.add("active-node");
+    l2.classList.add("active");
 }
 
 // CHART
