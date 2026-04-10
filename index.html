@@ -195,6 +195,42 @@ body{
     height:0%;
     transition:height 0.6s ease;
 }
+.battery-alert{
+    margin-top:8px;
+    padding:8px 12px;
+    border-radius:8px;
+    font-size:14px;
+    font-weight:bold;
+    text-align:center;
+    min-width:140px;
+}
+
+/* 🔴 ALARM */
+.alert-low{
+    background:#2c0202;
+    color:#ef4444;
+    box-shadow:0 0 20px #ef4444;
+    animation:blink 1s infinite;
+}
+
+/* 🟢 INFO */
+.alert-full{
+    background:#022c22;
+    color:#22c55e;
+    box-shadow:0 0 15px #22c55e;
+}
+
+/* animasi */
+@keyframes blink{
+    0%{opacity:1;}
+    50%{opacity:0.3;}
+    100%{opacity:1;}
+}
+
+/* hilang kalau kosong */
+.battery-alert:empty{
+    display:none;
+}
 
 </style>
 </head>
@@ -304,6 +340,8 @@ cursor:pointer;
 
   <div id="batteryPercent">0%</div>
 
+  <div id="batteryAlert" class="battery-alert"></div>
+
 </div>
 
 </div>
@@ -398,6 +436,10 @@ document.getElementById(tab).style.display="block";
 // ===== MQTT CONNECT =====
 let historyData = [];
 
+let alarmTimer = null;
+let plnAlarmSent = false;
+let batAlarmSent = false;
+
 const client = mqtt.connect("wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt", {
   username: "esp32",
   password: "123456"
@@ -424,9 +466,52 @@ options:{animation:false,scales:{y:{min:10,max:14}}}
 });
 
 // ===== TERIMA DATA =====
+function showTempAlert(message, type){
+    let alertBox = document.getElementById("batteryAlert");
+
+    if(!alertBox) return;
+
+    if(alarmTimer){
+        clearTimeout(alarmTimer);
+    }
+
+    alertBox.innerText = message;
+
+    alertBox.classList.remove("alert-low","alert-full");
+
+    if(type === "low"){
+        alertBox.classList.add("alert-low");
+    }else if(type === "full"){
+        alertBox.classList.add("alert-full");
+    }
+
+    alarmTimer = setTimeout(()=>{
+        alertBox.innerText = "";
+        alertBox.classList.remove("alert-low","alert-full");
+    },15000);
+}
 client.on("message",(topic,message)=>{
 
 let d = JSON.parse(message.toString()); // 🔥 HARUS PALING ATAS
+// 🚨 PLN MATI
+if(d.pln_v !== undefined && d.pln_v < 50 && !plnAlarmSent){
+    showTempAlert("🚨 PLN OFF / MATI", "low");
+    plnAlarmSent = true;
+}
+
+if(d.pln_v >= 50){
+    plnAlarmSent = false;
+}
+
+// 🚨 BATTERY MATI
+if(d.bat_v !== undefined && d.bat_v < 11 && !batAlarmSent){
+    showTempAlert("🚨 BATTERY LOW / MATI", "low");
+    batAlarmSent = true;
+}
+
+if(d.bat_v >= 11){
+    batAlarmSent = false;
+}
 
 // 🔋 BATTERY LEVEL
 let percent = ((d.bat_v - 11.8) / (13 - 11.8)) * 100;
