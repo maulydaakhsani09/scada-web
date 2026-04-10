@@ -231,6 +231,23 @@ body{
 .battery-alert:empty{
     display:none;
 }
+.system-alert{
+    width:100%;
+    text-align:center;
+    margin-top:10px;
+    font-size:14px;
+    font-weight:bold;
+}
+
+.system-alert.alert-low{
+    color:#ef4444;
+    text-shadow:0 0 10px #ef4444;
+    animation:blink 1s infinite;
+}
+
+.system-alert:empty{
+    display:none;
+}
 
 </style>
 </head>
@@ -317,7 +334,10 @@ cursor:pointer;
 <div class="flow">
     <div class="node" id="plnNode">PLN</div>
     <div class="line" id="line1"></div>
+    <div style="display:flex; flex-direction:column; align-items:center;">
     <div class="node">LOAD</div>
+    <div id="systemAlert" class="system-alert"></div>
+</div>
     <div class="line" id="line2"></div>
     <div style="display:flex; align-items:center; gap:80px; min-width:600px;">
 
@@ -467,7 +487,7 @@ options:{animation:false,scales:{y:{min:10,max:14}}}
 
 // ===== TERIMA DATA =====
 function showTempAlert(message, type){
-    let alertBox = document.getElementById("batteryAlert");
+    let alertBox = document.getElementById("systemAlert");
 
     if(!alertBox) return;
 
@@ -523,6 +543,24 @@ let fill = document.getElementById("batteryFill");
 let percentText = document.getElementById("batteryPercent");
 
 if(fill && percentText){
+    let batteryAlert = document.getElementById("batteryAlert");
+
+if(batteryAlert){
+
+    batteryAlert.classList.remove("alert-low","alert-full");
+
+    if(percent <= 20){
+        batteryAlert.innerText = "⚠️ LOW BATTERY";
+        batteryAlert.classList.add("alert-low");
+
+    }else if(percent >= 95){
+        batteryAlert.innerText = "✅ BATTERY FULL";
+        batteryAlert.classList.add("alert-full");
+
+    }else{
+        batteryAlert.innerText = "";
+    }
+}
     percentText.innerText = percent.toFixed(0) + "%";
     fill.style.height = percent + "%";
 
