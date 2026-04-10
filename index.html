@@ -146,6 +146,14 @@ body{
     font-size:18px;
     font-weight:bold;
 }
+
+/* 🔋 BATTERY (HARUS DI LUAR) */
+.battery-box{
+    display:flex;
+    align-items:center;
+    gap:10px;
+}
+
 .battery-vertical{
     width:45px;
     height:80px;
@@ -157,6 +165,7 @@ body{
     align-items:flex-end;
     overflow:hidden;
 }
+
 .battery-vertical::before{
     content:"";
     width:16px;
@@ -167,17 +176,20 @@ body{
     left:50%;
     transform:translateX(-50%);
 }
+
 .battery-fill-vertical{
     width:100%;
     height:0%;
     background:linear-gradient(to top,#22c55e,#00ffcc);
 }
+
 .big-battery{
     width:55px;
     height:95px;
     border:3px solid #334155;
     border-radius:12px;
 }
+
 .battery-fill-vertical{
     width:100%;
     height:0%;
@@ -192,53 +204,45 @@ body{
     text-align:center;
     min-width:140px;
 }
+
+/* 🔴 ALARM */
 .alert-low{
     background:#2c0202;
     color:#ef4444;
     box-shadow:0 0 20px #ef4444;
     animation:blink 1s infinite;
 }
+
+/* 🟢 INFO */
 .alert-full{
     background:#022c22;
     color:#22c55e;
     box-shadow:0 0 15px #22c55e;
 }
+
+/* animasi */
 @keyframes blink{
     0%{opacity:1;}
     50%{opacity:0.3;}
     100%{opacity:1;}
 }
 .battery-alert:empty{
-    visibility:hidden; 
-}
-.battery-alert{
-    height:40px; 
-}
-.battery-box{
-    display:flex;
-    flex-direction:column;
-    justify-content:space-between; /* 🔥 penting */
-    align-items:flex-start;
-    height:140px; /* 🔥 kunci utama */
-    gap:6px;
-}
-.battery-row{
-    min-height:45px; 
+    display:none;
 }
 .system-alert{
     width:100%;
     text-align:center;
-    margin-top:6px;
+    margin-top:12px;
     font-size:14px;
     font-weight:bold;
-    min-height:25px;
+    min-height:20px;
     opacity:0;
-    transform:scale(0.95);
+    transform:translateY(-5px);
     transition:all 0.4s ease;
 }
 .system-alert.show{
     opacity:1;
-    transform:scale(1);
+    transform:translateY(0) scale(1);
 }
 .system-alert.alert-low{
     color:#ef4444;
@@ -254,66 +258,9 @@ body{
     align-items:center;
     justify-content:flex-start;
     min-width:100px;
-    height:85px;
-}
-.battery-horizontal{
-    width:120px;
-    height:45px;
-    border:3px solid #334155;
-    border-radius:10px;
-    position:relative;
-    background:#020617;
-    overflow:hidden;
-    display:flex;
-}
-.battery-horizontal::after{
-    content:"";
-    width:8px;
-    height:20px;
-    background:#334155;
-    position:absolute;
-    right:-10px;
-    top:50%;
-    transform:translateY(-50%);
-    border-radius:2px;
-}
-.battery-fill-horizontal{
-    height:100%;
-    width:0%;
-    transition:width 0.6s ease;
-    background:linear-gradient(to right,#22c55e,#00ffcc);
-}
-.battery-horizontal{
-    box-shadow:0 0 10px rgba(0,255,200,0.2);
+    height:70px; /* 🔥 kunci tinggi biar ga geser */
 }
 
-.battery-fill-horizontal{
-    box-shadow:inset 0 0 8px rgba(255,255,255,0.3);
-}
-/* judul */
-.battery-title{
-    font-size:18px;
-    font-weight:900;
-    color:#e2e8f0;
-}
-.battery-row{
-    display:flex;
-    align-items:center;
-    gap:10px;
-}
-.node{
-    padding:15px 25px;
-    min-height:55px;      
-    display:flex;
-    align-items:center;    
-    justify-content:center;
-}
-.line{
-    margin-top:0px; /* pastikan tidak offset */
-}
-.battery-box{
-    margin-top:8px; /* 🔥 ini kunci visual */
-}
 </style>
 </head>
 
@@ -399,32 +346,33 @@ cursor:pointer;
 <div class="flow">
     <div class="node" id="plnNode">PLN</div>
     <div class="line" id="line1"></div>
-    <div class="load-box">
+    <div style="display:flex; flex-direction:column; align-items:center;">
     <div class="node">LOAD</div>
     <div id="systemAlert" class="system-alert"></div>
 </div>
     <div class="line" id="line2"></div>
-    <div style="display:flex; flex-direction:column; align-items:center;">
+    <div style="display:flex; align-items:center; gap:80px; min-width:600px;">
 
   <div class="node" id="battNode">BATERAI</div>
 
   <!-- 🔋 BATTERY -->
- <div class="battery-box">
+  <div class="battery-box">
+    <div style="
+      font-size:18px;
+      font-weight:900;
+      color:#e2e8f0;
+      margin-bottom:6px;
+  ">
+      BATTERY LEVEL
+  </div>
 
-    <!-- JUDUL -->
-    <div class="battery-title">BATTERY LEVEL</div>
+  <div class="battery-vertical big-battery">
+    <div class="battery-fill-vertical" id="batteryFill"></div>
+  </div>
 
-    <!-- BARIS BATTERY + PERSEN -->
-    <div class="battery-row">
-        <div class="battery-horizontal">
-            <div class="battery-fill-horizontal" id="batteryFill"></div>
-        </div>
+  <div id="batteryPercent">0%</div>
 
-        <div id="batteryPercent">0%</div>
-    </div>
-
-    <!-- ALERT -->
-    <div id="batteryAlert" class="battery-alert"></div>
+  <div id="batteryAlert" class="battery-alert"></div>
 
 </div>
 
@@ -636,7 +584,7 @@ if(batteryAlert){
     }
 }
     percentText.innerText = percent.toFixed(0) + "%";
-    fill.style.width = percent + "%";
+    fill.style.height = percent + "%";
 
     if(percent > 60){
         fill.style.background = "#22c55e";
