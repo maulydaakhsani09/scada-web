@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html>
 <head>
 <title>SCADA ENERGY SYSTEM</title>
@@ -228,17 +228,17 @@ body{
 .system-alert{
     width:100%;
     text-align:center;
-    margin-top:12px;
+    margin-top:6px;
     font-size:14px;
     font-weight:bold;
-    min-height:20px;
+    min-height:25px;
     opacity:0;
-    transform:translateY(-5px);
+    transform:scale(0.95);
     transition:all 0.4s ease;
 }
 .system-alert.show{
     opacity:1;
-    transform:translateY(0) scale(1);
+    transform:scale(1);
 }
 .system-alert.alert-low{
     color:#ef4444;
@@ -254,7 +254,7 @@ body{
     align-items:center;
     justify-content:flex-start;
     min-width:100px;
-    height:70px; /* 🔥 kunci tinggi biar ga geser */
+    height:85px;
 }
 .battery-horizontal{
     width:120px;
@@ -394,7 +394,7 @@ cursor:pointer;
 <div class="flow">
     <div class="node" id="plnNode">PLN</div>
     <div class="line" id="line1"></div>
-    <div style="display:flex; flex-direction:column; align-items:center;">
+    <div class="load-box">
     <div class="node">LOAD</div>
     <div id="systemAlert" class="system-alert"></div>
 </div>
