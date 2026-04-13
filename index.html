@@ -6,17 +6,7 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
-
 <style>
-
- .header-left{
-    font-weight:bold;
-}
-
-.header-right{
-    font-size:14px;
-    color:#94a3b8;
-}
 /* ===== CSS KAMU (TIDAK DIUBAH) ===== */
 body{
     margin:0;
@@ -26,22 +16,17 @@ body{
 }
 .header{
     height:60px;
-
-    position:fixed;
-    top:0;
-    left:220px;
-    width:calc(100% - 220px);
-
     display:flex;
-    align-items:center;
     justify-content:space-between;
-
-    padding:0 5px; /* 🔥 KECILIN BIAR MEPET */
-
+    align-items:center;
+    padding:0 20px;
     border-bottom:1px solid #1e293b;
-    background:#020617;
 
-    z-index:1000;
+    position:fixed;   /* 🔥 INI KUNCI */
+    top:0;
+    left:0;
+    width:100%;
+    z-index:1000;     /* biar selalu di atas */
 }
 .sidebar{
     width:220px;
@@ -81,7 +66,6 @@ body{
     display:inline-block;
     text-align:center;
 }
-
 .card p{
     font-size:22px;
     font-weight:bold;
@@ -358,16 +342,6 @@ button:hover{
     transform:scale(1.05);
     box-shadow:0 0 20px #00f0ff;
 }
-.header-left{
-    font-weight:bold;
-    margin-left:5px; /* 🔥 dorong ke pojok */
-}
-
-.header-right{
-    font-size:14px;
-    color:#94a3b8;
-    margin-right:5px; /* 🔥 dorong ke kanan */
-}
 
 </style>
 </head>
@@ -465,13 +439,8 @@ AUTHORIZED PERSONNEL ONLY
 </div>
 
 <div class="header">
-<div class="header-left">
 ⚡ SCADA ENERGY SYSTEM
-</div>
-<div class="header-right">
-INDUSTRIAL MODE
-</div>
-
+<div>INDUSTRIAL MODE</div>
 </div>
 
 <div class="sidebar">
@@ -557,12 +526,13 @@ INDUSTRIAL MODE
 <div class="card"><h3>Tegangan</h3><p id="bat_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="bat_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="bat_p">0 W</p></div>
+
+<!-- TAMBAHAN -->
 <div class="card"><h3>Energi</h3><p id="bat_e">0 Wh</p></div>
 
 </div>
-</div>
 
-<div id="pln" class="monitorTab">
+<div id="pln" class="monitorTab" style="display:none;">
 <div class="card"><h3>Tegangan</h3><p id="pln_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="pln_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="pln_p">0 W</p></div>
