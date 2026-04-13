@@ -60,22 +60,13 @@ body{
     background:#020617;
     border:1px solid #1e293b;
     border-radius:10px;
-    padding:px;
-    margin:10;
+    padding:20px;
+    margin:10px;
     width:180px;
     display:inline-block;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    height:90px;
     text-align:center;
 }
-.dashboard-grid{
-    display:grid;
-    grid-template-columns: repeat(6, 1fr);
-    gap:12px;
-    margin-top:10px;
-}
+
 .card p{
     font-size:22px;
     font-weight:bold;
@@ -533,7 +524,6 @@ AUTHORIZED PERSONNEL ONLY
 </div>
 
 <div id="batt" class="monitorTab">
-<div class="dashboard-grid">
 <div class="card"><h3>Tegangan</h3><p id="bat_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="bat_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="bat_p">0 W</p></div>
@@ -543,7 +533,6 @@ AUTHORIZED PERSONNEL ONLY
 </div>
 
 <div id="pln" class="monitorTab">
-<div class="dashboard-grid">
 <div class="card"><h3>Tegangan</h3><p id="pln_v">0 V</p></div>
 <div class="card"><h3>Arus</h3><p id="pln_i">0 A</p></div>
 <div class="card"><h3>Daya</h3><p id="pln_p">0 W</p></div>
