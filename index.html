@@ -321,6 +321,28 @@ body{
     gap:10px;
 }
 
+.grid-bg{
+    position:absolute;
+    width:200%;
+    height:200%;
+    background-image: 
+        linear-gradient(#0f172a 1px, transparent 1px),
+        linear-gradient(90deg, #0f172a 1px, transparent 1px);
+    background-size: 40px 40px;
+    animation: moveGrid 10s linear infinite;
+    opacity:0.2;
+}
+
+@keyframes moveGrid{
+    from{transform:translate(0,0);}
+    to{transform:translate(-40px,-40px);}
+}
+
+button:hover{
+    transform:scale(1.05);
+    box-shadow:0 0 20px #00f0ff;
+}
+
 </style>
 </head>
 
@@ -331,54 +353,85 @@ body{
 position:fixed;
 top:0;left:0;
 width:100%;height:100%;
-background:#020617;
+background:radial-gradient(circle at center, #020617 40%, #000000 100%);
 display:flex;
 justify-content:center;
 align-items:center;
 z-index:9999;
+overflow:hidden;
 ">
+
+<div class="grid-bg"></div>
 
 <div style="
-background:#020617;
-border:1px solid #1e293b;
+background:rgba(2,6,23,0.9);
+border:1px solid #00f0ff;
 padding:40px;
 border-radius:15px;
-width:320px;
+width:340px;
 text-align:center;
-box-shadow:0 0 30px rgba(0,255,200,0.2);
+box-shadow:
+    0 0 20px #00f0ff,
+    inset 0 0 10px rgba(0,255,255,0.3);
+backdrop-filter:blur(10px);
+z-index:2;
 ">
 
-<h2 style="margin-bottom:20px;">🔐 SCADA LOGIN</h2>
+<h2 style="color:#00f0ff; letter-spacing:2px;">
+⚡ CONTROL ACCESS
+</h2>
+
+<p style="font-size:12px; color:#94a3b8;">
+SYSTEM INITIALIZING...
+</p>
 
 <input id="user" placeholder="Username" style="
 width:100%;
 padding:12px;
 margin-bottom:15px;
-background:#0f172a;
-border:none;
-color:white;
+background:#020617;
+border:1px solid #00f0ff;
+color:#00f0ff;
 border-radius:8px;
+outline:none;
+box-shadow:0 0 5px #00f0ff inset;
 ">
 
 <input id="pass" type="password" placeholder="Password" style="
 width:100%;
 padding:12px;
 margin-bottom:20px;
-background:#0f172a;
-border:none;
-color:white;
+background:#020617;
+border:1px solid #00f0ff;
+color:#00f0ff;
 border-radius:8px;
+outline:none;
+box-shadow:0 0 5px #00f0ff inset;
 ">
 
 <button onclick="login()" style="
 width:100%;
 padding:12px;
-background:#00ff88;
+background:linear-gradient(90deg,#00f0ff,#00ff88);
 border:none;
 border-radius:8px;
 font-weight:bold;
 cursor:pointer;
-">LOGIN</button>
+color:#020617;
+transition:0.3s;
+box-shadow:0 0 10px #00f0ff;
+">
+LOGIN
+</button>
+
+<p style="
+margin-top:15px;
+font-size:11px;
+color:#475569;
+letter-spacing:1px;
+">
+AUTHORIZED PERSONNEL ONLY
+</p>
 
 <p id="loginError" style="color:#ef4444;margin-top:10px;"></p>
 
@@ -851,7 +904,28 @@ window.onload = function(){
         el.innerText = user;
     }
 
+    // 🔐 ENTER PASSWORD
+    let passInput = document.getElementById("pass");
+    if(passInput){
+        passInput.addEventListener("keydown", function(e){
+            if(e.key === "Enter"){
+                login();
+            }
+        });
+    }
+
+    // 🔐 ENTER USERNAME
+    let userInput = document.getElementById("user");
+    if(userInput){
+        userInput.addEventListener("keydown", function(e){
+            if(e.key === "Enter"){
+                login();
+            }
+        });
+    }
+
 }
+
 
 function updateHistory(){
 
