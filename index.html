@@ -391,12 +391,38 @@ cursor:pointer;
 </div>
 
 <div class="sidebar">
+    <button onclick="showPage('profile')">👤 Profil</button>
     <button onclick="showPage('monitor')">📊 Monitoring</button>
     <button onclick="showPage('manual')">🎮 Manual</button>
     <button onclick="showPage('history')">📜 History</button>
 </div>
 
 <div class="content">
+    <!-- PROFILE -->
+<div id="profile" class="page">
+<h2>👤 Profil User</h2>
+
+<div class="card">
+    <h3>User ID</h3>
+    <p id="userId">admin</p>
+</div>
+
+<div class="card">
+    <h3>Aksi</h3>
+    <button onclick="confirmLogout()" style="
+        padding:12px 20px;
+        background:#ef4444;
+        border:none;
+        border-radius:10px;
+        color:white;
+        font-weight:bold;
+        cursor:pointer;
+    ">
+        🚪 Logout
+    </button>
+</div>
+
+</div>
 
 <!-- MONITOR -->
 <div id="monitor" class="page active">
@@ -510,6 +536,38 @@ cursor:pointer;
 
 <script>
 
+let timeout;
+const MAX_IDLE = 10 * 60 * 1000; // 10 menit
+
+function logout(){
+    clearTimeout(timeout);
+    localStorage.removeItem("login");
+    localStorage.removeItem("user");
+    document.getElementById("loginScreen").style.display = "flex";
+}
+
+function confirmLogout(){
+
+    let konfirmasi = confirm("Apakah kamu yakin ingin logout?");
+
+    if(konfirmasi){
+        logout();
+    }
+}
+
+function resetTimer(){
+
+    clearTimeout(timeout);
+
+    timeout = setTimeout(()=>{
+        logout();
+    }, MAX_IDLE);
+}
+
+["click","mousemove","keydown","touchstart"].forEach(event=>{
+    document.addEventListener(event, resetTimer);
+});
+
 // NAV
 function showPage(page){
 document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
@@ -592,6 +650,8 @@ function showTempAlert(message, type){
 },15000);
 }
 client.on("message",(topic,message)=>{
+
+resetTimer();
 
 let d = JSON.parse(message.toString()); // 🔥 HARUS PALING ATAS
 // 🚨 PLN MATI
@@ -762,16 +822,35 @@ let u=document.getElementById("user").value;
 let p=document.getElementById("pass").value;
 
 if(u==="admin" && p==="1234"){
-localStorage.setItem("login","true");
-document.getElementById("loginScreen").style.display="none";
+
+    localStorage.setItem("login","true");
+    localStorage.setItem("user", u);
+
+    document.getElementById("userId").innerText = u;
+    document.getElementById("loginScreen").style.display="none";
+
+    resetTimer();
+
 }else{
-document.getElementById("loginError").innerText="Login gagal!";
+    document.getElementById("loginError").innerText="Login gagal!";
 }
 
 }
 
 if(localStorage.getItem("login")==="true"){
 document.getElementById("loginScreen").style.display="none";
+resetTimer();
+}
+
+window.onload = function(){
+
+    let user = localStorage.getItem("user") || "admin";
+    let el = document.getElementById("userId");
+
+    if(el){
+        el.innerText = user;
+    }
+
 }
 
 function updateHistory(){
