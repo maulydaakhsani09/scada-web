@@ -343,6 +343,13 @@ button:hover{
     box-shadow:0 0 20px #00f0ff;
 }
 
+/* ===== CHART SELECTOR TABS ===== */
+#chartSourceTabs .tab:nth-child(1).active { background:#ef4444; }
+#chartSourceTabs .tab:nth-child(2).active { background:#22c55e; }
+#chartParamTabs  .tab:nth-child(1).active { background:#3b82f6; }
+#chartParamTabs  .tab:nth-child(2).active { background:#3b82f6; }
+#chartParamTabs  .tab:nth-child(3).active { background:#3b82f6; }
+
 </style>
 </head>
 
@@ -544,11 +551,27 @@ AUTHORIZED PERSONNEL ONLY
 
 </div>
 
-<h3>PLN Voltage (200–235V)</h3>
-<canvas id="chartPLN"></canvas>
+<!-- ===== CHART SELECTOR (PENGGANTI 2 CHART LAMA) ===== -->
+<div style="margin-top:30px;">
 
-<h3>Battery Voltage (10–14V)</h3>
-<canvas id="chartBAT"></canvas>
+  <!-- Tab Sumber -->
+  <div class="tabs" id="chartSourceTabs">
+    <button class="tab active" onclick="setChartSource(this,'PLN')">⚡ PLN</button>
+    <button class="tab" onclick="setChartSource(this,'BAT')">🔋 BATERAI</button>
+  </div>
+
+  <!-- Tab Parameter -->
+  <div class="tabs" id="chartParamTabs">
+    <button class="tab active" onclick="setChartParam(this,'V')">Tegangan</button>
+    <button class="tab" onclick="setChartParam(this,'I')">Arus</button>
+    <button class="tab" onclick="setChartParam(this,'P')">Daya</button>
+  </div>
+
+  <!-- Label + Canvas -->
+  <h3 id="chartLabel">PLN — Tegangan (200–235V)</h3>
+  <canvas id="chartMain"></canvas>
+
+</div>
 
 </div>
 
@@ -652,20 +675,105 @@ client.on("connect", ()=>{
   client.subscribe("test/monitor");
 });
 
-// ===== CHART =====
-let labels=[], dataPLN=[], dataBAT=[];
+// ===== CHART MULTI-PARAMETER =====
 
-const chartPLN=new Chart(document.getElementById("chartPLN"),{
-type:"line",
-data:{labels:labels,datasets:[{data:dataPLN,borderColor:"#ef4444"}]},
-options:{animation:false,scales:{y:{min:200,max:235}}}
+let chartLabels = [];
+
+// Simpan semua data stream
+let chartData = {
+  PLN: { V: [], I: [], P: [] },
+  BAT: { V: [], I: [], P: [] }
+};
+
+let activeSource = "PLN";
+let activeParam  = "V";
+
+// Config tiap kombinasi
+const chartConfig = {
+  PLN: {
+    V: { label:"PLN — Tegangan (200–235V)", color:"#ef4444", min:200, max:235, unit:"V" },
+    I: { label:"PLN — Arus (A)",            color:"#f97316", min:0,   max:10,  unit:"A" },
+    P: { label:"PLN — Daya (W)",            color:"#facc15", min:0,   max:2000,unit:"W" }
+  },
+  BAT: {
+    V: { label:"BAT — Tegangan (10–14V)",   color:"#22c55e", min:10,  max:14,  unit:"V" },
+    I: { label:"BAT — Arus (A)",            color:"#00ffcc", min:0,   max:20,  unit:"A" },
+    P: { label:"BAT — Daya (W)",            color:"#3b82f6", min:0,   max:300, unit:"W" }
+  }
+};
+
+const chartMain = new Chart(document.getElementById("chartMain"), {
+  type: "line",
+  data: {
+    labels: chartLabels,
+    datasets: [{
+      data: [],
+      borderColor: "#ef4444",
+      backgroundColor: "rgba(239,68,68,0.1)",
+      fill: true,
+      tension: 0.3,
+      pointRadius: 3
+    }]
+  },
+  options: {
+    animation: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      y: { min: 200, max: 235 },
+      x: { ticks: { maxTicksLimit: 8 } }
+    }
+  }
 });
 
-const chartBAT=new Chart(document.getElementById("chartBAT"),{
-type:"line",
-data:{labels:labels,datasets:[{data:dataBAT,borderColor:"#22c55e"}]},
-options:{animation:false,scales:{y:{min:10,max:14}}}
-});
+function setChartSource(btn, source) {
+  document.querySelectorAll("#chartSourceTabs .tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  activeSource = source;
+  refreshChart();
+}
+
+function setChartParam(btn, param) {
+  document.querySelectorAll("#chartParamTabs .tab").forEach(b => b.classList.remove("active"));
+  btn.classList.add("active");
+  activeParam = param;
+  refreshChart();
+}
+
+function refreshChart() {
+  let cfg = chartConfig[activeSource][activeParam];
+
+  // Update label judul
+  document.getElementById("chartLabel").innerText = cfg.label;
+
+  // Update data & style
+  chartMain.data.datasets[0].data             = chartData[activeSource][activeParam];
+  chartMain.data.datasets[0].borderColor      = cfg.color;
+  chartMain.data.datasets[0].backgroundColor  = cfg.color + "22";
+  chartMain.options.scales.y.min              = cfg.min;
+  chartMain.options.scales.y.max              = cfg.max;
+  chartMain.update();
+}
+
+function pushChartData(d) {
+  let time = new Date().toLocaleTimeString();
+  chartLabels.push(time);
+
+  chartData.PLN.V.push(d.pln_v);
+  chartData.PLN.I.push(d.pln_i);
+  chartData.PLN.P.push(d.pln_p);
+  chartData.BAT.V.push(d.bat_v);
+  chartData.BAT.I.push(d.bat_i);
+  chartData.BAT.P.push(d.bat_p);
+
+  // Batasi 20 data terakhir
+  if(chartLabels.length > 20){
+    chartLabels.shift();
+    chartData.PLN.V.shift(); chartData.PLN.I.shift(); chartData.PLN.P.shift();
+    chartData.BAT.V.shift(); chartData.BAT.I.shift(); chartData.BAT.P.shift();
+  }
+
+  refreshChart();
+}
 
 // ===== TERIMA DATA =====
 function showTempAlert(message, type){
@@ -817,18 +925,8 @@ if(d.source === "PLN"){
     l2.classList.add("active");
 }
 
-// CHART
-let time=new Date().toLocaleTimeString();
-labels.push(time);
-dataPLN.push(d.pln_v);
-dataBAT.push(d.bat_v);
-
-if(labels.length>20){
-labels.shift();dataPLN.shift();dataBAT.shift();
-}
-
-chartPLN.update();
-chartBAT.update();
+// ===== CHART UPDATE =====
+pushChartData(d);
 
 // ===== HISTORY =====
 if(d.pln_cycle !== undefined && d.pln_cycle > 0){
