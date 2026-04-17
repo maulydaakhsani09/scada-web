@@ -504,6 +504,33 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
     font-size:20px !important;
     font-weight:500 !important; /* 🔥 tidak terlalu tebal */
 }
+/* ===== PARAMETER TEXT FIX ===== */
+
+/* Judul kecil (Voltage, Current, dll) */
+.metric-label{
+    font-size:13px !important;   /* 🔥 lebih kebaca */
+    color:#cbd5e1 !important;    /* 🔥 lebih terang */
+    font-weight:500;
+}
+
+/* Tag kecil PLN / BAT */
+.metric-tag{
+    font-size:10px !important;
+    opacity:0.9;
+}
+
+/* ANGKA UTAMA */
+.metric-value{
+    font-size:22px !important;   /* 🔥 diperkecil dari 26 */
+    font-weight:500 !important;  /* 🔥 tidak terlalu tebal */
+    letter-spacing:0.5px;
+}
+
+/* UNIT (V, A, W) */
+.metric-value .unit{
+    font-size:12px !important;
+    color:#94a3b8;
+}
 }
 </style>
 </head>
