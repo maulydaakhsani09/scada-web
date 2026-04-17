@@ -2,1817 +2,1540 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SCADA — ENERGY MANAGEMENT SYSTEM</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>EMS — Energy Management System</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Exo+2:wght@200;300;400;700;900&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
-
 <style>
 :root {
-  --bg-primary:    #04080f;
-  --bg-panel:      #070d1a;
-  --bg-card:       #0a1120;
-  --bg-hover:      #0f1d35;
-  --border:        rgba(0,200,255,0.12);
-  --border-bright: rgba(0,200,255,0.35);
-  --cyan:          #00c8ff;
-  --cyan-dim:      rgba(0,200,255,0.15);
-  --green:         #00e5a0;
-  --green-dim:     rgba(0,229,160,0.15);
-  --red:           #ff3b5c;
-  --red-dim:       rgba(255,59,92,0.15);
-  --amber:         #ffb800;
-  --amber-dim:     rgba(255,184,0,0.15);
-  --text-primary:  #e8f4ff;
-  --text-secondary:#6a8aaa;
-  --text-muted:    #334a63;
-  --font-hud:      'Share Tech Mono', monospace;
-  --font-ui:       'Rajdhani', sans-serif;
-  --font-display:  'Exo 2', sans-serif;
+  --bg0: #0b0e17;
+  --bg1: #0f1420;
+  --bg2: #141926;
+  --bg3: #1a2133;
+  --bg4: #202840;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text1: #e8edf5;
+  --text2: #8b96b0;
+  --text3: #4a5568;
+  --accent: #4f9cf9;
+  --accent-dim: rgba(79,156,249,0.12);
+  --accent-glow: rgba(79,156,249,0.25);
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.12);
+  --green-glow: rgba(52,211,153,0.25);
+  --amber: #fbbf24;
+  --amber-dim: rgba(251,191,36,0.12);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.12);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.12);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --sidebar-w: 220px;
+  --topbar-h: 56px;
+  --font: 'Inter', sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+  --transition: 0.2s cubic-bezier(0.4,0,0.2,1);
 }
 
-* { margin:0; padding:0; box-sizing:border-box; }
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 
-body {
-  background: var(--bg-primary);
-  color: var(--text-primary);
-  font-family: var(--font-ui);
-  font-size: 14px;
-  overflow: hidden;
-  height: 100vh;
-  width: 100vw;
+html,body{height:100%;overflow:hidden;background:var(--bg0);}
+
+body{font-family:var(--font);color:var(--text1);font-size:14px;}
+
+/* ══════════════════════════════════════════
+   SCROLLBAR
+══════════════════════════════════════════ */
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px;}
+
+/* ══════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════ */
+#loginScreen{
+  position:fixed;inset:0;z-index:9999;
+  background:radial-gradient(ellipse 80% 80% at 50% 40%,#0e1628 0%,#07090f 100%);
+  display:flex;align-items:center;justify-content:center;
 }
-
-/* ─── SCANLINE OVERLAY ─── */
-body::before {
-  content:'';
-  position:fixed;
-  inset:0;
-  background: repeating-linear-gradient(
-    0deg,
-    transparent,
-    transparent 2px,
-    rgba(0,0,0,0.08) 2px,
-    rgba(0,0,0,0.08) 4px
-  );
-  pointer-events:none;
-  z-index:9998;
-}
-
-/* ─── NOISE TEXTURE ─── */
-body::after {
-  content:'';
-  position:fixed;
-  inset:0;
-  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
-  pointer-events:none;
-  z-index:9997;
-  opacity:0.4;
-}
-
-/* ─── LOGIN SCREEN ─── */
-#loginScreen {
-  position:fixed;
-  inset:0;
-  background: radial-gradient(ellipse at 50% 40%, #061428 0%, #04080f 70%);
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  z-index:9999;
-}
-
-.login-grid {
-  position:absolute;
-  inset:0;
+.login-bg{
+  position:absolute;inset:0;overflow:hidden;
   background-image:
-    linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size:60px 60px;
-  mask-image: radial-gradient(ellipse 70% 70% at 50% 50%, black, transparent);
+    linear-gradient(rgba(79,156,249,0.04) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(79,156,249,0.04) 1px,transparent 1px);
+  background-size:48px 48px;
+  mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,black 30%,transparent 80%);
+}
+.login-orb{
+  position:absolute;width:400px;height:400px;
+  background:radial-gradient(circle,rgba(79,156,249,0.08) 0%,transparent 70%);
+  border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);
+  animation:orb-pulse 4s ease-in-out infinite;
+}
+@keyframes orb-pulse{
+  0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5;}
+  50%{transform:translate(-50%,-50%) scale(1.1);opacity:1;}
+}
+.login-card{
+  position:relative;z-index:1;
+  width:100%;max-width:380px;
+  background:var(--bg1);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  padding:36px;
+  box-shadow:0 32px 64px rgba(0,0,0,0.6),0 0 0 1px rgba(79,156,249,0.08) inset;
+}
+.login-logo{
+  display:flex;align-items:center;gap:12px;margin-bottom:28px;
+}
+.login-logo-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(79,156,249,0.2),rgba(79,156,249,0.05));
+  border:1px solid rgba(79,156,249,0.3);
+  display:flex;align-items:center;justify-content:center;
+}
+.login-logo-icon svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2;}
+.login-title-wrap{}
+.login-title{font-size:16px;font-weight:700;letter-spacing:0.5px;color:var(--text1);}
+.login-sub{font-size:11px;color:var(--text3);margin-top:2px;font-family:var(--mono);}
+.login-heading{font-size:22px;font-weight:700;color:var(--text1);margin-bottom:6px;}
+.login-desc{font-size:13px;color:var(--text2);margin-bottom:28px;line-height:1.5;}
+.field-group{margin-bottom:16px;}
+.field-label{
+  display:block;font-size:11px;font-weight:600;letter-spacing:0.5px;
+  color:var(--text2);margin-bottom:8px;text-transform:uppercase;
+}
+.field-input{
+  width:100%;background:var(--bg0);border:1px solid var(--border2);
+  border-radius:var(--radius-sm);color:var(--text1);font-family:var(--font);
+  font-size:14px;padding:11px 14px;outline:none;
+  transition:border-color var(--transition),box-shadow var(--transition);
+}
+.field-input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px var(--accent-dim);
+}
+.field-input::placeholder{color:var(--text3);}
+.login-btn{
+  width:100%;padding:12px;margin-top:8px;
+  background:var(--accent);border:none;border-radius:var(--radius-sm);
+  color:#fff;font-family:var(--font);font-size:14px;font-weight:600;
+  letter-spacing:0.3px;cursor:pointer;
+  transition:all var(--transition);
+  position:relative;overflow:hidden;
+}
+.login-btn::before{
+  content:'';position:absolute;inset:0;
+  background:rgba(255,255,255,0.1);
+  transform:translateX(-100%);transition:transform 0.3s;
+}
+.login-btn:hover::before{transform:translateX(0);}
+.login-btn:hover{box-shadow:0 8px 24px rgba(79,156,249,0.4);}
+.login-btn:active{transform:scale(0.98);}
+#loginError{
+  font-family:var(--mono);font-size:11px;color:var(--red);
+  margin-top:12px;min-height:16px;
 }
 
-.login-brand {
-  font-family: var(--font-display);
-  font-size:11px;
-  font-weight:200;
-  letter-spacing:8px;
-  color: var(--text-muted);
-  text-transform:uppercase;
-  margin-bottom:40px;
-  position:relative;
+/* ══════════════════════════════════════════
+   TOPBAR
+══════════════════════════════════════════ */
+.topbar{
+  height:var(--topbar-h);
+  background:var(--bg1);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;
+  justify-content:space-between;
+  padding:0 20px 0 16px;
+  position:fixed;top:0;left:0;right:0;z-index:200;
 }
-
-.login-box {
-  background: var(--bg-panel);
-  border: 1px solid var(--border-bright);
-  border-radius: 2px;
-  width: 360px;
-  padding: 36px;
-  position:relative;
-  box-shadow:
-    0 0 60px rgba(0,200,255,0.08),
-    0 0 0 1px rgba(0,200,255,0.05) inset;
+.topbar-left{display:flex;align-items:center;gap:12px;}
+.topbar-menu-btn{
+  display:none;
+  width:36px;height:36px;border-radius:8px;
+  background:transparent;border:none;
+  cursor:pointer;align-items:center;justify-content:center;
+  color:var(--text2);flex-direction:column;gap:5px;padding:8px;
 }
-
-/* corner cuts */
-.login-box::before, .login-box::after {
-  content:'';
-  position:absolute;
-  width:12px; height:12px;
-  border-color: var(--cyan);
-  border-style:solid;
+.topbar-menu-btn span{
+  display:block;height:1.5px;background:currentColor;
+  border-radius:2px;transition:all 0.3s;
 }
-.login-box::before { top:-1px; left:-1px; border-width:2px 0 0 2px; }
-.login-box::after  { bottom:-1px; right:-1px; border-width:0 2px 2px 0; }
-
-.login-title {
-  font-family: var(--font-display);
-  font-size:20px;
-  font-weight:700;
-  letter-spacing:3px;
-  color: var(--cyan);
-  text-transform:uppercase;
-  margin-bottom:6px;
+.topbar-menu-btn span:nth-child(1){width:18px;}
+.topbar-menu-btn span:nth-child(2){width:14px;}
+.topbar-menu-btn span:nth-child(3){width:18px;}
+.topbar-logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{
+  width:32px;height:32px;border-radius:8px;
+  background:linear-gradient(135deg,rgba(79,156,249,0.25),rgba(79,156,249,0.05));
+  border:1px solid rgba(79,156,249,0.25);
+  display:flex;align-items:center;justify-content:center;
 }
-
-.login-sub {
-  font-family: var(--font-hud);
-  font-size:10px;
-  color: var(--text-muted);
-  letter-spacing:2px;
-  margin-bottom:28px;
+.logo-icon svg{width:16px;height:16px;stroke:var(--accent);fill:none;stroke-width:2.5;}
+.logo-text{font-size:15px;font-weight:700;letter-spacing:0.5px;color:var(--text1);}
+.logo-ver{
+  font-family:var(--mono);font-size:10px;color:var(--text3);
+  background:var(--bg3);border:1px solid var(--border);
+  padding:2px 7px;border-radius:4px;
 }
-
-.login-field {
-  margin-bottom:14px;
+.topbar-right{display:flex;align-items:center;gap:10px;}
+.top-clock{
+  font-family:var(--mono);font-size:13px;color:var(--text2);
+  background:var(--bg2);border:1px solid var(--border);
+  padding:5px 12px;border-radius:var(--radius-sm);
+  letter-spacing:0.5px;
 }
-
-.login-label {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:2px;
-  color: var(--text-muted);
-  display:block;
-  margin-bottom:6px;
-  text-transform:uppercase;
+.top-badge{
+  display:flex;align-items:center;gap:6px;
+  font-family:var(--mono);font-size:11px;font-weight:500;
+  padding:5px 12px;border-radius:var(--radius-sm);
+  border:1px solid rgba(52,211,153,0.3);
+  background:var(--green-dim);color:var(--green);
+  transition:all var(--transition);
 }
-
-.login-input {
-  width:100%;
-  background: rgba(0,200,255,0.04);
-  border: 1px solid var(--border);
-  border-bottom-color: rgba(0,200,255,0.3);
-  color: var(--cyan);
-  font-family: var(--font-hud);
-  font-size:13px;
-  padding: 10px 14px;
-  outline:none;
-  transition: border-color 0.2s, box-shadow 0.2s;
-  border-radius:0;
+.top-badge.warn{border-color:rgba(251,191,36,0.3);background:var(--amber-dim);color:var(--amber);}
+.top-badge.err{border-color:rgba(248,113,113,0.3);background:var(--red-dim);color:var(--red);}
+.badge-dot{
+  width:6px;height:6px;border-radius:50%;
+  background:currentColor;
+  animation:dot-pulse 2s ease-in-out infinite;
 }
+@keyframes dot-pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.8);}}
 
-.login-input:focus {
-  border-color: var(--cyan);
-  box-shadow: 0 0 0 1px rgba(0,200,255,0.2) inset, 0 4px 20px rgba(0,200,255,0.1);
-}
+/* ══════════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════════ */
+.layout{display:flex;height:100vh;padding-top:var(--topbar-h);}
 
-.login-btn {
-  width:100%;
-  background: transparent;
-  border: 1px solid var(--cyan);
-  color: var(--cyan);
-  font-family: var(--font-display);
-  font-size:12px;
-  font-weight:700;
-  letter-spacing:4px;
-  padding: 12px;
-  cursor:pointer;
-  margin-top:8px;
-  transition: all 0.2s;
-  text-transform:uppercase;
-  position:relative;
+/* ══════════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════════ */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:var(--bg1);border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
   overflow:hidden;
+  transition:transform var(--transition),width var(--transition);
+  position:relative;z-index:100;
 }
-
-.login-btn::before {
-  content:'';
-  position:absolute;
-  inset:0;
-  background: var(--cyan);
-  transform:translateX(-100%);
-  transition: transform 0.25s;
-  z-index:0;
+.sidebar-inner{flex:1;overflow-y:auto;padding:12px 10px;}
+.sidebar-section{margin-bottom:4px;}
+.sidebar-label{
+  font-size:10px;font-weight:700;letter-spacing:1px;
+  color:var(--text3);text-transform:uppercase;
+  padding:4px 10px 8px;
 }
-
-.login-btn:hover::before { transform:translateX(0); }
-.login-btn:hover { color: var(--bg-primary); }
-.login-btn span { position:relative; z-index:1; }
-
-#loginError {
-  font-family: var(--font-hud);
-  font-size:10px;
-  color: var(--red);
-  margin-top:12px;
-  letter-spacing:1px;
-  min-height:16px;
-}
-
-/* ─── TOPBAR ─── */
-.topbar {
-  height:48px;
-  background: var(--bg-panel);
-  border-bottom: 1px solid var(--border);
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding: 0 20px;
-  position:fixed;
-  top:0; left:0; right:0;
-  z-index:1000;
-  flex-shrink:0;
-}
-
-.topbar-left {
-  display:flex;
-  align-items:center;
-  gap:16px;
-}
-
-.topbar-logo {
-  font-family: var(--font-display);
-  font-size:14px;
-  font-weight:900;
-  letter-spacing:4px;
-  color: var(--cyan);
-  text-transform:uppercase;
-}
-
-.topbar-sep {
-  width:1px; height:20px;
-  background: var(--border-bright);
-}
-
-.topbar-subtitle {
-  font-family: var(--font-hud);
-  font-size:10px;
-  letter-spacing:2px;
-  color: var(--text-muted);
-}
-
-.topbar-right {
-  display:flex;
-  align-items:center;
-  gap:20px;
-}
-
-.sys-time {
-  font-family: var(--font-hud);
-  font-size:13px;
-  color: var(--text-secondary);
-  letter-spacing:1px;
-}
-
-.sys-badge {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:2px;
-  padding: 3px 10px;
-  border: 1px solid var(--green);
-  color: var(--green);
-  text-transform:uppercase;
-  animation: pulse-badge 3s ease-in-out infinite;
-}
-
-@keyframes pulse-badge {
-  0%,100%  { opacity:1; }
-  50%      { opacity:0.5; }
-}
-
-/* ─── LAYOUT ─── */
-.layout {
-  display:flex;
-  height:calc(100vh - 48px);
-  margin-top:48px;
-}
-
-/* ─── SIDEBAR ─── */
-.sidebar {
-  width: 200px;
-  background: var(--bg-panel);
-  border-right: 1px solid var(--border);
-  display:flex;
-  flex-direction:column;
-  flex-shrink:0;
-}
-
-.sidebar-section {
-  padding: 16px 0 8px;
-}
-
-.sidebar-label {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:3px;
-  color: var(--text-muted);
-  padding: 0 16px;
-  margin-bottom:8px;
-  text-transform:uppercase;
-}
-
-.nav-item {
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding: 10px 16px;
-  cursor:pointer;
-  border:none;
-  background:none;
-  color: var(--text-muted);
-  font-family: var(--font-ui);
-  font-size:13px;
-  font-weight:600;
-  letter-spacing:1px;
-  width:100%;
-  text-align:left;
-  transition: all 0.15s;
-  border-left: 2px solid transparent;
-  text-transform:uppercase;
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  width:100%;padding:10px 12px;
+  border:none;background:transparent;
+  color:var(--text2);
+  font-family:var(--font);font-size:13px;font-weight:500;
+  cursor:pointer;border-radius:var(--radius-sm);
+  transition:all var(--transition);text-align:left;
   position:relative;
 }
-
-.nav-item:hover {
-  background: var(--bg-hover);
-  color: var(--text-primary);
-  border-left-color: var(--border-bright);
+.nav-item:hover{background:var(--bg3);color:var(--text1);}
+.nav-item.active{background:var(--accent-dim);color:var(--accent);}
+.nav-item.active::after{
+  content:'';position:absolute;right:0;top:20%;bottom:20%;
+  width:2px;border-radius:2px;background:var(--accent);
 }
-
-.nav-item.active {
-  background: var(--cyan-dim);
-  color: var(--cyan);
-  border-left-color: var(--cyan);
+.nav-icon{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+  background:rgba(255,255,255,0.04);
+  transition:all var(--transition);
 }
-
-.nav-item .nav-icon {
-  font-size:14px;
-  width:18px;
-  text-align:center;
+.nav-item:hover .nav-icon,.nav-item.active .nav-icon{
+  background:rgba(79,156,249,0.15);
 }
-
-.sidebar-bottom {
-  margin-top:auto;
-  padding:16px;
-  border-top:1px solid var(--border);
+.nav-icon svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;}
+.nav-text{font-size:13px;}
+.sidebar-divider{height:1px;background:var(--border);margin:8px 10px;}
+.sidebar-bottom{padding:12px 10px;border-top:1px solid var(--border);}
+.conn-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius-sm);padding:10px 12px;
 }
-
-.conn-status {
-  display:flex;
-  align-items:center;
-  gap:8px;
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:1px;
-  color: var(--text-muted);
+.conn-label{font-size:10px;color:var(--text3);margin-bottom:6px;font-family:var(--mono);}
+.conn-row{display:flex;align-items:center;gap:8px;}
+.conn-dot{
+  width:8px;height:8px;border-radius:50%;
+  background:var(--text3);flex-shrink:0;
+  transition:background var(--transition),box-shadow var(--transition);
 }
-
-.conn-dot {
-  width:6px; height:6px;
-  border-radius:50%;
-  background: var(--text-muted);
-  flex-shrink:0;
+.conn-dot.online{
+  background:var(--green);
+  box-shadow:0 0 8px var(--green-glow);
+  animation:dot-pulse 2s ease-in-out infinite;
 }
-.conn-dot.online {
-  background: var(--green);
-  box-shadow: 0 0 6px var(--green);
-  animation: pulse-dot 2s ease-in-out infinite;
-}
+.conn-text{font-size:12px;font-weight:600;color:var(--text2);font-family:var(--mono);}
 
-@keyframes pulse-dot {
-  0%,100% { opacity:1; }
-  50%     { opacity:0.4; }
-}
-
-/* ─── MAIN CONTENT ─── */
-.main {
-  flex:1;
-  overflow-y:auto;
-  overflow-x:hidden;
+/* ══════════════════════════════════════════
+   MAIN
+══════════════════════════════════════════ */
+.main{
+  flex:1;overflow-y:auto;overflow-x:hidden;
   padding:20px;
-  scrollbar-width:thin;
-  scrollbar-color: var(--border) transparent;
+  background:var(--bg0);
+  padding-bottom:56px;
 }
 
-.main::-webkit-scrollbar { width:4px; }
-.main::-webkit-scrollbar-track { background:transparent; }
-.main::-webkit-scrollbar-thumb { background:var(--border-bright); border-radius:2px; }
+/* ══════════════════════════════════════════
+   PAGE
+══════════════════════════════════════════ */
+.page{display:none;}
+.page.active{display:block;}
 
-/* ─── PAGE ─── */
-.page { display:none; }
-.page.active { display:block; }
-
-/* ─── PAGE HEADER ─── */
-.page-header {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+/* ══════════════════════════════════════════
+   PAGE HEADER
+══════════════════════════════════════════ */
+.page-header{
+  display:flex;align-items:center;justify-content:space-between;
   margin-bottom:20px;
-  padding-bottom:14px;
-  border-bottom:1px solid var(--border);
+  flex-wrap:wrap;gap:10px;
 }
-
-.page-title {
-  font-family: var(--font-display);
-  font-size:18px;
-  font-weight:700;
-  letter-spacing:3px;
-  text-transform:uppercase;
-  color: var(--text-primary);
+.page-header-left{display:flex;align-items:center;gap:12px;}
+.page-icon{
+  width:40px;height:40px;border-radius:10px;
+  background:var(--accent-dim);border:1px solid rgba(79,156,249,0.2);
+  display:flex;align-items:center;justify-content:center;
 }
-
-.page-badge {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:2px;
-  padding:3px 10px;
-  border:1px solid var(--border-bright);
-  color: var(--text-secondary);
+.page-icon svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2;}
+.page-title{font-size:18px;font-weight:700;letter-spacing:-0.3px;color:var(--text1);}
+.page-subtitle{font-size:12px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+.mode-pill{
+  display:flex;align-items:center;gap:6px;
+  padding:6px 14px;border-radius:20px;
+  font-size:12px;font-weight:600;font-family:var(--mono);
+  transition:all var(--transition);
+  border:1px solid rgba(52,211,153,0.3);
+  background:var(--green-dim);color:var(--green);
 }
+.mode-pill.pln{border-color:rgba(79,156,249,0.3);background:var(--accent-dim);color:var(--accent);}
+.mode-pill.bat{border-color:rgba(52,211,153,0.3);background:var(--green-dim);color:var(--green);}
+.mode-pill-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:dot-pulse 2s infinite;}
 
-/* ─── SOURCE INDICATOR BAR ─── */
-.source-bar {
-  display:flex;
-  align-items:center;
-  gap:12px;
-  background: var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:2px;
-  padding:12px 18px;
-  margin-bottom:18px;
-  position:relative;
-  overflow:hidden;
-}
-
-.source-bar::before {
-  content:'';
-  position:absolute;
-  left:0; top:0; bottom:0;
-  width:3px;
-  background: var(--green);
-  transition: background 0.4s;
-}
-
-.source-bar.pln-active::before { background: var(--cyan); }
-.source-bar.bat-active::before { background: var(--green); }
-
-.source-label {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:2px;
-  color: var(--text-muted);
-  text-transform:uppercase;
-}
-
-.source-value {
-  font-family: var(--font-display);
-  font-size:20px;
-  font-weight:700;
-  letter-spacing:2px;
-  color: var(--cyan);
-  transition: color 0.4s;
-}
-
-.source-value.bat { color: var(--green); }
-
-.source-divider {
-  width:1px; height:30px;
-  background: var(--border);
-  margin: 0 8px;
-}
-
-/* ─── ENERGY FLOW DIAGRAM ─── */
-.flow-container {
-  background: var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:2px;
-  padding:24px 20px;
-  margin-bottom:18px;
-  position:relative;
-  overflow:hidden;
-}
-
-.flow-header {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:3px;
-  color: var(--text-muted);
-  margin-bottom:24px;
-  text-transform:uppercase;
-}
-
-.flow-diagram {
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  gap:0;
-}
-
-/* NODE */
-.flow-node {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-  position:relative;
-}
-
-.node-body {
-  width:90px;
-  height:56px;
-  border:1px solid var(--border-bright);
-  background: var(--bg-panel);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  gap:3px;
-  position:relative;
-  transition: all 0.3s;
-  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
-}
-
-/* corner marks */
-.node-body::before {
-  content:'';
-  position:absolute;
-  top:3px; left:8px; right:8px;
-  height:1px;
-  background: var(--border);
-}
-
-.node-body.active-pln {
-  border-color: var(--cyan);
-  background: rgba(0,200,255,0.06);
-  box-shadow: 0 0 20px rgba(0,200,255,0.2), inset 0 0 20px rgba(0,200,255,0.05);
-}
-
-.node-body.active-bat {
-  border-color: var(--green);
-  background: rgba(0,229,160,0.06);
-  box-shadow: 0 0 20px rgba(0,229,160,0.2), inset 0 0 20px rgba(0,229,160,0.05);
-}
-
-.node-id {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:2px;
-  color: var(--text-muted);
-}
-
-.node-name {
-  font-family: var(--font-display);
-  font-size:12px;
-  font-weight:700;
-  letter-spacing:2px;
-  color: var(--text-primary);
-}
-
-.node-label {
-  font-family: var(--font-hud);
-  font-size:8px;
-  letter-spacing:1px;
-  color: var(--text-muted);
-  text-transform:uppercase;
-}
-
-/* CONNECTOR */
-.flow-connector {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:3px;
-  position:relative;
-}
-
-.connector-track {
-  width:80px;
-  height:2px;
-  background: var(--border);
-  position:relative;
-  overflow:visible;
-}
-
-.connector-fill {
-  position:absolute;
-  inset:0;
-  background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-  width:40px;
-  opacity:0;
-  transition: opacity 0.3s;
-}
-
-.connector-fill.flowing-pln {
-  opacity:1;
-  animation: flow-right 0.8s linear infinite;
-}
-.connector-fill.flowing-bat {
-  opacity:1;
-  background: linear-gradient(90deg, transparent, var(--green), transparent);
-  animation: flow-left 0.8s linear infinite;
-}
-
-@keyframes flow-right {
-  from { transform:translateX(-40px); }
-  to   { transform:translateX(80px); }
-}
-@keyframes flow-left {
-  from { transform:translateX(80px); }
-  to   { transform:translateX(-40px); }
-}
-
-.connector-data {
-  font-family: var(--font-hud);
-  font-size:8px;
-  letter-spacing:1px;
-  color: var(--text-muted);
-  white-space:nowrap;
-}
-
-.connector-data.active-cyan { color: var(--cyan); }
-.connector-data.active-green { color: var(--green); }
-
-/* LOAD NODE CENTER */
-.load-node {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:6px;
-}
-
-.load-body {
-  width:100px;
-  height:64px;
-  border:1px solid var(--amber);
-  background: rgba(255,184,0,0.05);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  flex-direction:column;
-  gap:3px;
-  box-shadow: 0 0 15px rgba(255,184,0,0.15);
-}
-
-.load-watt {
-  font-family: var(--font-hud);
-  font-size:14px;
-  color: var(--amber);
-}
-
-.load-name {
-  font-family: var(--font-display);
-  font-size:11px;
-  font-weight:700;
-  letter-spacing:2px;
-  color: var(--amber);
-}
-
-/* BATTERY INDICATOR */
-.batt-indicator {
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  gap:4px;
-}
-
-.batt-bar-wrap {
-  width:90px;
-  height:12px;
-  background: rgba(0,0,0,0.4);
-  border:1px solid var(--border-bright);
-  border-radius:1px;
-  overflow:hidden;
-  position:relative;
-}
-
-.batt-bar-fill {
-  height:100%;
-  width:0%;
-  transition: width 0.8s ease, background 0.4s;
-  background: var(--green);
-  position:relative;
-}
-
-.batt-bar-fill::after {
-  content:'';
-  position:absolute;
-  right:0; top:0; bottom:0;
-  width:3px;
-  background:rgba(255,255,255,0.6);
-}
-
-.batt-pct {
-  font-family: var(--font-hud);
-  font-size:11px;
-  color: var(--green);
-  transition: color 0.4s;
-}
-
-/* ─── METRICS ROW ─── */
-.metrics-row {
+/* ══════════════════════════════════════════
+   SOURCE SUMMARY BAR
+══════════════════════════════════════════ */
+.source-summary{
   display:grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap:10px;
-  margin-bottom:18px;
+  grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+  gap:10px;margin-bottom:20px;
 }
-
-.metric-card {
-  background: var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:2px;
-  padding:14px 16px;
-  position:relative;
-  overflow:hidden;
-  transition: border-color 0.2s;
+.summary-card{
+  background:var(--bg1);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px 16px;
+  position:relative;overflow:hidden;
+  transition:border-color var(--transition),box-shadow var(--transition);
 }
-
-.metric-card::after {
-  content:'';
-  position:absolute;
-  top:0; left:0; right:0;
-  height:1px;
-  background: linear-gradient(90deg, transparent, var(--border-bright), transparent);
+.summary-card:hover{border-color:var(--border2);}
+.summary-card::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:2px;
+  background:transparent;transition:background var(--transition);
 }
-
-.metric-card:hover { border-color: var(--border-bright); }
-
-.metric-source {
-  font-family: var(--font-hud);
-  font-size:8px;
-  letter-spacing:2px;
-  color: var(--text-muted);
-  text-transform:uppercase;
-  margin-bottom:4px;
-}
-
-.metric-label {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:1px;
-  color: var(--text-secondary);
+.summary-card.pln::before{background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.summary-card.bat::before{background:linear-gradient(90deg,transparent,var(--green),transparent);}
+.summary-card.load::before{background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.summary-card.energy::before{background:linear-gradient(90deg,transparent,var(--purple),transparent);}
+.sum-label{
+  font-size:10px;font-weight:700;letter-spacing:0.8px;
+  color:var(--text3);text-transform:uppercase;font-family:var(--mono);
   margin-bottom:8px;
 }
-
-.metric-value {
-  font-family: var(--font-hud);
-  font-size:22px;
-  font-weight:400;
-  color: var(--text-primary);
-  letter-spacing:1px;
-  line-height:1;
+.sum-value{
+  font-family:var(--mono);font-size:22px;font-weight:600;
+  color:var(--text1);line-height:1;
+}
+.sum-value span{font-size:11px;color:var(--text3);margin-left:3px;}
+.sum-sub{font-size:11px;color:var(--text2);margin-top:6px;}
+.batt-strip{
+  width:100%;height:4px;background:var(--bg3);
+  border-radius:2px;margin-top:10px;overflow:hidden;
+}
+.batt-fill{
+  height:100%;width:0%;border-radius:2px;
+  transition:width 0.8s ease,background 0.4s;
+  background:var(--green);
 }
 
-.metric-value .unit {
-  font-size:11px;
-  color: var(--text-muted);
-  margin-left:3px;
+/* ══════════════════════════════════════════
+   FLOW DIAGRAM
+══════════════════════════════════════════ */
+.flow-card{
+  background:var(--bg1);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+  margin-bottom:20px;
+}
+.flow-card-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:20px;
+}
+.card-title{
+  font-size:12px;font-weight:700;letter-spacing:0.5px;
+  color:var(--text2);text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;
+}
+.card-title-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--accent);
+}
+.live-indicator{
+  font-family:var(--mono);font-size:10px;
+  color:var(--green);
+  display:flex;align-items:center;gap:5px;
 }
 
-.metric-bar {
-  height:2px;
-  background: var(--border);
-  margin-top:10px;
-  border-radius:1px;
-  overflow:hidden;
+/* FLOW SVG */
+.flow-svg-wrap{overflow-x:auto;padding:4px 0;}
+.flow-svg{width:100%;min-width:340px;max-width:600px;display:block;margin:0 auto;}
+
+/* flow nodes */
+.fnode rect{rx:8;transition:all 0.4s;}
+.fnode text{font-family:'JetBrains Mono',monospace;fill:var(--text2);}
+.fnode .node-name{font-size:11px;font-weight:600;fill:var(--text1);}
+.fnode .node-id{font-size:8px;fill:var(--text3);}
+.fnode .node-val{font-size:10px;}
+/* pln active */
+.fnode.pln-on rect{fill:rgba(79,156,249,0.1);stroke:rgba(79,156,249,0.5);stroke-width:1.5;}
+.fnode.pln-on .node-name{fill:#93c5fd;}
+.fnode.pln-on .node-val{fill:var(--accent);}
+/* bat active */
+.fnode.bat-on rect{fill:rgba(52,211,153,0.1);stroke:rgba(52,211,153,0.5);stroke-width:1.5;}
+.fnode.bat-on .node-name{fill:#6ee7b7;}
+.fnode.bat-on .node-val{fill:var(--green);}
+/* load */
+.fnode.load-node rect{fill:rgba(251,191,36,0.08);stroke:rgba(251,191,36,0.35);stroke-width:1.5;}
+.fnode.load-node .node-name{fill:var(--amber);}
+.fnode.load-node .node-val{fill:var(--amber);}
+
+/* flow line */
+.flow-line{stroke:var(--bg4);stroke-width:2;fill:none;}
+.flow-line.active-pln{stroke:var(--accent);}
+.flow-line.active-bat{stroke:var(--green);}
+
+/* animated dash */
+.flow-dash{
+  stroke-width:2;fill:none;
+  stroke-dasharray:6 8;stroke-dashoffset:0;
 }
+.flow-dash.pln{stroke:var(--accent);opacity:0;animation:none;}
+.flow-dash.bat{stroke:var(--green);opacity:0;animation:none;}
+.flow-dash.pln.flowing{opacity:1;animation:dash-right 0.6s linear infinite;}
+.flow-dash.bat.flowing{opacity:1;animation:dash-left 0.6s linear infinite;}
+@keyframes dash-right{to{stroke-dashoffset:-28;}}
+@keyframes dash-left{to{stroke-dashoffset:28;}}
 
-.metric-bar-fill {
-  height:100%;
-  width:0%;
-  background: var(--cyan);
-  transition: width 0.8s ease;
-  border-radius:1px;
+/* ══════════════════════════════════════════
+   METRICS GRID
+══════════════════════════════════════════ */
+.section-header{
+  display:flex;align-items:center;gap:10px;
+  margin-bottom:12px;margin-top:4px;
 }
-
-.metric-bar-fill.green { background: var(--green); }
-.metric-bar-fill.amber { background: var(--amber); }
-
-/* ─── SECTION TITLE ─── */
-.section-title {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:3px;
-  color: var(--cyan);
-  text-transform:uppercase;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:12px;
+.section-title{
+  font-size:12px;font-weight:700;letter-spacing:0.5px;
+  color:var(--text2);text-transform:uppercase;
 }
+.section-line{flex:1;height:1px;background:var(--border);}
 
-.section-title::after {
-  content:'';
-  flex:1;
-  height:1px;
-  background: linear-gradient(90deg, var(--border-bright), transparent);
-}
-
-/* ─── CHART PANEL ─── */
-.chart-panel {
-  background: var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:2px;
-  padding:16px;
-  margin-bottom:18px;
-}
-
-.chart-controls {
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  margin-bottom:14px;
-  flex-wrap:wrap;
-  gap:10px;
-}
-
-.ctrl-group {
-  display:flex;
-  align-items:center;
-  gap:4px;
-}
-
-.ctrl-btn {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:1px;
-  padding: 5px 12px;
-  border: 1px solid var(--border);
-  background: transparent;
-  color: var(--text-muted);
-  cursor:pointer;
-  transition: all 0.15s;
-  text-transform:uppercase;
-}
-
-.ctrl-btn:hover { border-color: var(--border-bright); color: var(--text-primary); }
-
-.ctrl-btn.active-pln { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-dim); }
-.ctrl-btn.active-bat { border-color: var(--green); color: var(--green); background: var(--green-dim); }
-.ctrl-btn.active-param { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
-
-.chart-meta {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:1px;
-  color: var(--text-muted);
-}
-
-.chart-wrap {
-  height:160px;
-  position:relative;
-}
-
-/* ─── ALERT BAR ─── */
-.alert-strip {
-  position:fixed;
-  bottom:0; left:0; right:0;
-  height:32px;
-  background: var(--bg-panel);
-  border-top:1px solid var(--border);
-  display:flex;
-  align-items:center;
-  padding:0 20px;
-  gap:16px;
-  z-index:500;
-  overflow:hidden;
-}
-
-.alert-label {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:2px;
-  color: var(--text-muted);
-  flex-shrink:0;
-}
-
-.alert-ticker {
-  font-family: var(--font-hud);
-  font-size:10px;
-  letter-spacing:1px;
-  color: var(--text-muted);
-  white-space:nowrap;
-  transition: all 0.3s;
-}
-
-.alert-ticker.alarm { color: var(--red); animation: blink 0.8s step-end infinite; }
-.alert-ticker.warn  { color: var(--amber); }
-.alert-ticker.ok    { color: var(--green); }
-
-@keyframes blink { 50% { opacity:0; } }
-
-/* ─── MANUAL PAGE ─── */
-.manual-grid {
+.metrics-grid{
   display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:16px;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;margin-bottom:16px;
 }
+.metrics-grid.cols3{grid-template-columns:repeat(3,1fr);}
+.metrics-grid.cols2{grid-template-columns:repeat(2,1fr);}
 
-.cmd-card {
-  background: var(--bg-card);
+.metric-card{
+  background:var(--bg1);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px 16px;
+  transition:border-color var(--transition);
+  position:relative;overflow:hidden;
+}
+.metric-card:hover{border-color:var(--border2);}
+.metric-tag{
+  font-family:var(--mono);font-size:9px;font-weight:600;
+  letter-spacing:1px;color:var(--accent);
+  text-transform:uppercase;margin-bottom:4px;
+}
+.metric-tag.bat{color:var(--green);}
+.metric-label{font-size:11px;color:var(--text3);margin-bottom:10px;}
+.metric-value{
+  font-family:var(--mono);font-size:24px;font-weight:500;
+  color:var(--text1);line-height:1;letter-spacing:-0.5px;
+}
+.metric-value .unit{font-size:12px;color:var(--text3);margin-left:3px;}
+.metric-progress{
+  height:2px;background:var(--bg3);
+  border-radius:2px;margin-top:12px;overflow:hidden;
+}
+.metric-bar{
+  height:100%;width:0%;border-radius:2px;
+  background:var(--accent);
+  transition:width 0.8s ease;
+}
+.metric-bar.green{background:var(--green);}
+.metric-bar.amber{background:var(--amber);}
+
+/* ══════════════════════════════════════════
+   CHART PANEL
+══════════════════════════════════════════ */
+.chart-card{
+  background:var(--bg1);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px;
+  margin-bottom:16px;
+}
+.chart-header{
+  display:flex;align-items:center;justify-content:space-between;
+  margin-bottom:14px;flex-wrap:wrap;gap:10px;
+}
+.chart-controls{display:flex;gap:6px;flex-wrap:wrap;}
+.ctrl-btn{
+  font-family:var(--mono);font-size:11px;font-weight:500;
+  padding:5px 12px;border-radius:6px;
+  border:1px solid var(--border2);
+  background:transparent;color:var(--text2);
+  cursor:pointer;transition:all var(--transition);
+  letter-spacing:0.3px;
+}
+.ctrl-btn:hover{background:var(--bg3);color:var(--text1);}
+.ctrl-btn.ap{border-color:rgba(79,156,249,0.4);background:var(--accent-dim);color:var(--accent);}
+.ctrl-btn.ag{border-color:rgba(52,211,153,0.4);background:var(--green-dim);color:var(--green);}
+.ctrl-btn.aa{border-color:rgba(251,191,36,0.4);background:var(--amber-dim);color:var(--amber);}
+.chart-sep{width:1px;height:20px;background:var(--border);margin:0 4px;}
+.chart-meta{
+  font-family:var(--mono);font-size:11px;color:var(--text3);
+}
+.chart-wrap{height:180px;position:relative;}
+
+/* ══════════════════════════════════════════
+   CONTROL PAGE
+══════════════════════════════════════════ */
+.cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;}
+.cmd-card{
+  background:var(--bg1);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;
+  cursor:pointer;transition:all var(--transition);
+  position:relative;overflow:hidden;
+}
+.cmd-card::before{
+  content:'';position:absolute;inset:0;opacity:0;
+  transition:opacity var(--transition);
+}
+.cmd-card.c-bat::before{background:var(--green-dim);}
+.cmd-card.c-pln::before{background:var(--accent-dim);}
+.cmd-card.c-auto::before{background:var(--amber-dim);}
+.cmd-card:hover::before{opacity:1;}
+.cmd-card.c-bat:hover{border-color:rgba(52,211,153,0.4);}
+.cmd-card.c-pln:hover{border-color:rgba(79,156,249,0.4);}
+.cmd-card.c-auto:hover{border-color:rgba(251,191,36,0.4);}
+.cmd-card:active{transform:scale(0.98);}
+.cmd-card-inner{position:relative;z-index:1;}
+.cmd-tag{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:12px;}
+.cmd-icon{
+  width:44px;height:44px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:14px;border:1px solid transparent;
+}
+.cmd-card.c-bat .cmd-icon{background:var(--green-dim);border-color:rgba(52,211,153,0.3);}
+.cmd-card.c-pln .cmd-icon{background:var(--accent-dim);border-color:rgba(79,156,249,0.3);}
+.cmd-card.c-auto .cmd-icon{background:var(--amber-dim);border-color:rgba(251,191,36,0.3);}
+.cmd-icon svg{width:22px;height:22px;fill:none;stroke-width:2;}
+.cmd-card.c-bat .cmd-icon svg{stroke:var(--green);}
+.cmd-card.c-pln .cmd-icon svg{stroke:var(--accent);}
+.cmd-card.c-auto .cmd-icon svg{stroke:var(--amber);}
+.cmd-name{font-size:16px;font-weight:700;margin-bottom:6px;}
+.cmd-card.c-bat .cmd-name{color:var(--green);}
+.cmd-card.c-pln .cmd-name{color:var(--accent);}
+.cmd-card.c-auto .cmd-name{color:var(--amber);}
+.cmd-desc{font-size:12px;color:var(--text2);line-height:1.5;}
+.cmd-full{grid-column:span 2;}
+.status-card{
+  background:var(--bg1);border:1px solid var(--border);
+  border-radius:var(--radius);padding:16px 20px;
+  display:flex;align-items:center;gap:12px;
+}
+.status-dot-el{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--text3);flex-shrink:0;
+  transition:all var(--transition);
+}
+.status-dot-el.on{
+  background:var(--green);
+  box-shadow:0 0 10px var(--green-glow);
+  animation:dot-pulse 2s infinite;
+}
+.status-text{font-family:var(--mono);font-size:12px;color:var(--text2);}
+
+/* ══════════════════════════════════════════
+   HISTORY TABLE
+══════════════════════════════════════════ */
+.table-card{
+  background:var(--bg1);border:1px solid var(--border);
+  border-radius:var(--radius);overflow:hidden;
+}
+.hist-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;}
+.hist-table th{
+  padding:12px 16px;text-align:left;
+  font-size:10px;font-weight:700;letter-spacing:1px;
+  color:var(--text3);text-transform:uppercase;
+  background:var(--bg2);border-bottom:1px solid var(--border);
+}
+.hist-table td{
+  padding:12px 16px;border-bottom:1px solid var(--border);
+  color:var(--text2);transition:background var(--transition);
+}
+.hist-table tr:last-child td{border-bottom:none;}
+.hist-table tr:hover td{background:var(--bg2);}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;
+  font-family:var(--mono);
+}
+.badge.pln{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(79,156,249,0.25);}
+.badge.bat{background:var(--green-dim);color:var(--green);border:1px solid rgba(52,211,153,0.25);}
+
+/* ══════════════════════════════════════════
+   PROFILE PAGE
+══════════════════════════════════════════ */
+.profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.profile-card{
+  background:var(--bg1);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;
+}
+.profile-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;font-family:var(--mono);margin-bottom:8px;}
+.profile-value{font-size:18px;font-weight:700;color:var(--text1);}
+.logout-btn{
+  padding:10px 24px;background:var(--red-dim);
+  border:1px solid rgba(248,113,113,0.3);
+  border-radius:var(--radius-sm);
+  color:var(--red);font-family:var(--font);
+  font-size:13px;font-weight:600;
+  cursor:pointer;transition:all var(--transition);
+}
+.logout-btn:hover{background:rgba(248,113,113,0.2);box-shadow:0 4px 16px rgba(248,113,113,0.15);}
+
+/* ══════════════════════════════════════════
+   STATUS BAR
+══════════════════════════════════════════ */
+.statusbar{
+  position:fixed;bottom:0;left:0;right:0;height:36px;
+  background:var(--bg1);border-top:1px solid var(--border);
+  display:flex;align-items:center;padding:0 16px;gap:12px;z-index:100;
+}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);font-family:var(--mono);}
+.sb-ticker{font-family:var(--mono);font-size:11px;color:var(--text3);transition:color 0.3s;}
+.sb-ticker.ok{color:var(--green);}
+.sb-ticker.warn{color:var(--amber);}
+.sb-ticker.alarm{color:var(--red);animation:blink 1s step-end infinite;}
+@keyframes blink{50%{opacity:0;}}
+.sb-right{margin-left:auto;display:flex;align-items:center;gap:10px;}
+.sb-chip{
+  font-family:var(--mono);font-size:10px;
+  color:var(--text3);background:var(--bg2);
   border:1px solid var(--border);
-  border-radius:2px;
-  padding:24px;
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-  cursor:pointer;
-  transition: all 0.2s;
-  position:relative;
-  overflow:hidden;
+  padding:2px 8px;border-radius:4px;
 }
 
-.cmd-card::before {
-  content:'';
-  position:absolute;
-  top:0; left:0; right:0; bottom:0;
-  opacity:0;
-  transition:opacity 0.2s;
-}
-
-.cmd-card.cmd-bat::before { background: var(--green-dim); }
-.cmd-card.cmd-pln::before { background: var(--cyan-dim); }
-.cmd-card.cmd-auto::before{ background: var(--amber-dim); }
-
-.cmd-card:hover::before { opacity:1; }
-.cmd-card:hover { border-color: var(--border-bright); }
-.cmd-card.cmd-bat:hover { border-color: var(--green); }
-.cmd-card.cmd-pln:hover { border-color: var(--cyan); }
-.cmd-card.cmd-auto:hover { border-color: var(--amber); }
-
-.cmd-tag {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:2px;
-  color: var(--text-muted);
-}
-
-.cmd-name {
-  font-family: var(--font-display);
-  font-size:22px;
-  font-weight:700;
-  letter-spacing:3px;
-  text-transform:uppercase;
-}
-
-.cmd-card.cmd-bat .cmd-name { color: var(--green); }
-.cmd-card.cmd-pln .cmd-name { color: var(--cyan); }
-.cmd-card.cmd-auto .cmd-name{ color: var(--amber); }
-
-.cmd-desc {
-  font-family: var(--font-ui);
-  font-size:12px;
-  color: var(--text-muted);
-}
-
-.status-panel {
-  background: var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:2px;
-  padding:18px;
-  margin-top:16px;
-  font-family: var(--font-hud);
-  font-size:11px;
-  letter-spacing:1px;
-}
-
-.status-row {
-  display:flex;
-  gap:10px;
-  align-items:center;
-}
-
-.status-dot {
-  width:8px; height:8px;
-  border-radius:50%;
-  background: var(--text-muted);
-  flex-shrink:0;
-}
-
-.status-dot.active { background: var(--green); box-shadow: 0 0 8px var(--green); }
-
-/* ─── HISTORY PAGE ─── */
-.history-table {
-  width:100%;
-  border-collapse:collapse;
-  font-family: var(--font-hud);
-  font-size:11px;
-}
-
-.history-table th {
-  padding:10px 14px;
-  text-align:left;
-  font-size:9px;
-  letter-spacing:2px;
-  color: var(--text-muted);
-  border-bottom:1px solid var(--border);
-  text-transform:uppercase;
-}
-
-.history-table td {
-  padding:10px 14px;
-  border-bottom:1px solid rgba(0,200,255,0.05);
-  color: var(--text-secondary);
-  transition: background 0.1s;
-}
-
-.history-table tr:hover td { background: var(--bg-hover); }
-
-.hist-badge {
-  display:inline-block;
-  padding:2px 8px;
-  font-size:8px;
-  letter-spacing:1px;
-}
-
-.hist-badge.PLN { border:1px solid var(--cyan); color: var(--cyan); }
-.hist-badge.BAT { border:1px solid var(--green); color: var(--green); }
-
-/* ─── PROFILE PAGE ─── */
-.profile-grid {
-  display:grid;
-  grid-template-columns:1fr 1fr 1fr;
-  gap:14px;
-}
-
-.profile-card {
-  background: var(--bg-card);
-  border:1px solid var(--border);
-  border-radius:2px;
-  padding:20px;
-}
-
-.profile-card-label {
-  font-family: var(--font-hud);
-  font-size:9px;
-  letter-spacing:2px;
-  color: var(--text-muted);
-  text-transform:uppercase;
-  margin-bottom:10px;
-}
-
-.profile-card-value {
-  font-family: var(--font-display);
-  font-size:18px;
-  font-weight:600;
-  letter-spacing:1px;
-  color: var(--text-primary);
-}
-
-.logout-btn {
-  margin-top:20px;
-  font-family: var(--font-hud);
-  font-size:10px;
-  letter-spacing:3px;
-  padding:10px 24px;
-  background: transparent;
-  border:1px solid var(--red);
-  color: var(--red);
-  cursor:pointer;
-  text-transform:uppercase;
-  transition:all 0.2s;
-}
-
-.logout-btn:hover {
-  background: var(--red-dim);
-}
-
-/* ─── SYSTEM ALERT POPUP ─── */
-#sysAlert {
-  position:fixed;
-  top:58px;
-  right:16px;
-  min-width:260px;
-  background: var(--bg-panel);
-  border:1px solid var(--red);
-  border-radius:2px;
-  padding:12px 16px;
-  font-family: var(--font-hud);
-  font-size:11px;
-  letter-spacing:1px;
-  color: var(--red);
-  box-shadow: 0 0 20px rgba(255,59,92,0.2);
+/* ══════════════════════════════════════════
+   ALERT POPUP
+══════════════════════════════════════════ */
+#sysAlert{
+  position:fixed;top:66px;right:16px;
+  max-width:300px;
+  background:var(--bg1);
+  border:1px solid rgba(248,113,113,0.4);
+  border-radius:var(--radius);
+  padding:14px 16px;
+  box-shadow:0 8px 32px rgba(248,113,113,0.2);
   z-index:999;
-  opacity:0;
-  transform:translateX(20px);
-  transition: all 0.3s;
+  opacity:0;transform:translateX(20px) translateY(-4px);
+  transition:all 0.3s cubic-bezier(0.4,0,0.2,1);
   pointer-events:none;
 }
+#sysAlert.show{opacity:1;transform:translateX(0) translateY(0);}
+.alert-icon{color:var(--red);font-size:14px;margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.alert-msg{font-family:var(--mono);font-size:11px;color:var(--red);line-height:1.5;}
 
-#sysAlert.show {
-  opacity:1;
-  transform:translateX(0);
+/* ══════════════════════════════════════════
+   MOBILE OVERLAY
+══════════════════════════════════════════ */
+.sidebar-overlay{
+  display:none;position:fixed;inset:0;z-index:99;
+  background:rgba(0,0,0,0.6);backdrop-filter:blur(4px);
 }
 
+/* ══════════════════════════════════════════
+   RESPONSIVE — TABLET
+══════════════════════════════════════════ */
+@media(max-width:900px){
+  .metrics-grid{grid-template-columns:repeat(2,1fr);}
+  .metrics-grid.cols3{grid-template-columns:repeat(2,1fr);}
+  .profile-grid{grid-template-columns:1fr 1fr;}
+}
+
+/* ══════════════════════════════════════════
+   RESPONSIVE — MOBILE
+══════════════════════════════════════════ */
+@media(max-width:640px){
+  :root{--topbar-h:52px;}
+  .topbar{padding:0 12px;}
+  .topbar-menu-btn{display:flex;}
+  .logo-ver{display:none;}
+  .top-clock{font-size:12px;padding:4px 9px;}
+
+  .sidebar{
+    position:fixed;left:0;top:var(--topbar-h);bottom:0;
+    transform:translateX(-100%);z-index:150;
+    box-shadow:8px 0 32px rgba(0,0,0,0.4);
+  }
+  .sidebar.open{transform:translateX(0);}
+  .sidebar-overlay{display:block;}
+  .sidebar-overlay.active{display:block;}
+
+  .main{padding:12px;padding-bottom:52px;}
+  .metrics-grid{grid-template-columns:1fr 1fr;}
+  .metrics-grid.cols3{grid-template-columns:1fr 1fr;}
+  .cmd-grid{grid-template-columns:1fr;}
+  .cmd-full{grid-column:span 1;}
+  .profile-grid{grid-template-columns:1fr;}
+  .source-summary{grid-template-columns:repeat(2,1fr);}
+  .page-title{font-size:15px;}
+  .metric-value{font-size:20px;}
+  .chart-wrap{height:150px;}
+  .flow-svg{min-width:300px;}
+}
+
+/* ══════════════════════════════════════════
+   ANIMATIONS
+══════════════════════════════════════════ */
+@keyframes fade-in{from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:none;}}
+.page.active{animation:fade-in 0.25s ease;}
+
+.shimmer{
+  background:linear-gradient(90deg,var(--bg2) 0%,var(--bg3) 50%,var(--bg2) 100%);
+  background-size:200% 100%;
+  animation:shimmer 1.5s ease-in-out infinite;
+}
+@keyframes shimmer{0%{background-position:200% 0;}100%{background-position:-200% 0;}}
 </style>
 </head>
 <body>
 
-<!-- ─── LOGIN ─── -->
+<!-- ════════════ LOGIN ════════════ -->
 <div id="loginScreen">
-  <div class="login-grid"></div>
-  <div class="login-brand">ENERGY MANAGEMENT SYSTEM — AUTHORIZED ACCESS ONLY</div>
-  <div class="login-box">
-    <div class="login-title">⚡ SCADA</div>
-    <div class="login-sub">SYSTEM AUTHENTICATION REQUIRED</div>
-    <div class="login-field">
-      <label class="login-label">User ID</label>
-      <input class="login-input" id="user" placeholder="Enter username" autocomplete="off">
+  <div class="login-bg"></div>
+  <div class="login-orb"></div>
+  <div class="login-card">
+    <div class="login-logo">
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <div class="login-title-wrap">
+        <div class="login-title">EMS SCADA</div>
+        <div class="login-sub">v2.4 — SECURE ACCESS</div>
+      </div>
     </div>
-    <div class="login-field">
-      <label class="login-label">Access Code</label>
-      <input class="login-input" id="pass" type="password" placeholder="••••••••">
+    <div class="login-heading">Sign In</div>
+    <div class="login-desc">Enter your credentials to access the Energy Management System.</div>
+    <div class="field-group">
+      <label class="field-label">User ID</label>
+      <input class="field-input" id="user" placeholder="Username" autocomplete="off">
     </div>
-    <button class="login-btn" onclick="login()"><span>AUTHENTICATE →</span></button>
+    <div class="field-group">
+      <label class="field-label">Access Code</label>
+      <input class="field-input" id="pass" type="password" placeholder="••••••••">
+    </div>
+    <button class="login-btn" onclick="login()">Authenticate</button>
     <div id="loginError"></div>
   </div>
 </div>
 
-<!-- ─── SYSTEM ALERT POPUP ─── -->
-<div id="sysAlert"></div>
+<!-- ════════════ ALERT POPUP ════════════ -->
+<div id="sysAlert">
+  <div class="alert-icon">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+    SYSTEM ALERT
+  </div>
+  <div class="alert-msg" id="sysAlertMsg"></div>
+</div>
 
-<!-- ─── TOPBAR ─── -->
+<!-- ════════════ TOPBAR ════════════ -->
 <div class="topbar">
   <div class="topbar-left">
-    <div class="topbar-logo">⚡ SCADA</div>
-    <div class="topbar-sep"></div>
-    <div class="topbar-subtitle">ENERGY MANAGEMENT SYSTEM v2.4</div>
+    <button class="topbar-menu-btn" id="menuBtn" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="topbar-logo">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <div class="logo-text">EMS</div>
+      <div class="logo-ver">SCADA v2.4</div>
+    </div>
   </div>
   <div class="topbar-right">
-    <div class="sys-time" id="sysTime">--:--:--</div>
-    <div class="topbar-sep"></div>
-    <div class="sys-badge" id="mqttBadge">CONNECTING</div>
+    <div class="top-clock" id="topClock">--:--:--</div>
+    <div class="top-badge" id="mqttBadge">
+      <div class="badge-dot"></div>
+      <span id="mqttLabel">CONNECTING</span>
+    </div>
   </div>
 </div>
 
-<!-- ─── LAYOUT ─── -->
+<!-- ════════════ LAYOUT ════════════ -->
 <div class="layout">
 
+  <!-- SIDEBAR OVERLAY (mobile) -->
+  <div class="sidebar-overlay" id="sideOverlay" onclick="closeSidebar()"></div>
+
   <!-- SIDEBAR -->
-  <div class="sidebar">
-    <div class="sidebar-section">
-      <div class="sidebar-label">Navigation</div>
-      <button class="nav-item active" onclick="showPage('monitor',this)">
-        <span class="nav-icon">◈</span> Monitor
-      </button>
-      <button class="nav-item" onclick="showPage('manual',this)">
-        <span class="nav-icon">◎</span> Control
-      </button>
-      <button class="nav-item" onclick="showPage('history',this)">
-        <span class="nav-icon">◷</span> History
-      </button>
-      <button class="nav-item" onclick="showPage('profile',this)">
-        <span class="nav-icon">◉</span> Profile
-      </button>
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-inner">
+      <div class="sidebar-section">
+        <div class="sidebar-label">Main</div>
+        <button class="nav-item active" onclick="showPage('monitor',this)">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </div>
+          <span class="nav-text">Monitor</span>
+        </button>
+        <button class="nav-item" onclick="showPage('control',this)">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          </div>
+          <span class="nav-text">Control</span>
+        </button>
+      </div>
+      <div class="sidebar-divider"></div>
+      <div class="sidebar-section">
+        <div class="sidebar-label">Data</div>
+        <button class="nav-item" onclick="showPage('history',this)">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <span class="nav-text">History</span>
+        </button>
+        <button class="nav-item" onclick="showPage('profile',this)">
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <span class="nav-text">Profile</span>
+        </button>
+      </div>
     </div>
     <div class="sidebar-bottom">
-      <div class="conn-status">
-        <div class="conn-dot" id="connDot"></div>
-        <span id="connLabel">DISCONNECTED</span>
+      <div class="conn-card">
+        <div class="conn-label">MQTT BROKER</div>
+        <div class="conn-row">
+          <div class="conn-dot" id="connDot"></div>
+          <div class="conn-text" id="connLabel">OFFLINE</div>
+        </div>
       </div>
     </div>
   </div>
 
-  <!-- MAIN -->
-  <div class="main" id="mainContent">
+  <!-- MAIN CONTENT -->
+  <div class="main" id="mainArea">
 
     <!-- ═══ MONITOR PAGE ═══ -->
     <div id="monitor" class="page active">
-
       <div class="page-header">
-        <div class="page-title">System Monitor</div>
-        <div class="page-badge" id="modeLabel">SYSTEM READY</div>
+        <div class="page-header-left">
+          <div class="page-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </div>
+          <div>
+            <div class="page-title">System Monitor</div>
+            <div class="page-subtitle">REALTIME TELEMETRY</div>
+          </div>
+        </div>
+        <div class="mode-pill bat" id="modePill">
+          <div class="mode-pill-dot"></div>
+          <span id="modeText">STANDBY</span>
+        </div>
       </div>
 
-      <!-- SOURCE BAR -->
-      <div class="source-bar" id="sourceBar">
-        <div>
-          <div class="source-label">Active Source</div>
-          <div class="source-value" id="sourceText">— STANDBY —</div>
+      <!-- SUMMARY CARDS -->
+      <div class="source-summary">
+        <div class="summary-card pln">
+          <div class="sum-label">PLN Voltage</div>
+          <div class="sum-value"><span id="s_pln_v">0.00</span><span>V</span></div>
+          <div class="sum-sub" id="s_pln_sub">Grid Supply</div>
         </div>
-        <div class="source-divider"></div>
-        <div>
-          <div class="source-label">PLN Voltage</div>
-          <div style="font-family:var(--font-hud);font-size:15px;color:var(--cyan)" id="hdr_pln_v">0.00 V</div>
+        <div class="summary-card bat">
+          <div class="sum-label">Battery</div>
+          <div class="sum-value"><span id="s_bat_v">0.00</span><span>V</span></div>
+          <div class="batt-strip"><div class="batt-fill" id="battFill"></div></div>
+          <div class="sum-sub" id="s_bat_pct">0% SoC</div>
         </div>
-        <div class="source-divider"></div>
-        <div>
-          <div class="source-label">BAT Voltage</div>
-          <div style="font-family:var(--font-hud);font-size:15px;color:var(--green)" id="hdr_bat_v">0.00 V</div>
+        <div class="summary-card load">
+          <div class="sum-label">Load Power</div>
+          <div class="sum-value"><span id="s_load_w">0</span><span>W</span></div>
+          <div class="sum-sub">Active Consumption</div>
         </div>
-        <div class="source-divider"></div>
-        <div>
-          <div class="source-label">Battery</div>
-          <div style="font-family:var(--font-hud);font-size:15px;" id="hdr_bat_pct">0%</div>
-        </div>
-        <div style="margin-left:auto;">
-          <div class="batt-bar-wrap" style="width:120px;">
-            <div class="batt-bar-fill" id="battFill"></div>
-          </div>
+        <div class="summary-card energy">
+          <div class="sum-label">Energy (PLN)</div>
+          <div class="sum-value"><span id="s_pln_wh">0.00</span><span>Wh</span></div>
+          <div class="sum-sub">Total Accumulated</div>
         </div>
       </div>
 
       <!-- FLOW DIAGRAM -->
-      <div class="flow-container">
-        <div class="flow-header">ENERGY FLOW DIAGRAM — REAL-TIME</div>
-        <div class="flow-diagram">
+      <div class="flow-card">
+        <div class="flow-card-header">
+          <div class="card-title"><div class="card-title-dot"></div>Energy Flow — Real Time</div>
+          <div class="live-indicator"><div class="badge-dot"></div>LIVE</div>
+        </div>
+        <div class="flow-svg-wrap">
+          <svg class="flow-svg" viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg" style="font-family:'JetBrains Mono',monospace;">
+            <defs>
+              <filter id="glow-b"><feGaussianBlur stdDeviation="2" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
+              <filter id="glow-g"><feGaussianBlur stdDeviation="2" result="blur"/><feComposite in="SourceGraphic" in2="blur" operator="over"/></filter>
+            </defs>
+            <!-- PLN NODE -->
+            <g class="fnode" id="nodeP">
+              <rect x="10" y="30" width="110" height="70" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+              <text x="65" y="53" text-anchor="middle" class="node-id" font-size="9" fill="#4a5568">SRC-01</text>
+              <text x="65" y="72" text-anchor="middle" class="node-name" font-size="13" font-weight="700" fill="#e8edf5">PLN</text>
+              <text x="65" y="90" text-anchor="middle" class="node-val" font-size="10" fill="#4a5568" id="nd_pln_v">0.00 V</text>
+            </g>
+            <!-- CONNECTOR PLN→LOAD (base track) -->
+            <line x1="122" y1="65" x2="218" y2="65" class="flow-line" id="trackPL"/>
+            <!-- PLN flow dash -->
+            <line x1="122" y1="65" x2="218" y2="65" class="flow-dash pln" id="dashPL"/>
+            <!-- flow label -->
+            <text x="170" y="58" text-anchor="middle" font-size="9" font-family="'JetBrains Mono',monospace" fill="#4a5568" id="nd_pln_data">—</text>
 
-          <!-- PLN NODE -->
-          <div class="flow-node">
-            <div class="node-body" id="plnNode">
-              <div class="node-id">SRC-01</div>
-              <div class="node-name">PLN</div>
-            </div>
-            <div class="node-label">Grid Supply</div>
-          </div>
+            <!-- LOAD NODE -->
+            <g class="fnode load-node" id="nodeL">
+              <rect x="220" y="22" width="120" height="86" rx="10" fill="rgba(251,191,36,0.06)" stroke="rgba(251,191,36,0.3)" stroke-width="1.5"/>
+              <text x="280" y="47" text-anchor="middle" font-size="9" font-family="'JetBrains Mono',monospace" fill="#92400e">LOAD</text>
+              <text x="280" y="74" text-anchor="middle" font-size="18" font-weight="700" font-family="'JetBrains Mono',monospace" fill="#fbbf24" id="nd_load_w">0 W</text>
+              <text x="280" y="94" text-anchor="middle" font-size="9" font-family="'JetBrains Mono',monospace" fill="#78350f">Consumption</text>
+            </g>
 
-          <!-- CONNECTOR PLN→LOAD -->
-          <div class="flow-connector">
-            <div class="connector-track">
-              <div class="connector-fill" id="flowPLN"></div>
-            </div>
-            <div class="connector-data" id="flowPLNdata">—</div>
-          </div>
+            <!-- CONNECTOR LOAD→BAT -->
+            <line x1="342" y1="65" x2="440" y2="65" class="flow-line" id="trackLB"/>
+            <line x1="342" y1="65" x2="440" y2="65" class="flow-dash bat" id="dashLB"/>
+            <text x="391" y="58" text-anchor="middle" font-size="9" font-family="'JetBrains Mono',monospace" fill="#4a5568" id="nd_bat_data">—</text>
 
-          <!-- LOAD NODE -->
-          <div class="load-node">
-            <div class="load-body">
-              <div class="node-id" style="color:var(--amber);font-family:var(--font-hud);font-size:8px;letter-spacing:2px;">LOAD</div>
-              <div class="load-watt" id="loadWatt">0 W</div>
-            </div>
-            <div class="node-label" style="color:var(--amber)">Active Consumption</div>
-          </div>
-
-          <!-- CONNECTOR LOAD→BAT -->
-          <div class="flow-connector">
-            <div class="connector-track">
-              <div class="connector-fill" id="flowBAT"></div>
-            </div>
-            <div class="connector-data" id="flowBATdata">—</div>
-          </div>
-
-          <!-- BATTERY NODE -->
-          <div class="flow-node">
-            <div class="node-body" id="batNode">
-              <div class="node-id">SRC-02</div>
-              <div class="node-name">BAT</div>
-            </div>
-            <div class="node-label">Battery Bank</div>
-          </div>
-
+            <!-- BATTERY NODE -->
+            <g class="fnode" id="nodeB">
+              <rect x="442" y="30" width="110" height="70" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1"/>
+              <text x="497" y="53" text-anchor="middle" class="node-id" font-size="9" fill="#4a5568">SRC-02</text>
+              <text x="497" y="72" text-anchor="middle" class="node-name" font-size="13" font-weight="700" fill="#e8edf5">BAT</text>
+              <text x="497" y="90" text-anchor="middle" class="node-val" font-size="10" fill="#4a5568" id="nd_bat_v">0.00 V</text>
+            </g>
+          </svg>
         </div>
       </div>
 
-      <!-- METRICS — PLN -->
-      <div class="section-title">PLN — Grid Parameters</div>
-      <div class="metrics-row">
+      <!-- PLN METRICS -->
+      <div class="section-header">
+        <div class="section-title">PLN — Grid Parameters</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="metrics-grid" id="plnGrid">
         <div class="metric-card">
-          <div class="metric-source">PLN</div>
-          <div class="metric-label">VOLTAGE</div>
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Voltage</div>
           <div class="metric-value"><span id="pln_v">0.00</span><span class="unit">V</span></div>
-          <div class="metric-bar"><div class="metric-bar-fill" id="bar_pln_v"></div></div>
+          <div class="metric-progress"><div class="metric-bar" id="bar_pln_v"></div></div>
         </div>
         <div class="metric-card">
-          <div class="metric-source">PLN</div>
-          <div class="metric-label">CURRENT</div>
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Current</div>
           <div class="metric-value"><span id="pln_i">0.00</span><span class="unit">A</span></div>
-          <div class="metric-bar"><div class="metric-bar-fill" id="bar_pln_i"></div></div>
+          <div class="metric-progress"><div class="metric-bar" id="bar_pln_i"></div></div>
         </div>
         <div class="metric-card">
-          <div class="metric-source">PLN</div>
-          <div class="metric-label">POWER</div>
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Power</div>
           <div class="metric-value"><span id="pln_p">0.00</span><span class="unit">W</span></div>
-          <div class="metric-bar"><div class="metric-bar-fill" id="bar_pln_p"></div></div>
+          <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_p"></div></div>
         </div>
         <div class="metric-card">
-          <div class="metric-source">PLN</div>
-          <div class="metric-label">FREQUENCY</div>
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Frequency</div>
           <div class="metric-value"><span id="pln_f">0.00</span><span class="unit">Hz</span></div>
-          <div class="metric-bar"><div class="metric-bar-fill" id="bar_pln_f" style="background:var(--amber);width:60%"></div></div>
+          <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_f" style="width:60%;"></div></div>
         </div>
       </div>
-      <div class="metrics-row" style="grid-template-columns:1fr 1fr;">
+      <div class="metrics-grid cols2">
         <div class="metric-card">
-          <div class="metric-source">PLN</div>
-          <div class="metric-label">ENERGY</div>
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Energy</div>
           <div class="metric-value"><span id="pln_e">0.00</span><span class="unit">Wh</span></div>
         </div>
         <div class="metric-card">
-          <div class="metric-source">PLN</div>
-          <div class="metric-label">POWER FACTOR</div>
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Power Factor</div>
           <div class="metric-value"><span id="pln_pf">0.00</span></div>
-          <div class="metric-bar"><div class="metric-bar-fill" id="bar_pln_pf" style="background:var(--amber);"></div></div>
+          <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_pf"></div></div>
         </div>
       </div>
 
-      <!-- METRICS — BATTERY -->
-      <div class="section-title">BATTERY — Storage Parameters</div>
-      <div class="metrics-row">
+      <!-- BAT METRICS -->
+      <div class="section-header" style="margin-top:8px;">
+        <div class="section-title">Battery — Storage Parameters</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="metrics-grid">
         <div class="metric-card">
-          <div class="metric-source">BAT</div>
-          <div class="metric-label">VOLTAGE</div>
+          <div class="metric-tag bat">BAT</div>
+          <div class="metric-label">Voltage</div>
           <div class="metric-value"><span id="bat_v">0.00</span><span class="unit">V</span></div>
-          <div class="metric-bar"><div class="metric-bar-fill green" id="bar_bat_v"></div></div>
+          <div class="metric-progress"><div class="metric-bar green" id="bar_bat_v"></div></div>
         </div>
         <div class="metric-card">
-          <div class="metric-source">BAT</div>
-          <div class="metric-label">CURRENT</div>
+          <div class="metric-tag bat">BAT</div>
+          <div class="metric-label">Current</div>
           <div class="metric-value"><span id="bat_i">0.00</span><span class="unit">A</span></div>
-          <div class="metric-bar"><div class="metric-bar-fill green" id="bar_bat_i"></div></div>
+          <div class="metric-progress"><div class="metric-bar green" id="bar_bat_i"></div></div>
         </div>
         <div class="metric-card">
-          <div class="metric-source">BAT</div>
-          <div class="metric-label">POWER</div>
+          <div class="metric-tag bat">BAT</div>
+          <div class="metric-label">Power</div>
           <div class="metric-value"><span id="bat_p">0.00</span><span class="unit">W</span></div>
-          <div class="metric-bar"><div class="metric-bar-fill green" id="bar_bat_p"></div></div>
+          <div class="metric-progress"><div class="metric-bar green" id="bar_bat_p"></div></div>
         </div>
         <div class="metric-card">
-          <div class="metric-source">BAT</div>
-          <div class="metric-label">ENERGY</div>
+          <div class="metric-tag bat">BAT</div>
+          <div class="metric-label">Energy</div>
           <div class="metric-value"><span id="bat_e">0.00</span><span class="unit">Wh</span></div>
         </div>
       </div>
 
       <!-- CHART -->
-      <div class="section-title">Realtime Graph</div>
-      <div class="chart-panel">
-        <div class="chart-controls">
-          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-            <div class="ctrl-group" id="srcBtns">
-              <button class="ctrl-btn active-pln" onclick="setChartSource(this,'PLN')">PLN</button>
-              <button class="ctrl-btn" onclick="setChartSource(this,'BAT')">BAT</button>
+      <div class="section-header" style="margin-top:8px;">
+        <div class="section-title">Realtime Graph</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-header">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;align-items:center;">
+            <div class="chart-controls" id="srcGroup">
+              <button class="ctrl-btn ap" onclick="setCS(this,'PLN')">PLN</button>
+              <button class="ctrl-btn" onclick="setCS(this,'BAT')">BAT</button>
             </div>
-            <div style="width:1px;height:20px;background:var(--border);"></div>
-            <div class="ctrl-group" id="paramBtns">
-              <button class="ctrl-btn active-param" onclick="setChartParam(this,'V')">Voltage</button>
-              <button class="ctrl-btn" onclick="setChartParam(this,'I')">Current</button>
-              <button class="ctrl-btn" onclick="setChartParam(this,'P')">Power</button>
+            <div class="chart-sep"></div>
+            <div class="chart-controls" id="paramGroup">
+              <button class="ctrl-btn aa" onclick="setCP(this,'V')">Voltage</button>
+              <button class="ctrl-btn" onclick="setCP(this,'I')">Current</button>
+              <button class="ctrl-btn" onclick="setCP(this,'P')">Power</button>
             </div>
           </div>
-          <div class="chart-meta" id="chartMeta">PLN — VOLTAGE (V) — LIVE</div>
+          <div class="chart-meta" id="chartMeta">PLN · Voltage · Live</div>
         </div>
         <div class="chart-wrap">
-          <canvas id="chartMain"></canvas>
+          <canvas id="mainChart" role="img" aria-label="Realtime energy parameter chart"></canvas>
         </div>
       </div>
-
-    </div>
+    </div><!-- /monitor -->
 
     <!-- ═══ CONTROL PAGE ═══ -->
-    <div id="manual" class="page">
+    <div id="control" class="page">
       <div class="page-header">
-        <div class="page-title">Manual Control</div>
-        <div class="page-badge">OPERATOR ACCESS</div>
-      </div>
-
-      <div class="section-title">Source Command</div>
-      <div class="manual-grid">
-        <div class="cmd-card cmd-bat" onclick="sendCmd('BAT')">
-          <div class="cmd-tag">CMD-01 / SOURCE</div>
-          <div class="cmd-name">Battery</div>
-          <div class="cmd-desc">Force switch to battery backup supply. Load will be powered by storage bank.</div>
-        </div>
-        <div class="cmd-card cmd-pln" onclick="sendCmd('PLN')">
-          <div class="cmd-tag">CMD-02 / SOURCE</div>
-          <div class="cmd-name">PLN Grid</div>
-          <div class="cmd-desc">Force switch to utility grid supply. Battery enters standby / charge mode.</div>
-        </div>
-        <div class="cmd-card cmd-auto" style="grid-column:span 2;" onclick="sendCmd('AUTO')">
-          <div class="cmd-tag">CMD-03 / MODE</div>
-          <div class="cmd-name">Auto</div>
-          <div class="cmd-desc">System manages source automatically based on grid availability and battery state.</div>
+        <div class="page-header-left">
+          <div class="page-icon" style="background:rgba(251,191,36,0.1);border-color:rgba(251,191,36,0.2);">
+            <svg viewBox="0 0 24 24" style="stroke:var(--amber)"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          </div>
+          <div>
+            <div class="page-title">Manual Control</div>
+            <div class="page-subtitle">OPERATOR ACCESS</div>
+          </div>
         </div>
       </div>
-
-      <div class="status-panel">
-        <div class="status-row">
-          <div class="status-dot active" id="statusDot"></div>
-          <span id="status" style="color:var(--text-secondary);">AWAITING COMMAND</span>
+      <div class="section-header">
+        <div class="section-title">Source Command</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="cmd-grid">
+        <div class="cmd-card c-bat" onclick="sendCmd('BAT')">
+          <div class="cmd-card-inner">
+            <div class="cmd-tag">CMD-01 · SOURCE</div>
+            <div class="cmd-icon">
+              <svg viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3"/><path d="M7 7V4"/><path d="M11 7V4"/></svg>
+            </div>
+            <div class="cmd-name">Battery</div>
+            <div class="cmd-desc">Force switch to battery backup. Load powered by storage bank.</div>
+          </div>
+        </div>
+        <div class="cmd-card c-pln" onclick="sendCmd('PLN')">
+          <div class="cmd-card-inner">
+            <div class="cmd-tag">CMD-02 · SOURCE</div>
+            <div class="cmd-icon">
+              <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+            </div>
+            <div class="cmd-name">PLN Grid</div>
+            <div class="cmd-desc">Force switch to utility grid. Battery enters standby/charge mode.</div>
+          </div>
+        </div>
+        <div class="cmd-card c-auto cmd-full" onclick="sendCmd('AUTO')">
+          <div class="cmd-card-inner">
+            <div class="cmd-tag">CMD-03 · MODE</div>
+            <div class="cmd-icon">
+              <svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg>
+            </div>
+            <div class="cmd-name">Auto Mode</div>
+            <div class="cmd-desc">System manages source automatically based on grid availability and battery state of charge.</div>
+          </div>
         </div>
       </div>
-    </div>
+      <div class="status-card">
+        <div class="status-dot-el on" id="statusDot"></div>
+        <div class="status-text" id="statusText">AWAITING COMMAND</div>
+      </div>
+    </div><!-- /control -->
 
     <!-- ═══ HISTORY PAGE ═══ -->
     <div id="history" class="page">
       <div class="page-header">
-        <div class="page-title">Event History</div>
-        <div class="page-badge">CYCLE LOG</div>
+        <div class="page-header-left">
+          <div class="page-icon" style="background:rgba(167,139,250,0.1);border-color:rgba(167,139,250,0.2);">
+            <svg viewBox="0 0 24 24" style="stroke:var(--purple)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <div class="page-title">Event History</div>
+            <div class="page-subtitle">SWITCHING LOG</div>
+          </div>
+        </div>
       </div>
-      <div class="section-title">Switching Events</div>
-      <table class="history-table">
-        <thead>
-          <tr>
-            <th>Timestamp</th>
-            <th>Source</th>
-            <th>Energy (Wh)</th>
-          </tr>
-        </thead>
-        <tbody id="historyTable"></tbody>
-      </table>
-    </div>
+      <div class="section-header">
+        <div class="section-title">Switching Events</div>
+        <div class="section-line"></div>
+      </div>
+      <div class="table-card">
+        <table class="hist-table">
+          <thead>
+            <tr>
+              <th>Timestamp</th>
+              <th>Source</th>
+              <th>Energy (Wh)</th>
+            </tr>
+          </thead>
+          <tbody id="histTable"></tbody>
+        </table>
+      </div>
+    </div><!-- /history -->
 
     <!-- ═══ PROFILE PAGE ═══ -->
     <div id="profile" class="page">
       <div class="page-header">
-        <div class="page-title">User Profile</div>
-        <div class="page-badge">SESSION ACTIVE</div>
+        <div class="page-header-left">
+          <div class="page-icon" style="background:rgba(52,211,153,0.1);border-color:rgba(52,211,153,0.2);">
+            <svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
+          <div>
+            <div class="page-title">User Profile</div>
+            <div class="page-subtitle">SESSION ACTIVE</div>
+          </div>
+        </div>
       </div>
-      <div class="section-title">Session Info</div>
+      <div class="section-header">
+        <div class="section-title">Session Info</div>
+        <div class="section-line"></div>
+      </div>
       <div class="profile-grid">
         <div class="profile-card">
-          <div class="profile-card-label">User ID</div>
-          <div class="profile-card-value" id="userId">—</div>
+          <div class="profile-label">User ID</div>
+          <div class="profile-value" id="userId">—</div>
         </div>
         <div class="profile-card">
-          <div class="profile-card-label">Role</div>
-          <div class="profile-card-value">OPERATOR</div>
+          <div class="profile-label">Role</div>
+          <div class="profile-value">OPERATOR</div>
         </div>
         <div class="profile-card">
-          <div class="profile-card-label">System</div>
-          <div class="profile-card-value">EMS v2.4</div>
+          <div class="profile-label">System</div>
+          <div class="profile-value">EMS v2.4</div>
         </div>
       </div>
-      <button class="logout-btn" onclick="confirmLogout()">TERMINATE SESSION →</button>
-    </div>
+      <button class="logout-btn" onclick="confirmLogout()">Terminate Session</button>
+    </div><!-- /profile -->
 
-  </div><!-- end main -->
-</div><!-- end layout -->
+  </div><!-- /main -->
+</div><!-- /layout -->
 
-<!-- ALERT STRIP -->
-<div class="alert-strip">
-  <div class="alert-label">SYS LOG:</div>
-  <div class="alert-ticker" id="alertTicker">SYSTEM ONLINE — AWAITING DATA STREAM</div>
+<!-- STATUS BAR -->
+<div class="statusbar">
+  <div class="sb-label">LOG</div>
+  <div class="sb-ticker" id="sbTicker">SYSTEM ONLINE — AWAITING DATA STREAM</div>
+  <div class="sb-right">
+    <div class="sb-chip" id="sbSource">—</div>
+  </div>
 </div>
 
 <script>
 // ─── CLOCK ───
 function updateClock(){
-  document.getElementById('sysTime').innerText = new Date().toLocaleTimeString('en-GB',{hour12:false});
+  document.getElementById('topClock').innerText=new Date().toLocaleTimeString('en-GB',{hour12:false});
 }
-setInterval(updateClock, 1000);
-updateClock();
+setInterval(updateClock,1000);updateClock();
 
 // ─── IDLE LOGOUT ───
 let idleTimer;
 function resetTimer(){
   clearTimeout(idleTimer);
-  idleTimer = setTimeout(logout, 10*60*1000);
+  idleTimer=setTimeout(logout,10*60*1000);
 }
 ['click','mousemove','keydown','touchstart'].forEach(e=>document.addEventListener(e,resetTimer));
 
 function logout(){
   clearTimeout(idleTimer);
-  localStorage.removeItem('login');
-  localStorage.removeItem('user');
+  localStorage.removeItem('login');localStorage.removeItem('user');
   document.getElementById('loginScreen').style.display='flex';
 }
-
-function confirmLogout(){
-  if(confirm('Terminate current session?')) logout();
-}
+function confirmLogout(){if(confirm('Terminate current session?'))logout();}
 
 // ─── LOGIN ───
 function login(){
   const u=document.getElementById('user').value.trim();
   const p=document.getElementById('pass').value;
-  if(u==='admin' && p==='1234'){
-    localStorage.setItem('login','true');
-    localStorage.setItem('user',u);
+  if(u==='admin'&&p==='1234'){
+    localStorage.setItem('login','true');localStorage.setItem('user',u);
     document.getElementById('userId').innerText=u;
     document.getElementById('loginScreen').style.display='none';
     resetTimer();
     pushTicker('SESSION AUTHENTICATED — USER: '+u.toUpperCase(),'ok');
   } else {
-    document.getElementById('loginError').innerText='// ACCESS DENIED — INVALID CREDENTIALS';
+    document.getElementById('loginError').innerText='Access denied — invalid credentials';
   }
 }
-
-// auto-login
 if(localStorage.getItem('login')==='true'){
   const u=localStorage.getItem('user')||'admin';
   document.getElementById('userId').innerText=u;
   document.getElementById('loginScreen').style.display='none';
   resetTimer();
 }
-
-// enter key
-window.addEventListener('keydown',e=>{ if(e.key==='Enter') login(); });
+window.addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 
 // ─── NAV ───
-function showPage(page, btn){
+function showPage(page,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(page).classList.add('active');
   document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
-  if(btn) btn.classList.add('active');
+  if(btn)btn.classList.add('active');
+  closeSidebar();
+}
+
+// ─── MOBILE SIDEBAR ───
+function toggleSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sideOverlay');
+  s.classList.toggle('open');
+  o.classList.toggle('active');
+}
+function closeSidebar(){
+  const s=document.getElementById('sidebar');
+  const o=document.getElementById('sideOverlay');
+  s.classList.remove('open');
+  o.classList.remove('active');
 }
 
 // ─── TICKER ───
-function pushTicker(msg, type=''){
-  const el=document.getElementById('alertTicker');
-  el.className='alert-ticker '+(type||'');
+function pushTicker(msg,type=''){
+  const el=document.getElementById('sbTicker');
+  el.className='sb-ticker '+(type||'');
   el.innerText=new Date().toLocaleTimeString('en-GB',{hour12:false})+' — '+msg;
 }
 
-// ─── SYS ALERT POPUP ───
-let alertPopupTimer;
-function showSysAlert(msg){
-  const el=document.getElementById('sysAlert');
-  el.innerText='⚠ '+msg;
-  el.classList.add('show');
-  clearTimeout(alertPopupTimer);
-  alertPopupTimer=setTimeout(()=>el.classList.remove('show'),8000);
+// ─── ALERT POPUP ───
+let alertTimer;
+function showAlert(msg){
+  document.getElementById('sysAlertMsg').innerText=msg;
+  document.getElementById('sysAlert').classList.add('show');
+  clearTimeout(alertTimer);
+  alertTimer=setTimeout(()=>document.getElementById('sysAlert').classList.remove('show'),8000);
 }
 
-// ─── MQTT ───
-let historyData=[];
-let plnAlarmSent=false, batAlarmSent=false;
-
-const client=mqtt.connect('wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt',{
-  username:'esp32', password:'123456'
-});
-
-client.on('connect',()=>{
-  client.subscribe('test/monitor');
-  document.getElementById('connDot').className='conn-dot online';
-  document.getElementById('connLabel').innerText='ONLINE';
-  document.getElementById('mqttBadge').innerText='ONLINE';
-  document.getElementById('mqttBadge').style.borderColor='var(--green)';
-  document.getElementById('mqttBadge').style.color='var(--green)';
-  pushTicker('MQTT BROKER CONNECTED','ok');
-});
-
-client.on('disconnect',()=>{
-  document.getElementById('connDot').className='conn-dot';
-  document.getElementById('connLabel').innerText='DISCONNECTED';
-  pushTicker('MQTT CONNECTION LOST','alarm');
-});
-
 // ─── CHART ───
-let chartLabels=[];
-let chartData={PLN:{V:[],I:[],P:[]},BAT:{V:[],I:[],P:[]}};
-let activeSource='PLN', activeParam='V';
-
+const chartLabels=[];
+const chartData={PLN:{V:[],I:[],P:[]},BAT:{V:[],I:[],P:[]}};
+let cSrc='PLN',cPar='V';
 const chartCfg={
-  PLN:{
-    V:{label:'PLN — VOLTAGE (V) — LIVE', color:'#00c8ff', min:200, max:240},
-    I:{label:'PLN — CURRENT (A) — LIVE', color:'#67e8f9', min:0, max:10},
-    P:{label:'PLN — POWER (W) — LIVE',   color:'#ffb800', min:0, max:2000},
-  },
-  BAT:{
-    V:{label:'BAT — VOLTAGE (V) — LIVE', color:'#00e5a0', min:10, max:14},
-    I:{label:'BAT — CURRENT (A) — LIVE', color:'#34d399', min:0, max:20},
-    P:{label:'BAT — POWER (W) — LIVE',   color:'#6ee7b7', min:0, max:300},
-  }
+  PLN:{V:{label:'PLN · Voltage · Live',color:'#4f9cf9',min:200,max:240},
+       I:{label:'PLN · Current · Live',color:'#67e8f9',min:0,max:10},
+       P:{label:'PLN · Power · Live',color:'#fbbf24',min:0,max:2000}},
+  BAT:{V:{label:'BAT · Voltage · Live',color:'#34d399',min:10,max:14},
+       I:{label:'BAT · Current · Live',color:'#6ee7b7',min:0,max:20},
+       P:{label:'BAT · Power · Live',color:'#a78bfa',min:0,max:300}}
 };
 
-Chart.defaults.color='#334a63';
-Chart.defaults.borderColor='rgba(0,200,255,0.07)';
+Chart.defaults.color='#4a5568';
+Chart.defaults.borderColor='rgba(255,255,255,0.05)';
 
-const chartEl=document.getElementById('chartMain');
-const chartMain=new Chart(chartEl,{
+const chartEl=document.getElementById('mainChart');
+const mainChart=new Chart(chartEl,{
   type:'line',
   data:{
     labels:chartLabels,
     datasets:[{
       data:[],
-      borderColor:'#00c8ff',
-      backgroundColor:'rgba(0,200,255,0.05)',
-      fill:true,
-      tension:0.4,
-      pointRadius:0,
-      pointHoverRadius:4,
-      borderWidth:1.5,
+      borderColor:'#4f9cf9',
+      backgroundColor:'rgba(79,156,249,0.06)',
+      fill:true,tension:0.4,
+      pointRadius:0,pointHoverRadius:5,
+      borderWidth:2,
     }]
   },
   options:{
-    maintainAspectRatio:false,
-    responsive:true,
-    animation:{duration:200},
-    plugins:{legend:{display:false},tooltip:{
-      backgroundColor:'#070d1a',
-      borderColor:'rgba(0,200,255,0.3)',
-      borderWidth:1,
-      titleFont:{family:'Share Tech Mono',size:9},
-      bodyFont:{family:'Share Tech Mono',size:11},
-    }},
-    scales:{
-      y:{
-        min:200, max:240,
-        grid:{color:'rgba(0,200,255,0.06)'},
-        ticks:{font:{family:'Share Tech Mono',size:9},color:'#334a63'},
-      },
-      x:{
-        grid:{display:false},
-        ticks:{font:{family:'Share Tech Mono',size:9},color:'#334a63',maxTicksLimit:6},
+    maintainAspectRatio:false,responsive:true,
+    animation:{duration:300,easing:'easeOutQuart'},
+    plugins:{
+      legend:{display:false},
+      tooltip:{
+        backgroundColor:'#141926',
+        borderColor:'rgba(255,255,255,0.12)',
+        borderWidth:1,
+        titleFont:{family:'JetBrains Mono',size:10},
+        bodyFont:{family:'JetBrains Mono',size:12},
+        titleColor:'#8b96b0',
+        bodyColor:'#e8edf5',
+        padding:10,
+        cornerRadius:8,
       }
+    },
+    scales:{
+      y:{min:200,max:240,
+        grid:{color:'rgba(255,255,255,0.04)'},
+        ticks:{font:{family:'JetBrains Mono',size:10},color:'#4a5568'},
+        border:{color:'transparent'}},
+      x:{grid:{display:false},
+        ticks:{font:{family:'JetBrains Mono',size:10},color:'#4a5568',maxTicksLimit:6},
+        border:{color:'transparent'}}
     }
   }
 });
 
-function setChartSource(btn, src){
-  document.querySelectorAll('#srcBtns .ctrl-btn').forEach(b=>{
-    b.className='ctrl-btn';
-  });
-  btn.className='ctrl-btn '+(src==='PLN'?'active-pln':'active-bat');
-  activeSource=src;
-  refreshChart();
+function setCS(btn,src){
+  document.querySelectorAll('#srcGroup .ctrl-btn').forEach(b=>{b.className='ctrl-btn';});
+  btn.className='ctrl-btn '+(src==='PLN'?'ap':'ag');
+  cSrc=src;refreshChart();
 }
-
-function setChartParam(btn, param){
-  document.querySelectorAll('#paramBtns .ctrl-btn').forEach(b=>b.className='ctrl-btn');
-  btn.className='ctrl-btn active-param';
-  activeParam=param;
-  refreshChart();
+function setCP(btn,par){
+  document.querySelectorAll('#paramGroup .ctrl-btn').forEach(b=>{b.className='ctrl-btn';});
+  btn.className='ctrl-btn aa';
+  cPar=par;refreshChart();
 }
-
 function refreshChart(){
-  const cfg=chartCfg[activeSource][activeParam];
+  const cfg=chartCfg[cSrc][cPar];
   document.getElementById('chartMeta').innerText=cfg.label;
-  chartMain.data.datasets[0].data=chartData[activeSource][activeParam];
-  chartMain.data.datasets[0].borderColor=cfg.color;
-  chartMain.data.datasets[0].backgroundColor=cfg.color+'18';
-  chartMain.options.scales.y.min=cfg.min;
-  chartMain.options.scales.y.max=cfg.max;
-  chartMain.update('none');
+  mainChart.data.datasets[0].data=[...chartData[cSrc][cPar]];
+  mainChart.data.datasets[0].borderColor=cfg.color;
+  mainChart.data.datasets[0].backgroundColor=cfg.color+'18';
+  mainChart.options.scales.y.min=cfg.min;
+  mainChart.options.scales.y.max=cfg.max;
+  mainChart.update('none');
 }
-
-function pushChartData(d){
+function pushChart(d){
   const t=new Date().toLocaleTimeString('en-GB',{hour12:false});
   chartLabels.push(t);
-  chartData.PLN.V.push(d.pln_v); chartData.PLN.I.push(d.pln_i); chartData.PLN.P.push(d.pln_p);
-  chartData.BAT.V.push(d.bat_v); chartData.BAT.I.push(d.bat_i); chartData.BAT.P.push(d.bat_p);
-  if(chartLabels.length>30){
+  chartData.PLN.V.push(d.pln_v);chartData.PLN.I.push(d.pln_i);chartData.PLN.P.push(d.pln_p);
+  chartData.BAT.V.push(d.bat_v);chartData.BAT.I.push(d.bat_i);chartData.BAT.P.push(d.bat_p);
+  if(chartLabels.length>40){
     chartLabels.shift();
     ['V','I','P'].forEach(k=>{chartData.PLN[k].shift();chartData.BAT[k].shift();});
   }
   refreshChart();
 }
 
-// ─── PROGRESS BAR HELPER ───
-function setBar(id, pct){
+// ─── BAR HELPER ───
+function setBar(id,pct){
   const el=document.getElementById(id);
-  if(el) el.style.width=Math.min(100,Math.max(0,pct))+'%';
+  if(el)el.style.width=Math.min(100,Math.max(0,pct))+'%';
 }
 
-// ─── MQTT MESSAGE ───
+// ─── FLOW HELPERS ───
+function setFlowState(src){
+  // reset
+  const npEl=document.getElementById('nodeP');
+  const nbEl=document.getElementById('nodeB');
+  const dashPL=document.getElementById('dashPL');
+  const dashLB=document.getElementById('dashLB');
+  const trackPL=document.getElementById('trackPL');
+  const trackLB=document.getElementById('trackLB');
+
+  // reset all
+  npEl.querySelectorAll('rect').forEach(r=>{r.style.fill='rgba(255,255,255,0.03)';r.style.stroke='rgba(255,255,255,0.1)';r.setAttribute('stroke-width','1');});
+  npEl.querySelectorAll('.node-name').forEach(t=>{t.style.fill='#e8edf5';});
+  npEl.querySelectorAll('.node-val').forEach(t=>{t.style.fill='#4a5568';});
+  nbEl.querySelectorAll('rect').forEach(r=>{r.style.fill='rgba(255,255,255,0.03)';r.style.stroke='rgba(255,255,255,0.1)';r.setAttribute('stroke-width','1');});
+  nbEl.querySelectorAll('.node-name').forEach(t=>{t.style.fill='#e8edf5';});
+  nbEl.querySelectorAll('.node-val').forEach(t=>{t.style.fill='#4a5568';});
+  dashPL.className='flow-dash pln';
+  dashLB.className='flow-dash bat';
+  trackPL.style.stroke='rgba(255,255,255,0.08)';
+  trackLB.style.stroke='rgba(255,255,255,0.08)';
+
+  if(src==='PLN'){
+    npEl.querySelectorAll('rect').forEach(r=>{r.style.fill='rgba(79,156,249,0.1)';r.style.stroke='rgba(79,156,249,0.5)';r.setAttribute('stroke-width','1.5');});
+    npEl.querySelectorAll('.node-name').forEach(t=>{t.style.fill='#93c5fd';});
+    npEl.querySelectorAll('.node-val').forEach(t=>{t.style.fill='#4f9cf9';});
+    dashPL.className='flow-dash pln flowing';
+    trackPL.style.stroke='rgba(79,156,249,0.3)';
+  } else if(src==='BAT'){
+    nbEl.querySelectorAll('rect').forEach(r=>{r.style.fill='rgba(52,211,153,0.1)';r.style.stroke='rgba(52,211,153,0.5)';r.setAttribute('stroke-width','1.5');});
+    nbEl.querySelectorAll('.node-name').forEach(t=>{t.style.fill='#6ee7b7';});
+    nbEl.querySelectorAll('.node-val').forEach(t=>{t.style.fill='#34d399';});
+    dashLB.className='flow-dash bat flowing';
+    trackLB.style.stroke='rgba(52,211,153,0.3)';
+  }
+}
+
+// ─── MQTT ───
+let histData=[];
+let plnAlarm=false,batAlarm=false;
+
+const client=mqtt.connect('wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt',{
+  username:'esp32',password:'123456'
+});
+
+client.on('connect',()=>{
+  client.subscribe('test/monitor');
+  document.getElementById('connDot').className='conn-dot online';
+  document.getElementById('connLabel').innerText='ONLINE';
+  const b=document.getElementById('mqttBadge');
+  b.className='top-badge';
+  document.getElementById('mqttLabel').innerText='ONLINE';
+  pushTicker('MQTT BROKER CONNECTED','ok');
+});
+
+client.on('disconnect',()=>{
+  document.getElementById('connDot').className='conn-dot';
+  document.getElementById('connLabel').innerText='OFFLINE';
+  const b=document.getElementById('mqttBadge');
+  b.className='top-badge err';
+  document.getElementById('mqttLabel').innerText='OFFLINE';
+  pushTicker('MQTT CONNECTION LOST','alarm');
+});
+
 client.on('message',(topic,message)=>{
   resetTimer();
   let d;
-  try { d=JSON.parse(message.toString()); } catch(e){ return; }
+  try{d=JSON.parse(message.toString());}catch(e){return;}
 
-  // ── ALARMS ──
-  if(d.pln_v!==undefined && d.pln_v<50 && !plnAlarmSent){
-    showSysAlert('PLN GRID VOLTAGE DROPOUT — CHECK SUPPLY');
+  // alarms
+  if(d.pln_v!==undefined&&d.pln_v<50&&!plnAlarm){
+    showAlert('PLN GRID VOLTAGE DROPOUT — CHECK SUPPLY');
     pushTicker('ALARM: PLN VOLTAGE BELOW THRESHOLD ('+d.pln_v.toFixed(1)+'V)','alarm');
-    plnAlarmSent=true;
+    plnAlarm=true;
   }
-  if(d.pln_v>=50) plnAlarmSent=false;
-
-  if(d.bat_v!==undefined && d.bat_v<11 && !batAlarmSent){
-    showSysAlert('BATTERY CRITICAL LOW — IMMEDIATE ATTENTION REQUIRED');
+  if(d.pln_v>=50)plnAlarm=false;
+  if(d.bat_v!==undefined&&d.bat_v<11&&!batAlarm){
+    showAlert('BATTERY CRITICAL LOW — IMMEDIATE ATTENTION');
     pushTicker('ALARM: BATTERY VOLTAGE CRITICAL ('+d.bat_v.toFixed(2)+'V)','alarm');
-    batAlarmSent=true;
+    batAlarm=true;
   }
-  if(d.bat_v>=11) batAlarmSent=false;
+  if(d.bat_v>=11)batAlarm=false;
 
-  // ── BATTERY ──
+  // battery %
   let pct=((d.bat_v-11.8)/(13-11.8))*100;
   pct=Math.max(0,Math.min(100,pct));
-
   const fill=document.getElementById('battFill');
   if(fill){
     fill.style.width=pct+'%';
-    fill.style.background= pct>60?'var(--green)': pct>30?'var(--amber)':'var(--red)';
+    fill.style.background=pct>60?'var(--green)':pct>30?'var(--amber)':'var(--red)';
   }
+  const pctEl=document.getElementById('s_bat_pct');
+  if(pctEl){pctEl.innerText=pct.toFixed(0)+'% SoC';pctEl.style.color=pct>60?'var(--green)':pct>30?'var(--amber)':'var(--red)';}
 
-  const pctEl=document.getElementById('hdr_bat_pct');
-  if(pctEl){
-    pctEl.innerText=pct.toFixed(0)+'%';
-    pctEl.style.color= pct>60?'var(--green)': pct>30?'var(--amber)':'var(--red)';
-  }
+  // summary
+  document.getElementById('s_pln_v').innerText=d.pln_v.toFixed(2);
+  document.getElementById('s_bat_v').innerText=d.bat_v.toFixed(2);
+  const totalW=d.source==='PLN'?d.pln_p:d.bat_p;
+  document.getElementById('s_load_w').innerText=totalW.toFixed(0);
+  if(d.pln_Wh!==undefined)document.getElementById('s_pln_wh').innerText=d.pln_Wh.toFixed(2);
 
-  // ── HEADER VALS ──
-  if(document.getElementById('hdr_pln_v')) document.getElementById('hdr_pln_v').innerText=d.pln_v.toFixed(2)+' V';
-  if(document.getElementById('hdr_bat_v')) document.getElementById('hdr_bat_v').innerText=d.bat_v.toFixed(2)+' V';
+  // flow SVG labels
+  document.getElementById('nd_pln_v').textContent=d.pln_v.toFixed(2)+' V';
+  document.getElementById('nd_bat_v').textContent=d.bat_v.toFixed(2)+' V';
+  document.getElementById('nd_load_w').textContent=totalW.toFixed(0)+' W';
 
-  // ── PLN METRICS ──
+  // PLN metrics
   document.getElementById('pln_v').innerText=d.pln_v.toFixed(2);
   document.getElementById('pln_i').innerText=d.pln_i.toFixed(2);
   document.getElementById('pln_p').innerText=d.pln_p.toFixed(2);
-  if(d.pln_f!==undefined) document.getElementById('pln_f').innerText=d.pln_f.toFixed(2);
-  if(d.pln_Wh!==undefined) document.getElementById('pln_e').innerText=d.pln_Wh.toFixed(2);
-  if(d.pln_pf!==undefined){
-    document.getElementById('pln_pf').innerText=d.pln_pf.toFixed(2);
-    setBar('bar_pln_pf', d.pln_pf*100);
-  }
+  if(d.pln_f!==undefined)document.getElementById('pln_f').innerText=d.pln_f.toFixed(2);
+  if(d.pln_Wh!==undefined)document.getElementById('pln_e').innerText=d.pln_Wh.toFixed(2);
+  if(d.pln_pf!==undefined){document.getElementById('pln_pf').innerText=d.pln_pf.toFixed(2);setBar('bar_pln_pf',d.pln_pf*100);}
+  setBar('bar_pln_v',((d.pln_v-200)/40)*100);
+  setBar('bar_pln_i',(d.pln_i/10)*100);
+  setBar('bar_pln_p',(d.pln_p/2000)*100);
 
-  // progress bars PLN
-  setBar('bar_pln_v', ((d.pln_v-200)/40)*100);
-  setBar('bar_pln_i', (d.pln_i/10)*100);
-  setBar('bar_pln_p', (d.pln_p/2000)*100);
-
-  // ── BAT METRICS ──
+  // BAT metrics
   document.getElementById('bat_v').innerText=d.bat_v.toFixed(2);
   document.getElementById('bat_i').innerText=d.bat_i.toFixed(2);
   document.getElementById('bat_p').innerText=d.bat_p.toFixed(2);
-  if(d.bat_Wh!==undefined) document.getElementById('bat_e').innerText=d.bat_Wh.toFixed(2);
+  if(d.bat_Wh!==undefined)document.getElementById('bat_e').innerText=d.bat_Wh.toFixed(2);
+  setBar('bar_bat_v',((d.bat_v-10)/4)*100);
+  setBar('bar_bat_i',(d.bat_i/20)*100);
+  setBar('bar_bat_p',(d.bat_p/300)*100);
 
-  setBar('bar_bat_v', ((d.bat_v-10)/4)*100);
-  setBar('bar_bat_i', (d.bat_i/20)*100);
-  setBar('bar_bat_p', (d.bat_p/300)*100);
-
-  // ── LOAD ──
-  const totalW = d.source==='PLN' ? d.pln_p : d.bat_p;
-  document.getElementById('loadWatt').innerText=totalW.toFixed(0)+' W';
-
-  // ── FLOW ANIMATION ──
-  const plnFlow=document.getElementById('flowPLN');
-  const batFlow=document.getElementById('flowBAT');
-  const plnData=document.getElementById('flowPLNdata');
-  const batData=document.getElementById('flowBATdata');
-  const plnNode=document.getElementById('plnNode');
-  const batNodeEl=document.getElementById('batNode');
-  const sourceBar=document.getElementById('sourceBar');
-
-  plnFlow.className='connector-fill';
-  batFlow.className='connector-fill';
-  plnData.className='connector-data';
-  batData.className='connector-data';
-  plnNode.className='node-body';
-  batNodeEl.className='node-body';
-
+  // source/mode
+  const pill=document.getElementById('modePill');
+  const modeText=document.getElementById('modeText');
+  const sbSource=document.getElementById('sbSource');
   if(d.source==='PLN'){
-    plnFlow.className='connector-fill flowing-pln';
-    plnData.innerText=d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W';
-    plnData.className='connector-data active-cyan';
-    batData.innerText='—';
-    plnNode.className='node-body active-pln';
-    sourceBar.className='source-bar pln-active';
-    document.getElementById('sourceText').innerText='PLN GRID';
-    document.getElementById('sourceText').style.color='var(--cyan)';
-    document.getElementById('modeLabel').innerText='PLN ACTIVE';
-    pushTicker('SOURCE: PLN GRID — '+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W / PF:'+((d.pln_pf||0).toFixed(2)));
-
+    pill.className='mode-pill pln';modeText.innerText='PLN ACTIVE';sbSource.innerText='PLN';
+    document.getElementById('nd_pln_data').textContent=d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W';
+    document.getElementById('nd_bat_data').textContent='—';
+    setFlowState('PLN');
+    pushTicker('SOURCE: PLN — '+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W / PF:'+((d.pln_pf||0).toFixed(2)));
   } else if(d.source==='BAT'){
-    batFlow.className='connector-fill flowing-bat';
-    batData.innerText=d.bat_v.toFixed(2)+'V / '+d.bat_p.toFixed(0)+'W';
-    batData.className='connector-data active-green';
-    plnData.innerText='—';
-    batNodeEl.className='node-body active-bat';
-    sourceBar.className='source-bar bat-active';
-    document.getElementById('sourceText').innerText='BATTERY BANK';
-    document.getElementById('sourceText').style.color='var(--green)';
-    document.getElementById('modeLabel').innerText='BATTERY ACTIVE';
-    pushTicker('SOURCE: BATTERY — '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SOC','warn');
+    pill.className='mode-pill bat';modeText.innerText='BAT ACTIVE';sbSource.innerText='BAT';
+    document.getElementById('nd_bat_data').textContent=d.bat_v.toFixed(2)+'V / '+d.bat_p.toFixed(0)+'W';
+    document.getElementById('nd_pln_data').textContent='—';
+    setFlowState('BAT');
+    pushTicker('SOURCE: BATTERY — '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC','warn');
   }
 
-  // ── CHART ──
-  pushChartData(d);
+  pushChart(d);
 
-  // ── HISTORY ──
-  if(d.pln_cycle!==undefined && d.pln_cycle>0){
-    historyData.unshift({time:new Date().toLocaleString('id-ID'),energy:d.pln_cycle.toFixed(2),source:'PLN'});
-    if(historyData.length>30) historyData.pop();
+  // history
+  if(d.pln_cycle!==undefined&&d.pln_cycle>0){
+    histData.unshift({time:new Date().toLocaleString('id-ID'),energy:d.pln_cycle.toFixed(2),source:'PLN'});
+    if(histData.length>30)histData.pop();
     updateHistory();
   }
-  if(d.bat_cycle!==undefined && d.bat_cycle>0){
-    historyData.unshift({time:new Date().toLocaleString('id-ID'),energy:d.bat_cycle.toFixed(2),source:'BAT'});
-    if(historyData.length>30) historyData.pop();
+  if(d.bat_cycle!==undefined&&d.bat_cycle>0){
+    histData.unshift({time:new Date().toLocaleString('id-ID'),energy:d.bat_cycle.toFixed(2),source:'BAT'});
+    if(histData.length>30)histData.pop();
     updateHistory();
   }
 });
 
 function sendCmd(cmd){
   client.publish('test/control',cmd);
-  document.getElementById('status').innerText='CMD SENT: '+cmd+' — AWAITING ACK';
-  document.getElementById('status').style.color='var(--amber)';
-  pushTicker('MANUAL CMD ISSUED: '+cmd,'warn');
+  const st=document.getElementById('statusText');
+  const sd=document.getElementById('statusDot');
+  st.innerText='CMD SENT: '+cmd+' — AWAITING ACK...';
+  st.style.color='var(--amber)';
+  sd.className='status-dot-el';
+  pushTicker('MANUAL CMD: '+cmd,'warn');
   setTimeout(()=>{
-    document.getElementById('status').innerText='CMD CONFIRMED: '+cmd+' ACTIVE';
-    document.getElementById('status').style.color='var(--green)';
-  }, 1500);
+    st.innerText='CMD CONFIRMED: '+cmd+' ACTIVE';
+    st.style.color='var(--green)';
+    sd.className='status-dot-el on';
+  },1500);
 }
 
 function updateHistory(){
-  const tb=document.getElementById('historyTable');
-  tb.innerHTML=historyData.map(item=>`
+  const tb=document.getElementById('histTable');
+  tb.innerHTML=histData.map(r=>`
     <tr>
-      <td>${item.time}</td>
-      <td><span class="hist-badge ${item.source}">${item.source}</span></td>
-      <td>${item.energy} Wh</td>
+      <td>${r.time}</td>
+      <td><span class="badge ${r.source.toLowerCase()}">${r.source}</span></td>
+      <td>${r.energy}</td>
     </tr>
   `).join('');
 }
-
 </script>
 </body>
 </html>
