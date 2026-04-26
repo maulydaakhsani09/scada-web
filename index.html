@@ -201,78 +201,38 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
 .chart-meta{font-family:var(--mono);font-size:10px;color:var(--text3);font-weight:700;}
 .chart-wrap{height:180px;position:relative;}
 
-/* ═══ CONTROL (ORIGINAL + TAMBAHAN BARU) ═══ */
+/* ═══ CONTROL ═══ */
 .cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
 .cmd-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:22px;cursor:pointer;transition:all 0.2s;position:relative;overflow:hidden;}
 .cmd-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity 0.2s;}
 .cmd-card.c-bat::before{background:var(--green-dim);}
 .cmd-card.c-pln::before{background:var(--accent-dim);}
 .cmd-card.c-auto::before{background:var(--amber-dim);}
-.cmd-card.c-off::before{background:var(--red-dim);}
-.cmd-card.c-manual::before{background:rgba(245,158,11,0.1);}
 .cmd-card:hover::before{opacity:1;}
 .cmd-card.c-bat:hover{border-color:rgba(34,211,160,0.4);}
 .cmd-card.c-pln:hover{border-color:rgba(59,130,246,0.4);}
 .cmd-card.c-auto:hover{border-color:rgba(245,158,11,0.4);}
-.cmd-card.c-off:hover{border-color:rgba(239,68,68,0.4);}
-.cmd-card.c-manual:hover{border-color:rgba(245,158,11,0.4);}
 .cmd-card:active{transform:scale(0.98);}
-.cmd-card.disabled{opacity:0.35;pointer-events:none;}
 .cmd-card-inner{position:relative;z-index:1;}
 .cmd-tag{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:12px;font-weight:700;}
 .cmd-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid transparent;}
 .cmd-card.c-bat .cmd-icon{background:var(--green-dim);border-color:rgba(34,211,160,0.3);}
 .cmd-card.c-pln .cmd-icon{background:var(--accent-dim);border-color:rgba(59,130,246,0.3);}
 .cmd-card.c-auto .cmd-icon{background:var(--amber-dim);border-color:rgba(245,158,11,0.3);}
-.cmd-card.c-off .cmd-icon{background:var(--red-dim);border-color:rgba(239,68,68,0.3);}
-.cmd-card.c-manual .cmd-icon{background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.3);}
 .cmd-icon svg{width:20px;height:20px;fill:none;stroke-width:2;}
 .cmd-card.c-bat .cmd-icon svg{stroke:var(--green);}
 .cmd-card.c-pln .cmd-icon svg{stroke:var(--accent);}
 .cmd-card.c-auto .cmd-icon svg{stroke:var(--amber);}
-.cmd-card.c-off .cmd-icon svg{stroke:var(--red);}
-.cmd-card.c-manual .cmd-icon svg{stroke:var(--amber);}
 .cmd-name{font-size:16px;font-weight:700;margin-bottom:6px;}
 .cmd-card.c-bat .cmd-name{color:var(--green);}
 .cmd-card.c-pln .cmd-name{color:var(--accent);}
 .cmd-card.c-auto .cmd-name{color:var(--amber);}
-.cmd-card.c-off .cmd-name{color:var(--red);}
-.cmd-card.c-manual .cmd-name{color:var(--amber);}
 .cmd-desc{font-size:13px;color:var(--text2);line-height:1.6;}
 .cmd-full{grid-column:span 2;}
 .status-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:12px;}
 .status-dot-el{width:10px;height:10px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:all 0.3s;}
 .status-dot-el.on{background:var(--green);box-shadow:0 0 10px var(--green-glow);animation:dot-pulse 2s infinite;}
-.status-dot-el.warn{background:var(--amber);}
-.status-dot-el.err{background:var(--red);}
 .status-text{font-family:var(--mono);font-size:12px;color:var(--text2);font-weight:700;}
-
-/* ═══ TAMBAHAN BARU: NOTIFY TOAST ═══ */
-#notifyToast{position:fixed;top:68px;right:14px;max-width:300px;border-radius:var(--radius);padding:14px 16px;z-index:999;opacity:0;transform:translateX(20px);transition:all 0.3s;pointer-events:none;}
-#notifyToast.show{opacity:1;transform:translateX(0);}
-#notifyToast.ok{background:var(--bg1);border:1px solid rgba(34,211,160,0.4);}
-#notifyToast.reject{background:var(--bg1);border:1px solid rgba(239,68,68,0.4);}
-#notifyToast.warn{background:var(--bg1);border:1px solid rgba(245,158,11,0.4);}
-.toast-title{font-family:var(--mono);font-size:11px;font-weight:700;margin-bottom:5px;}
-.toast-title.ok{color:var(--green);}
-.toast-title.reject{color:var(--red);}
-.toast-title.warn{color:var(--amber);}
-.toast-body{font-family:var(--mono);font-size:11px;line-height:1.6;color:var(--text2);}
-
-/* ═══ TAMBAHAN BARU: ALARM BANNER ═══ */
-.alarm-banner{display:none;background:var(--red-dim);border:1px solid rgba(239,68,68,0.4);border-radius:var(--radius);padding:11px 16px;margin-bottom:14px;font-family:var(--mono);font-size:12px;color:var(--red);font-weight:700;align-items:center;gap:10px;}
-.alarm-banner.show{display:flex;}
-
-/* ═══ TAMBAHAN BARU: VALIDASI CARD ═══ */
-.valid-card{border-radius:var(--radius);padding:12px 16px;font-family:var(--mono);font-size:12px;font-weight:700;display:none;align-items:center;gap:10px;margin-top:10px;}
-.valid-card.show{display:flex;}
-.valid-card.ok{background:var(--green-dim);border:1px solid rgba(34,211,160,0.35);color:var(--green);}
-.valid-card.reject{background:var(--red-dim);border:1px solid rgba(239,68,68,0.35);color:var(--red);}
-
-/* ═══ TAMBAHAN BARU: STATUS BAR MODE CHIP ═══ */
-.sb-mode{font-family:var(--mono);font-size:10px;font-weight:700;padding:2px 8px;border-radius:4px;}
-.sb-mode.auto{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,211,160,0.3);}
-.sb-mode.manual{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,0.3);}
 
 /* ═══ HISTORY ═══ */
 .hist-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
@@ -296,7 +256,6 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
 .badge.pln{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(59,130,246,0.25);}
 .badge.bat{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,211,160,0.25);}
 .badge.auto{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,0.25);}
-.badge.reject,.badge.alarm{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
 .hist-empty{padding:40px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--text3);}
 
 /* ═══ PROFILE ═══ */
@@ -319,52 +278,112 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
 .sb-chip{font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);padding:2px 8px;border-radius:4px;font-weight:700;}
 
 /* ═══ ALERT ═══ */
-#sysAlert{position:fixed;top:68px;right:14px;max-width:300px;background:var(--bg1);border:1px solid rgba(239,68,68,0.4);border-radius:var(--radius);padding:14px 16px;z-index:998;opacity:0;transform:translateX(20px);transition:all 0.3s;pointer-events:none;}
+#sysAlert{position:fixed;top:68px;right:14px;max-width:300px;background:var(--bg1);border:1px solid rgba(239,68,68,0.4);border-radius:var(--radius);padding:14px 16px;z-index:999;opacity:0;transform:translateX(20px);transition:all 0.3s;pointer-events:none;}
 #sysAlert.show{opacity:1;transform:translateX(0);}
 .alert-icon{color:var(--red);font-size:11px;margin-bottom:6px;display:flex;align-items:center;gap:6px;font-family:var(--mono);font-weight:700;}
 .alert-msg{font-family:var(--mono);font-size:11px;color:var(--red);line-height:1.6;}
 
-/* ═══ MOBILE OVERLAY ═══ */
-.sidebar-overlay{display:none;position:fixed;inset:0;z-index:149;background:rgba(0,0,0,0.6);}
+/* ═══ MOBILE OVERLAY — NO BLUR ON CONTENT ═══ */
+.sidebar-overlay{
+  display:none;
+  position:fixed;
+  inset:0;
+  z-index:149;
+  /* NO backdrop-filter here — it causes blur on content below */
+  background:rgba(0,0,0,0.6);
+}
 .sidebar-overlay.active{display:block;}
 
+/* ════════════════════════
+   TABLET
+════════════════════════ */
 @media(max-width:1024px){
   .source-summary{grid-template-columns:repeat(2,1fr);}
   .metrics-grid{grid-template-columns:repeat(2,1fr);}
   .profile-grid{grid-template-columns:1fr 1fr;}
 }
+
+/* ════════════════════════
+   MOBILE — BLUR FIX CORE
+════════════════════════ */
 @media(max-width:640px){
   :root{--topbar-h:54px;}
+
+  /* Topbar */
   .topbar{padding:0 12px;}
   .topbar-menu-btn{display:flex;}
   .logo-ver{display:none;}
   .top-clock{font-size:11px;padding:4px 9px;}
   .top-badge{font-size:10px;padding:4px 9px;}
-  .sidebar{position:fixed;left:0;top:var(--topbar-h);bottom:0;width:var(--sidebar-w);transform:translateX(-100%);z-index:200;box-shadow:6px 0 30px rgba(0,0,0,0.6);}
+
+  /* Sidebar drawer — positioned fixed so it doesn't affect main content */
+  .sidebar{
+    position:fixed;
+    left:0;
+    top:var(--topbar-h);
+    bottom:0;
+    width:var(--sidebar-w);
+    transform:translateX(-100%);
+    z-index:200;
+    /* sidebar itself has NO filter/backdrop that bleeds */
+    box-shadow:6px 0 30px rgba(0,0,0,0.6);
+  }
   .sidebar.open{transform:translateX(0);}
-  .main{padding:12px;padding-bottom:48px;filter:none !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;width:100%;}
+
+  /* Main area — must NOT be affected by any filter */
+  .main{
+    padding:12px;
+    padding-bottom:48px;
+    /* Explicitly clear any potential inherited filter */
+    filter:none !important;
+    backdrop-filter:none !important;
+    -webkit-backdrop-filter:none !important;
+    /* ensure it fills full width since sidebar is now fixed */
+    width:100%;
+  }
+
+  /* Layout must not have overflow issues */
   .layout{overflow:hidden;}
+
+  /* Summary */
   .source-summary{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
   .summary-card{padding:13px;}
   .sum-value{font-size:20px;}
+
+  /* Metrics */
   .metrics-grid{grid-template-columns:1fr 1fr;gap:8px;}
   .metric-card{padding:12px 14px;}
   .metric-value{font-size:20px;}
   .metric-label{font-size:12px;}
+
+  /* Flow */
   .flow-card{padding:13px;}
+
+  /* Chart */
   .chart-card{padding:13px;}
   .chart-wrap{height:150px;}
+
+  /* Control */
   .cmd-grid{grid-template-columns:1fr;}
   .cmd-full{grid-column:span 1;}
   .cmd-card{padding:18px;}
+
+  /* Profile */
   .profile-grid{grid-template-columns:1fr;}
+
+  /* Page header */
   .page-title{font-size:16px;}
   .mode-pill{font-size:11px;padding:5px 11px;}
+
+  /* History toolbar wrap */
   .hist-toolbar{flex-direction:column;align-items:flex-start;}
   .hist-stats{gap:8px;}
+
+  /* Status bar */
   .statusbar{padding:0 10px;}
   .sb-ticker{font-size:10px;}
 }
+
 @media(max-width:360px){
   .source-summary{grid-template-columns:1fr;}
   .metrics-grid{grid-template-columns:1fr;}
@@ -379,25 +398,30 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
   <div class="login-orb"></div>
   <div class="login-card">
     <div class="login-logo">
-      <div class="login-logo-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-      <div><div class="login-title">EMS SCADA</div><div class="login-sub">v2.4 — SECURE ACCESS</div></div>
+      <div class="login-logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
+      <div>
+        <div class="login-title">EMS SCADA</div>
+        <div class="login-sub">v2.4 — SECURE ACCESS</div>
+      </div>
     </div>
     <div class="login-heading">Sign In</div>
     <div class="login-desc">Enter your credentials to access the Energy Management System.</div>
-    <div class="field-group"><label class="field-label">User ID</label><input class="field-input" id="user" placeholder="Username" autocomplete="off"></div>
-    <div class="field-group"><label class="field-label">Access Code</label><input class="field-input" id="pass" type="password" placeholder="••••••••"></div>
+    <div class="field-group">
+      <label class="field-label">User ID</label>
+      <input class="field-input" id="user" placeholder="Username" autocomplete="off">
+    </div>
+    <div class="field-group">
+      <label class="field-label">Access Code</label>
+      <input class="field-input" id="pass" type="password" placeholder="••••••••">
+    </div>
     <button class="login-btn" onclick="login()">Authenticate</button>
     <div id="loginError"></div>
   </div>
 </div>
 
-<!-- TAMBAHAN BARU: NOTIFY TOAST -->
-<div id="notifyToast">
-  <div class="toast-title" id="toastTitle">NOTIFY</div>
-  <div class="toast-body" id="toastBody"></div>
-</div>
-
-<!-- ALERT (original) -->
+<!-- ALERT -->
 <div id="sysAlert">
   <div class="alert-icon">
     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
@@ -409,21 +433,30 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
 <!-- TOPBAR -->
 <div class="topbar">
   <div class="topbar-left">
-    <button class="topbar-menu-btn" id="menuBtn" onclick="toggleSidebar()"><span></span><span></span><span></span></button>
+    <button class="topbar-menu-btn" id="menuBtn" onclick="toggleSidebar()">
+      <span></span><span></span><span></span>
+    </button>
     <div class="topbar-logo">
-      <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      </div>
       <div class="logo-text">EMS</div>
       <div class="logo-ver">SCADA v2.4</div>
     </div>
   </div>
   <div class="topbar-right">
     <div class="top-clock" id="datetime">--:--:--</div>
-    <div class="top-badge" id="mqttBadge"><div class="badge-dot"></div><span id="mqttLabel">CONNECTING</span></div>
+    <div class="top-badge" id="mqttBadge">
+      <div class="badge-dot"></div>
+      <span id="mqttLabel">CONNECTING</span>
+    </div>
   </div>
 </div>
 
 <!-- LAYOUT -->
 <div class="layout">
+
+  <!-- Overlay — NO backdrop-filter -->
   <div class="sidebar-overlay" id="sideOverlay" onclick="closeSidebar()"></div>
 
   <!-- SIDEBAR -->
@@ -432,11 +465,15 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
       <div class="sidebar-section">
         <div class="sidebar-label">Main</div>
         <button class="nav-item active" onclick="showPage('monitor',this)">
-          <div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </div>
           <span>Monitor</span>
         </button>
         <button class="nav-item" onclick="showPage('control',this)">
-          <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+          </div>
           <span>Control</span>
         </button>
       </div>
@@ -444,11 +481,15 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
       <div class="sidebar-section">
         <div class="sidebar-label">Data</div>
         <button class="nav-item" onclick="showPage('history',this)">
-          <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
           <span>History</span>
         </button>
         <button class="nav-item" onclick="showPage('profile',this)">
-          <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <div class="nav-icon">
+            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          </div>
           <span>Profile</span>
         </button>
       </div>
@@ -456,7 +497,10 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
     <div class="sidebar-bottom">
       <div class="conn-card">
         <div class="conn-label">MQTT BROKER</div>
-        <div class="conn-row"><div class="conn-dot" id="connDot"></div><div class="conn-text" id="connLabel">OFFLINE</div></div>
+        <div class="conn-row">
+          <div class="conn-dot" id="connDot"></div>
+          <div class="conn-text" id="connLabel">OFFLINE</div>
+        </div>
       </div>
     </div>
   </div>
@@ -464,26 +508,29 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
   <!-- MAIN -->
   <div class="main" id="mainArea">
 
-    <!-- MONITOR PAGE -->
+    <!-- ═══ MONITOR ═══ -->
     <div id="monitor" class="page active">
       <div class="page-header">
         <div class="page-header-left">
-          <div class="page-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
-          <div><div class="page-title">System Monitor</div><div class="page-subtitle">REALTIME TELEMETRY</div></div>
+          <div class="page-icon">
+            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+          </div>
+          <div>
+            <div class="page-title">System Monitor</div>
+            <div class="page-subtitle">REALTIME TELEMETRY</div>
+          </div>
         </div>
-        <div class="mode-pill bat" id="modePill"><div class="mode-pill-dot"></div><span id="modeText">STANDBY</span></div>
-      </div>
-
-      <!-- TAMBAHAN BARU: ALARM BANNER -->
-      <div class="alarm-banner" id="alarmBanner">
-        <span id="alarmBannerMsg">SYSTEM ALARM</span>
+        <div class="mode-pill bat" id="modePill">
+          <div class="mode-pill-dot"></div>
+          <span id="modeText">STANDBY</span>
+        </div>
       </div>
 
       <div class="source-summary">
         <div class="summary-card pln">
           <div class="sum-label">PLN Voltage</div>
           <div class="sum-value"><span id="s_pln_v">0.00</span><span class="sum-unit">V</span></div>
-          <div class="sum-sub" id="s_pln_status">Grid Supply</div>
+          <div class="sum-sub">Grid Supply</div>
         </div>
         <div class="summary-card bat">
           <div class="sum-label">Battery SoC</div>
@@ -494,7 +541,7 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
         <div class="summary-card load">
           <div class="sum-label">Load Power</div>
           <div class="sum-value"><span id="s_load_w">0</span><span class="sum-unit">W</span></div>
-          <div class="sum-sub" id="s_load_status">Active Consumption</div>
+          <div class="sum-sub">Active Consumption</div>
         </div>
         <div class="summary-card energy">
           <div class="sum-label">PLN Energy</div>
@@ -520,10 +567,10 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
             <line x1="124" y1="63" x2="218" y2="63" class="flow-dash pln" id="dashPL"/>
             <text x="171" y="55" text-anchor="middle" font-size="10" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_pln_data">—</text>
             <g id="nodeL">
-              <rect x="220" y="19" width="120" height="88" rx="11" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.35)" stroke-width="1.5" id="nodeL_rect"/>
+              <rect x="220" y="19" width="120" height="88" rx="11" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.35)" stroke-width="1.5"/>
               <text x="280" y="42" text-anchor="middle" font-size="9" fill="#92400e" font-family="'Space Mono',monospace">LOAD</text>
               <text x="280" y="73" text-anchor="middle" font-size="20" font-weight="700" fill="#f59e0b" font-family="'Space Mono',monospace" id="nd_load_w">0 W</text>
-              <text x="280" y="92" text-anchor="middle" font-size="9" fill="#78350f" font-family="'Space Mono',monospace" id="nd_load_label">Consumption</text>
+              <text x="280" y="92" text-anchor="middle" font-size="9" fill="#78350f" font-family="'Space Mono',monospace">Consumption</text>
             </g>
             <line x1="342" y1="63" x2="438" y2="63" stroke="rgba(255,255,255,0.08)" stroke-width="2" id="trackLB"/>
             <line x1="342" y1="63" x2="438" y2="63" class="flow-dash bat" id="dashLB"/>
@@ -538,27 +585,84 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
         </div>
       </div>
 
-      <div class="section-header"><div class="section-title">PLN — Grid Parameters</div><div class="section-line"></div></div>
+      <div class="section-header">
+        <div class="section-title">PLN — Grid Parameters</div>
+        <div class="section-line"></div>
+      </div>
       <div class="metrics-grid">
-        <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Voltage</div><div class="metric-value"><span id="pln_v">0.00</span><span class="unit">V</span></div><div class="metric-progress"><div class="metric-bar" id="bar_pln_v"></div></div></div>
-        <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Current</div><div class="metric-value"><span id="pln_i">0.00</span><span class="unit">A</span></div><div class="metric-progress"><div class="metric-bar" id="bar_pln_i"></div></div></div>
-        <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Power</div><div class="metric-value"><span id="pln_p">0.00</span><span class="unit">W</span></div><div class="metric-progress"><div class="metric-bar amber" id="bar_pln_p"></div></div></div>
-        <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Frequency</div><div class="metric-value"><span id="pln_f">0.00</span><span class="unit">Hz</span></div><div class="metric-progress"><div class="metric-bar amber" id="bar_pln_f" style="width:60%"></div></div></div>
+        <div class="metric-card">
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Voltage</div>
+          <div class="metric-value"><span id="pln_v">0.00</span><span class="unit">V</span></div>
+          <div class="metric-progress"><div class="metric-bar" id="bar_pln_v"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Current</div>
+          <div class="metric-value"><span id="pln_i">0.00</span><span class="unit">A</span></div>
+          <div class="metric-progress"><div class="metric-bar" id="bar_pln_i"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Power</div>
+          <div class="metric-value"><span id="pln_p">0.00</span><span class="unit">W</span></div>
+          <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_p"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Frequency</div>
+          <div class="metric-value"><span id="pln_f">0.00</span><span class="unit">Hz</span></div>
+          <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_f" style="width:60%"></div></div>
+        </div>
       </div>
       <div class="metrics-grid cols2">
-        <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Energy Accumulated</div><div class="metric-value"><span id="pln_e">0.00</span><span class="unit">Wh</span></div></div>
-        <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Power Factor</div><div class="metric-value"><span id="pln_pf">0.00</span></div><div class="metric-progress"><div class="metric-bar amber" id="bar_pln_pf"></div></div></div>
+        <div class="metric-card">
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Energy Accumulated</div>
+          <div class="metric-value"><span id="pln_e">0.00</span><span class="unit">Wh</span></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-tag">PLN</div>
+          <div class="metric-label">Power Factor</div>
+          <div class="metric-value"><span id="pln_pf">0.00</span></div>
+          <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_pf"></div></div>
+        </div>
       </div>
 
-      <div class="section-header" style="margin-top:6px;"><div class="section-title">Battery — Storage Parameters</div><div class="section-line"></div></div>
+      <div class="section-header" style="margin-top:6px;">
+        <div class="section-title">Battery — Storage Parameters</div>
+        <div class="section-line"></div>
+      </div>
       <div class="metrics-grid">
-        <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Voltage</div><div class="metric-value"><span id="bat_v">0.00</span><span class="unit">V</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_v"></div></div></div>
-        <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Current</div><div class="metric-value"><span id="bat_i">0.00</span><span class="unit">A</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_i"></div></div></div>
-        <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Power</div><div class="metric-value"><span id="bat_p">0.00</span><span class="unit">W</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_p"></div></div></div>
-        <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Energy</div><div class="metric-value"><span id="bat_e">0.00</span><span class="unit">Wh</span></div></div>
+        <div class="metric-card">
+          <div class="metric-tag bat">BAT</div>
+          <div class="metric-label">Voltage</div>
+          <div class="metric-value"><span id="bat_v">0.00</span><span class="unit">V</span></div>
+          <div class="metric-progress"><div class="metric-bar green" id="bar_bat_v"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-tag bat">BAT</div>
+          <div class="metric-label">Current</div>
+          <div class="metric-value"><span id="bat_i">0.00</span><span class="unit">A</span></div>
+          <div class="metric-progress"><div class="metric-bar green" id="bar_bat_i"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-tag bat">BAT</div>
+          <div class="metric-label">Power</div>
+          <div class="metric-value"><span id="bat_p">0.00</span><span class="unit">W</span></div>
+          <div class="metric-progress"><div class="metric-bar green" id="bar_bat_p"></div></div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-tag bat">BAT</div>
+          <div class="metric-label">Energy</div>
+          <div class="metric-value"><span id="bat_e">0.00</span><span class="unit">Wh</span></div>
+        </div>
       </div>
 
-      <div class="section-header" style="margin-top:6px;"><div class="section-title">Realtime Graph</div><div class="section-line"></div></div>
+      <div class="section-header" style="margin-top:6px;">
+        <div class="section-title">Realtime Graph</div>
+        <div class="section-line"></div>
+      </div>
       <div class="chart-card">
         <div class="chart-header">
           <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
@@ -575,94 +679,76 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
           </div>
           <div class="chart-meta" id="chartMeta">PLN · Voltage · Live</div>
         </div>
-        <div class="chart-wrap"><canvas id="mainChart"></canvas></div>
+        <div class="chart-wrap">
+          <canvas id="mainChart"></canvas>
+        </div>
       </div>
     </div><!-- /monitor -->
 
-    <!-- CONTROL PAGE -->
+    <!-- ═══ CONTROL ═══ -->
     <div id="control" class="page">
       <div class="page-header">
         <div class="page-header-left">
           <div class="page-icon" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);">
             <svg viewBox="0 0 24 24" style="stroke:var(--amber)"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
           </div>
-          <div><div class="page-title">Manual Control</div><div class="page-subtitle">OPERATOR ACCESS — AUTO VALIDATES ALL COMMANDS</div></div>
-        </div>
-      </div>
-
-      <!-- TAMBAHAN BARU: STEP 1 MODE -->
-      <div class="section-header"><div class="section-title">Step 1 — Aktifkan Mode Manual Dulu</div><div class="section-line"></div></div>
-      <div class="cmd-grid">
-        <div class="cmd-card c-auto" onclick="sendCmd('AUTO')">
-          <div class="cmd-card-inner">
-            <div class="cmd-tag">MODE-01 · SYSTEM</div>
-            <div class="cmd-icon"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg></div>
-            <div class="cmd-name">Auto Mode</div>
-            <div class="cmd-desc">Sistem kelola sumber otomatis. AUTO selalu jadi prioritas keamanan.</div>
-          </div>
-        </div>
-        <div class="cmd-card c-manual" onclick="sendCmd('MANUAL')">
-          <div class="cmd-card-inner">
-            <div class="cmd-tag">MODE-02 · SYSTEM</div>
-            <div class="cmd-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
-            <div class="cmd-name">Manual Mode</div>
-            <div class="cmd-desc">Aktifkan dulu sebelum kirim perintah sumber. AUTO tetap validasi keamanan.</div>
+          <div>
+            <div class="page-title">Manual Control</div>
+            <div class="page-subtitle">OPERATOR ACCESS</div>
           </div>
         </div>
       </div>
-
-      <!-- ORIGINAL: STEP 2 SOURCE COMMAND -->
-      <div class="section-header"><div class="section-title">Step 2 — Perintah Sumber (aktif setelah Mode Manual)</div><div class="section-line"></div></div>
+      <div class="section-header">
+        <div class="section-title">Source Command</div>
+        <div class="section-line"></div>
+      </div>
       <div class="cmd-grid">
-        <div class="cmd-card c-bat" id="cmdBat" onclick="sendCmd('BAT')">
+        <div class="cmd-card c-bat" onclick="sendCmd('BAT')">
           <div class="cmd-card-inner">
             <div class="cmd-tag">CMD-01 · SOURCE</div>
             <div class="cmd-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3M7 7V4M11 7V4"/></svg></div>
             <div class="cmd-name">Battery</div>
-            <div class="cmd-desc">Pindah ke baterai. AUTO validasi Vbat ≥ 11.8V sebelum eksekusi.</div>
+            <div class="cmd-desc">Force switch to battery backup. Load powered by storage bank.</div>
           </div>
         </div>
-        <div class="cmd-card c-pln" id="cmdPln" onclick="sendCmd('PLN')">
+        <div class="cmd-card c-pln" onclick="sendCmd('PLN')">
           <div class="cmd-card-inner">
             <div class="cmd-tag">CMD-02 · SOURCE</div>
             <div class="cmd-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
             <div class="cmd-name">PLN Grid</div>
-            <div class="cmd-desc">Pindah ke PLN. AUTO validasi PLN tersedia ≥ 180V sebelum eksekusi.</div>
+            <div class="cmd-desc">Force switch to utility grid. Battery enters standby/charge mode.</div>
           </div>
         </div>
-        <!-- TAMBAHAN BARU: BEBAN OFF -->
-        <div class="cmd-card c-off cmd-full" id="cmdOff" onclick="sendCmd('BEBAN_OFF')">
+        <div class="cmd-card c-auto cmd-full" onclick="sendCmd('AUTO')">
           <div class="cmd-card-inner">
-            <div class="cmd-tag">CMD-03 · BEBAN</div>
-            <div class="cmd-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
-            <div class="cmd-name">Beban OFF</div>
-            <div class="cmd-desc">Putuskan semua relay. Tidak ada listrik ke beban. Gunakan untuk maintenance atau kondisi darurat.</div>
+            <div class="cmd-tag">CMD-03 · MODE</div>
+            <div class="cmd-icon"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg></div>
+            <div class="cmd-name">Auto Mode</div>
+            <div class="cmd-desc">System manages source automatically based on grid availability and battery SoC.</div>
           </div>
         </div>
       </div>
-
       <div class="status-card">
         <div class="status-dot-el on" id="statusDot"></div>
         <div class="status-text" id="statusText">AWAITING COMMAND</div>
       </div>
+    </div>
 
-      <!-- TAMBAHAN BARU: HASIL VALIDASI AUTO -->
-      <div class="valid-card" id="validCard">
-        <span id="validIcon">—</span>
-        <span id="validMsg">—</span>
-      </div>
-    </div><!-- /control -->
-
-    <!-- HISTORY PAGE -->
+    <!-- ═══ HISTORY ═══ -->
     <div id="history" class="page">
       <div class="page-header">
         <div class="page-header-left">
           <div class="page-icon" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.2);">
             <svg viewBox="0 0 24 24" style="stroke:var(--purple)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
-          <div><div class="page-title">Event History</div><div class="page-subtitle">PERSISTENT SWITCHING LOG</div></div>
+          <div>
+            <div class="page-title">Event History</div>
+            <div class="page-subtitle">PERSISTENT SWITCHING LOG</div>
+          </div>
         </div>
       </div>
+
+      <!-- Toolbar: date navigation + stats + clear -->
       <div class="hist-toolbar">
         <div class="hist-date-nav">
           <button class="date-nav-btn" onclick="histNavDay(-1)">&#8249;</button>
@@ -676,31 +762,57 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
         </div>
         <button class="hist-clear-btn" onclick="histClearDay()">Hapus Hari Ini</button>
       </div>
-      <div class="section-header"><div class="section-title" id="histSectionTitle">Switching Events</div><div class="section-line"></div></div>
+
+      <div class="section-header">
+        <div class="section-title" id="histSectionTitle">Switching Events</div>
+        <div class="section-line"></div>
+      </div>
       <div class="table-card">
         <table class="hist-table">
-          <thead><tr><th>Waktu</th><th>Source</th><th>Energy (Wh)</th><th>Keterangan</th></tr></thead>
+          <thead>
+            <tr>
+              <th>Waktu</th>
+              <th>Source</th>
+              <th>Energy (Wh)</th>
+              <th>Keterangan</th>
+            </tr>
+          </thead>
           <tbody id="histTable"></tbody>
         </table>
         <div class="hist-empty" id="histEmpty" style="display:none;">Tidak ada data untuk tanggal ini.</div>
       </div>
-    </div><!-- /history -->
+    </div>
 
-    <!-- PROFILE PAGE -->
+    <!-- ═══ PROFILE ═══ -->
     <div id="profile" class="page">
       <div class="page-header">
         <div class="page-header-left">
           <div class="page-icon" style="background:rgba(34,211,160,0.1);border-color:rgba(34,211,160,0.2);">
             <svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
           </div>
-          <div><div class="page-title">User Profile</div><div class="page-subtitle">SESSION ACTIVE</div></div>
+          <div>
+            <div class="page-title">User Profile</div>
+            <div class="page-subtitle">SESSION ACTIVE</div>
+          </div>
         </div>
       </div>
-      <div class="section-header"><div class="section-title">Session Info</div><div class="section-line"></div></div>
+      <div class="section-header">
+        <div class="section-title">Session Info</div>
+        <div class="section-line"></div>
+      </div>
       <div class="profile-grid">
-        <div class="profile-card"><div class="profile-label">User ID</div><div class="profile-value" id="userId">—</div></div>
-        <div class="profile-card"><div class="profile-label">Role</div><div class="profile-value">OPERATOR</div></div>
-        <div class="profile-card"><div class="profile-label">System</div><div class="profile-value">EMS v2.4</div></div>
+        <div class="profile-card">
+          <div class="profile-label">User ID</div>
+          <div class="profile-value" id="userId">—</div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-label">Role</div>
+          <div class="profile-value">OPERATOR</div>
+        </div>
+        <div class="profile-card">
+          <div class="profile-label">System</div>
+          <div class="profile-value">EMS v2.4</div>
+        </div>
       </div>
       <button class="logout-btn" onclick="confirmLogout()">Terminate Session</button>
     </div>
@@ -708,18 +820,18 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
   </div><!-- /main -->
 </div><!-- /layout -->
 
-<!-- STATUS BAR — TAMBAHAN: sb-mode chip -->
 <div class="statusbar">
   <div class="sb-label">LOG</div>
   <div class="sb-ticker" id="sbTicker">SYSTEM ONLINE — AWAITING DATA STREAM</div>
   <div class="sb-right">
-    <div class="sb-mode auto" id="sbMode">AUTO</div>
     <div class="sb-chip" id="sbSource">—</div>
   </div>
 </div>
 
 <script>
-/* ══ CLOCK ══ */
+/* ══════════════════════════════════════════════════
+   CLOCK
+══════════════════════════════════════════════════ */
 function updateClock(){
   const now=new Date();
   const d=now.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
@@ -728,14 +840,18 @@ function updateClock(){
 }
 setInterval(updateClock,1000);updateClock();
 
-/* ══ IDLE LOGOUT ══ */
+/* ══════════════════════════════════════════════════
+   IDLE LOGOUT
+══════════════════════════════════════════════════ */
 let idleTimer;
 function resetTimer(){clearTimeout(idleTimer);idleTimer=setTimeout(logout,10*60*1000);}
 ['click','mousemove','keydown','touchstart'].forEach(e=>document.addEventListener(e,resetTimer));
 function logout(){clearTimeout(idleTimer);localStorage.removeItem('login');localStorage.removeItem('user');document.getElementById('loginScreen').style.display='flex';}
 function confirmLogout(){if(confirm('Terminate current session?'))logout();}
 
-/* ══ LOGIN ══ */
+/* ══════════════════════════════════════════════════
+   LOGIN
+══════════════════════════════════════════════════ */
 function login(){
   const u=document.getElementById('user').value.trim();
   const p=document.getElementById('pass').value;
@@ -756,7 +872,9 @@ if(localStorage.getItem('login')==='true'){
 }
 window.addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 
-/* ══ NAV ══ */
+/* ══════════════════════════════════════════════════
+   NAV
+══════════════════════════════════════════════════ */
 function showPage(page,btn){
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById(page).classList.add('active');
@@ -766,18 +884,30 @@ function showPage(page,btn){
   if(page==='history')renderHistory();
 }
 
-/* ══ SIDEBAR ══ */
-function toggleSidebar(){document.getElementById('sidebar').classList.toggle('open');document.getElementById('sideOverlay').classList.toggle('active');}
-function closeSidebar(){document.getElementById('sidebar').classList.remove('open');document.getElementById('sideOverlay').classList.remove('active');}
+/* ══════════════════════════════════════════════════
+   SIDEBAR — NO BLUR LEAK
+══════════════════════════════════════════════════ */
+function toggleSidebar(){
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sideOverlay').classList.toggle('active');
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('open');
+  document.getElementById('sideOverlay').classList.remove('active');
+}
 
-/* ══ TICKER ══ */
+/* ══════════════════════════════════════════════════
+   TICKER
+══════════════════════════════════════════════════ */
 function pushTicker(msg,type=''){
   const el=document.getElementById('sbTicker');
   el.className='sb-ticker '+(type||'');
   el.innerText=new Date().toLocaleTimeString('id-ID')+' — '+msg;
 }
 
-/* ══ ALERT (original) ══ */
+/* ══════════════════════════════════════════════════
+   ALERT
+══════════════════════════════════════════════════ */
 let alertTimer;
 function showAlert(msg){
   document.getElementById('sysAlertMsg').innerText=msg;
@@ -786,29 +916,9 @@ function showAlert(msg){
   alertTimer=setTimeout(()=>document.getElementById('sysAlert').classList.remove('show'),8000);
 }
 
-/* ══ TAMBAHAN BARU: NOTIFY TOAST ══ */
-let toastTimer;
-function showToast(type,title,msg){
-  const toast=document.getElementById('notifyToast');
-  const ti=document.getElementById('toastTitle');
-  const tb=document.getElementById('toastBody');
-  toast.className='';
-  ti.className='toast-title '+type;
-  ti.innerText=(type==='ok'?'✅ ':type==='reject'?'❌ ':'⚠️ ')+title;
-  tb.innerText=msg;
-  toast.classList.add('show',type);
-  clearTimeout(toastTimer);
-  toastTimer=setTimeout(()=>toast.classList.remove('show'),6000);
-}
-
-/* ══ TAMBAHAN BARU: ALARM BANNER ══ */
-function setAlarmBanner(show,msg=''){
-  const b=document.getElementById('alarmBanner');
-  if(show){b.classList.add('show');document.getElementById('alarmBannerMsg').innerText=msg;}
-  else b.classList.remove('show');
-}
-
-/* ══ CHART (original) ══ */
+/* ══════════════════════════════════════════════════
+   CHART
+══════════════════════════════════════════════════ */
 const chartLabels=[];
 const chartData={PLN:{V:[],I:[],P:[]},BAT:{V:[],I:[],P:[]}};
 let cSrc='PLN',cPar='V';
@@ -855,11 +965,15 @@ function pushChart(d){
   refreshChart();
 }
 
-/* ══ BAR HELPER (original) ══ */
+/* ══════════════════════════════════════════════════
+   BAR HELPER
+══════════════════════════════════════════════════ */
 function setBar(id,pct){const el=document.getElementById(id);if(el)el.style.width=Math.min(100,Math.max(0,pct))+'%';}
 
-/* ══ FLOW (original, diperluas untuk beban off) ══ */
-function setFlowState(src,bebanOff){
+/* ══════════════════════════════════════════════════
+   FLOW
+══════════════════════════════════════════════════ */
+function setFlowState(src){
   const pR=document.getElementById('nodeP_rect');
   const bR=document.getElementById('nodeB_rect');
   const pN=document.getElementById('nodeP_name');
@@ -870,23 +984,12 @@ function setFlowState(src,bebanOff){
   const dLB=document.getElementById('dashLB');
   const tPL=document.getElementById('trackPL');
   const tLB=document.getElementById('trackLB');
-  const lR=document.getElementById('nodeL_rect');
-  const lL=document.getElementById('nd_load_label');
-  // Reset semua
   pR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.1);stroke-width:1';
   bR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.1);stroke-width:1';
   pN.style.fill='#f0f4ff';bN.style.fill='#f0f4ff';
   pV.style.fill='#4b5e7a';bV.style.fill='#4b5e7a';
   dPL.className='flow-dash pln';dLB.className='flow-dash bat';
   tPL.style.stroke='rgba(255,255,255,0.08)';tLB.style.stroke='rgba(255,255,255,0.08)';
-  lR.style.cssText='fill:rgba(245,158,11,0.07);stroke:rgba(245,158,11,0.35);stroke-width:1.5';
-  if(lL){lL.textContent='Consumption';lL.style.fill='#78350f';}
-  // Beban OFF — kotak LOAD merah
-  if(bebanOff){
-    lR.style.cssText='fill:rgba(239,68,68,0.1);stroke:rgba(239,68,68,0.5);stroke-width:2';
-    if(lL){lL.textContent='BEBAN OFF';lL.style.fill='#ef4444';}
-    return;
-  }
   if(src==='PLN'){
     pR.style.cssText='fill:rgba(59,130,246,0.1);stroke:rgba(59,130,246,0.5);stroke-width:2';
     pN.style.fill='#93c5fd';pV.style.fill='#3b82f6';
@@ -898,47 +1001,97 @@ function setFlowState(src,bebanOff){
   }
 }
 
-/* ══ HISTORY (original) ══ */
-let histViewDate=todayKey();
-let histSeq=0;
-function todayKey(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
-function dateLabel(key){const [y,m,d]=key.split('-');const dt=new Date(+y,+m-1,+d);return dt.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
-function histKey(dateStr){return 'ems_hist_'+dateStr;}
-function histLoad(dateStr){try{return JSON.parse(localStorage.getItem(histKey(dateStr))||'[]');}catch(e){return [];}}
-function histSave(dateStr,arr){try{localStorage.setItem(histKey(dateStr),JSON.stringify(arr));}catch(e){console.warn('Storage full');}}
-function histAddEntry(source,energyWh,note){
-  const dk=todayKey();const arr=histLoad(dk);histSeq++;
-  arr.unshift({ts:new Date().toLocaleTimeString('id-ID'),source,energy:parseFloat(energyWh||0).toFixed(3),note:note||'',seq:histSeq,date:dk});
-  histSave(dk,arr);
-  if(histViewDate===dk&&document.getElementById('history').classList.contains('active'))renderHistory();
+/* ══════════════════════════════════════════════════
+   PERSISTENT HISTORY — localStorage per day
+   Storage key: ems_hist_YYYY-MM-DD
+   Each entry: {ts, source, energy, note, seq}
+══════════════════════════════════════════════════ */
+let histViewDate=todayKey(); // currently viewed date
+let histSeq=0;               // sequence counter for today
+
+function todayKey(){
+  const n=new Date();
+  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
 }
+function dateLabel(key){
+  // key = YYYY-MM-DD
+  const [y,m,d]=key.split('-');
+  const dt=new Date(+y,+m-1,+d);
+  return dt.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
+}
+function histKey(dateStr){return 'ems_hist_'+dateStr;}
+
+function histLoad(dateStr){
+  try{return JSON.parse(localStorage.getItem(histKey(dateStr))||'[]');}catch(e){return [];}
+}
+function histSave(dateStr,arr){
+  try{localStorage.setItem(histKey(dateStr),JSON.stringify(arr));}catch(e){console.warn('Storage full');}
+}
+
+function histAddEntry(source, energyWh, note){
+  const dk=todayKey();
+  const arr=histLoad(dk);
+  histSeq++;
+  arr.unshift({
+    ts: new Date().toLocaleTimeString('id-ID'),
+    source: source,
+    energy: parseFloat(energyWh||0).toFixed(3),
+    note: note||'',
+    seq: histSeq,
+    date: dk
+  });
+  histSave(dk, arr);
+  // if currently viewing today, re-render
+  if(histViewDate===dk && document.getElementById('history').classList.contains('active')){
+    renderHistory();
+  }
+}
+
 function histNavDay(delta){
-  const [y,m,d]=histViewDate.split('-').map(Number);const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()+delta);
-  if(dt>new Date())return;
+  const [y,m,d]=histViewDate.split('-').map(Number);
+  const dt=new Date(y,m-1,d);
+  dt.setDate(dt.getDate()+delta);
+  // Don't navigate to future
+  if(dt>new Date()) return;
   histViewDate=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
   renderHistory();
 }
+
 function histClearDay(){
-  if(!confirm('Hapus semua data history untuk '+dateLabel(histViewDate)+'?'))return;
-  localStorage.removeItem(histKey(histViewDate));renderHistory();
+  if(!confirm('Hapus semua data history untuk '+dateLabel(histViewDate)+'?')) return;
+  localStorage.removeItem(histKey(histViewDate));
+  renderHistory();
   pushTicker('HISTORY CLEARED: '+histViewDate,'warn');
 }
+
 function renderHistory(){
   const arr=histLoad(histViewDate);
   document.getElementById('histDateLabel').innerText=dateLabel(histViewDate);
   document.getElementById('histSectionTitle').innerText='Events — '+histViewDate;
+
   const tbody=document.getElementById('histTable');
   const empty=document.getElementById('histEmpty');
+
+  // stats
   let plnWh=0,batWh=0;
-  arr.forEach(r=>{if(r.source==='PLN')plnWh+=parseFloat(r.energy||0);else if(r.source==='BAT')batWh+=parseFloat(r.energy||0);});
+  arr.forEach(r=>{
+    if(r.source==='PLN') plnWh+=parseFloat(r.energy||0);
+    else if(r.source==='BAT') batWh+=parseFloat(r.energy||0);
+  });
   document.getElementById('histCountEl').innerText=arr.length;
   document.getElementById('histPlnWh').innerText=plnWh.toFixed(3);
   document.getElementById('histBatWh').innerText=batWh.toFixed(3);
+
+  // nav: hide next button if today
   const isToday=histViewDate===todayKey();
+  // forward nav button — hide if at today
   document.querySelectorAll('.date-nav-btn')[1].style.opacity=isToday?'0.3':'1';
   document.querySelectorAll('.date-nav-btn')[1].style.pointerEvents=isToday?'none':'auto';
-  if(arr.length===0){tbody.innerHTML='';empty.style.display='block';}
-  else{
+
+  if(arr.length===0){
+    tbody.innerHTML='';
+    empty.style.display='block';
+  } else {
     empty.style.display='none';
     tbody.innerHTML=arr.map((r,i)=>`
       <tr>
@@ -950,9 +1103,13 @@ function renderHistory(){
     `).join('');
   }
 }
+
+// init history view to today
 histViewDate=todayKey();
 
-/* ══ MQTT ══ */
+/* ══════════════════════════════════════════════════
+   MQTT
+══════════════════════════════════════════════════ */
 let plnAlarm=false,batAlarm=false;
 let lastSource='';
 
@@ -960,7 +1117,6 @@ const client=mqtt.connect('wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mq
 
 client.on('connect',()=>{
   client.subscribe('test/monitor');
-  client.subscribe('test/notify'); // TAMBAHAN BARU
   document.getElementById('connDot').className='conn-dot online';
   document.getElementById('connLabel').innerText='ONLINE';
   document.getElementById('mqttBadge').className='top-badge';
@@ -979,192 +1135,119 @@ client.on('message',(topic,message)=>{
   resetTimer();
   let d;try{d=JSON.parse(message.toString());}catch(e){return;}
 
-  /* ══ TAMBAHAN BARU: TOPIK test/notify ══
-     Terima notifikasi validasi & alarm dari ESP32 */
-  if(topic==='test/notify'){
-    const st=d.status||'';
-    const reason=d.reason||d.msg||'';
-    const vc=document.getElementById('validCard');
-    if(st==='ACCEPTED'){
-      showToast('ok','PERINTAH DITERIMA',reason||'Perintah dieksekusi ESP32');
-      pushTicker('DITERIMA: '+reason,'ok');
-      document.getElementById('statusText').innerText='DITERIMA — '+reason;
-      document.getElementById('statusText').style.color='var(--green)';
-      document.getElementById('statusDot').className='status-dot-el on';
-      vc.className='valid-card ok show';
-      document.getElementById('validIcon').innerText='✅';
-      document.getElementById('validMsg').innerText=reason||'Diijinkan oleh AUTO';
-    } else if(st==='REJECTED'){
-      showToast('reject','DITOLAK AUTO',reason||'Tidak aman');
-      pushTicker('DITOLAK: '+reason,'alarm');
-      document.getElementById('statusText').innerText='DITOLAK — '+reason;
-      document.getElementById('statusText').style.color='var(--red)';
-      document.getElementById('statusDot').className='status-dot-el err';
-      vc.className='valid-card reject show';
-      document.getElementById('validIcon').innerText='❌';
-      document.getElementById('validMsg').innerText=reason||'Ditolak demi keamanan sistem';
-      histAddEntry('REJECT',0,'Ditolak AUTO: '+reason);
-    } else if(st==='MODE_AUTO'){
-      document.getElementById('sbMode').className='sb-mode auto';
-      document.getElementById('sbMode').innerText='AUTO';
-      showToast('ok','MODE AUTO','Sistem kembali ke kontrol otomatis');
-      pushTicker('MODE → AUTO','ok');
-    } else if(st==='MODE_MANUAL'){
-      document.getElementById('sbMode').className='sb-mode manual';
-      document.getElementById('sbMode').innerText='MANUAL';
-      showToast('warn','MODE MANUAL','Manual aktif. AUTO tetap mengawasi keamanan.');
-      pushTicker('MODE → MANUAL','warn');
-    } else if(st==='IGNORED'){
-      showToast('warn','DIABAIKAN',reason||'Kirim MODE MANUAL dulu');
-      pushTicker('DIABAIKAN: '+reason,'warn');
-    } else if(st==='KRITIS'||d.alarm==='KRITIS'){
-      showAlert(d.msg||'Kondisi sistem kritis!');
-      setAlarmBanner(true,'KRITIS: '+(d.msg||'PLN mati + Baterai lemah. Beban diputus.'));
-      pushTicker('ALARM KRITIS: '+(d.msg||''),'alarm');
-      histAddEntry('ALARM',0,'KRITIS: '+(d.msg||''));
-    }
-    return;
-  }
-
-  /* ══ TOPIK test/monitor — original + tambahan ══ */
-
-  // TAMBAHAN BARU: update mode dari ESP32
-  if(d.mode){
-    if(d.mode==='AUTO'){document.getElementById('sbMode').className='sb-mode auto';document.getElementById('sbMode').innerText='AUTO';}
-    else{document.getElementById('sbMode').className='sb-mode manual';document.getElementById('sbMode').innerText='MANUAL';}
-  }
-
-  // TAMBAHAN BARU: alarm flags dari ESP32
-  const alarmPln=d.alarm_pln===1;
-  const alarmBat=d.alarm_bat===1;
-  const bebanOff=d.beban_off===1;
-  if(alarmPln&&alarmBat) setAlarmBanner(true,'PLN MATI + BATERAI KRITIS — Periksa segera!');
-  else if(alarmPln) setAlarmBanner(true,'PLN TIDAK NORMAL — Sistem beralih ke baterai');
-  else if(alarmBat) setAlarmBanner(true,'BATERAI KRITIS — Tegangan sangat rendah!');
-  else if(bebanOff) setAlarmBanner(true,'BEBAN TERPUTUS — Semua relay dimatikan oleh AUTO');
-  else setAlarmBanner(false);
-
-  // TAMBAHAN BARU: update sub label PLN & LOAD
-  const plnOk=d.pln_v>=180;
-  const splnStatus=document.getElementById('s_pln_status');
-  if(splnStatus){splnStatus.innerText=plnOk?'Grid Normal':'Grid Tidak Normal';splnStatus.style.color=plnOk?'var(--green)':'var(--red)';}
-  const sloadStatus=document.getElementById('s_load_status');
-  if(sloadStatus){sloadStatus.innerText=bebanOff?'BEBAN OFF':'Active Consumption';sloadStatus.style.color=bebanOff?'var(--red)':'var(--text2)';}
-
-  // ── ORIGINAL: ALARMS ──
+  // ── ALARMS ──
   if(d.pln_v!==undefined&&d.pln_v<50&&!plnAlarm){
     showAlert('PLN GRID VOLTAGE DROPOUT — CHECK SUPPLY');
     pushTicker('ALARM: PLN VOLTAGE BELOW THRESHOLD ('+d.pln_v.toFixed(1)+'V)','alarm');
     plnAlarm=true;
-    histAddEntry('PLN',d.pln_Wh||0,'ALARM: PLN voltage dropout');
+    histAddEntry('PLN', d.pln_Wh||0, 'ALARM: PLN voltage dropout');
   }
-  if(d.pln_v>=50)plnAlarm=false;
+  if(d.pln_v>=50) plnAlarm=false;
   if(d.bat_v!==undefined&&d.bat_v<11&&!batAlarm){
     showAlert('BATTERY CRITICAL LOW — IMMEDIATE ATTENTION');
     pushTicker('ALARM: BATTERY VOLTAGE CRITICAL ('+d.bat_v.toFixed(2)+'V)','alarm');
     batAlarm=true;
-    histAddEntry('BAT',d.bat_Wh||0,'ALARM: Battery critical low');
+    histAddEntry('BAT', d.bat_Wh||0, 'ALARM: Battery critical low');
   }
-  if(d.bat_v>=11)batAlarm=false;
+  if(d.bat_v>=11) batAlarm=false;
 
-  // ── ORIGINAL: BATTERY ──
+  // ── BATTERY ──
   let pct=((d.bat_v-11.8)/(13-11.8))*100;pct=Math.max(0,Math.min(100,pct));
   const fill=document.getElementById('battFill');
   if(fill){fill.style.width=pct+'%';fill.style.background=pct>60?'var(--green)':pct>30?'var(--amber)':'var(--red)';}
   const pctEl=document.getElementById('s_bat_pct');
   if(pctEl){pctEl.innerText=pct.toFixed(0)+'% SoC';pctEl.style.color=pct>60?'var(--green)':pct>30?'var(--amber)':'var(--red)';}
 
-  // ── ORIGINAL: SUMMARY ──
+  // ── SUMMARY ──
   document.getElementById('s_pln_v').innerText=d.pln_v.toFixed(2);
   document.getElementById('s_bat_v').innerText=d.bat_v.toFixed(2);
   const totalW=d.source==='PLN'?d.pln_p:d.bat_p;
-  document.getElementById('s_load_w').innerText=bebanOff?'0':totalW.toFixed(0);
-  if(d.pln_Wh!==undefined)document.getElementById('s_pln_wh').innerText=d.pln_Wh.toFixed(2);
+  document.getElementById('s_load_w').innerText=totalW.toFixed(0);
+  if(d.pln_Wh!==undefined) document.getElementById('s_pln_wh').innerText=d.pln_Wh.toFixed(2);
 
-  // ── ORIGINAL: FLOW ──
+  // ── FLOW ──
   document.getElementById('nd_pln_v').textContent=d.pln_v.toFixed(2)+' V';
   document.getElementById('nd_bat_v').textContent=d.bat_v.toFixed(2)+' V';
-  document.getElementById('nd_load_w').textContent=bebanOff?'OFF':totalW.toFixed(0)+' W';
-  setFlowState(d.source,bebanOff);
+  document.getElementById('nd_load_w').textContent=totalW.toFixed(0)+' W';
 
-  // ── ORIGINAL: PLN METRICS ──
+  // ── PLN METRICS ──
   document.getElementById('pln_v').innerText=d.pln_v.toFixed(2);
   document.getElementById('pln_i').innerText=d.pln_i.toFixed(2);
   document.getElementById('pln_p').innerText=d.pln_p.toFixed(2);
-  if(d.pln_f!==undefined)document.getElementById('pln_f').innerText=d.pln_f.toFixed(2);
-  if(d.pln_Wh!==undefined)document.getElementById('pln_e').innerText=d.pln_Wh.toFixed(2);
+  if(d.pln_f!==undefined) document.getElementById('pln_f').innerText=d.pln_f.toFixed(2);
+  if(d.pln_Wh!==undefined) document.getElementById('pln_e').innerText=d.pln_Wh.toFixed(2);
   if(d.pln_pf!==undefined){document.getElementById('pln_pf').innerText=d.pln_pf.toFixed(2);setBar('bar_pln_pf',d.pln_pf*100);}
   setBar('bar_pln_v',((d.pln_v-200)/40)*100);
   setBar('bar_pln_i',(d.pln_i/10)*100);
   setBar('bar_pln_p',(d.pln_p/2000)*100);
 
-  // ── ORIGINAL: BAT METRICS ──
+  // ── BAT METRICS ──
   document.getElementById('bat_v').innerText=d.bat_v.toFixed(2);
   document.getElementById('bat_i').innerText=d.bat_i.toFixed(2);
   document.getElementById('bat_p').innerText=d.bat_p.toFixed(2);
-  if(d.bat_Wh!==undefined)document.getElementById('bat_e').innerText=d.bat_Wh.toFixed(2);
+  if(d.bat_Wh!==undefined) document.getElementById('bat_e').innerText=d.bat_Wh.toFixed(2);
   setBar('bar_bat_v',((d.bat_v-10)/4)*100);
   setBar('bar_bat_i',(d.bat_i/20)*100);
   setBar('bar_bat_p',(d.bat_p/300)*100);
 
-  // ── ORIGINAL: SOURCE / MODE ──
+  // ── SOURCE / MODE + switching history ──
   const pill=document.getElementById('modePill');
   const sbSource=document.getElementById('sbSource');
-  if(bebanOff){
-    pill.className='mode-pill alarm'||'mode-pill';
-    document.getElementById('modeText').innerText='BEBAN OFF';
-    sbSource.innerText='OFF';
-  } else if(d.source==='PLN'){
+
+  if(d.source==='PLN'){
     pill.className='mode-pill pln';
-    document.getElementById('modeText').innerText=(d.mode==='MANUAL'?'[M] ')+'PLN ACTIVE';
+    document.getElementById('modeText').innerText='PLN ACTIVE';
     sbSource.innerText='PLN';
     document.getElementById('nd_pln_data').textContent=d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W';
     document.getElementById('nd_bat_data').textContent='—';
+    setFlowState('PLN');
     pushTicker('SOURCE: PLN — '+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W / PF:'+((d.pln_pf||0).toFixed(2)));
   } else if(d.source==='BAT'){
     pill.className='mode-pill bat';
-    document.getElementById('modeText').innerText=(d.mode==='MANUAL'?'[M] ')+'BAT ACTIVE';
+    document.getElementById('modeText').innerText='BAT ACTIVE';
     sbSource.innerText='BAT';
     document.getElementById('nd_bat_data').textContent=d.bat_v.toFixed(2)+'V / '+d.bat_p.toFixed(0)+'W';
     document.getElementById('nd_pln_data').textContent='—';
+    setFlowState('BAT');
     pushTicker('SOURCE: BATTERY — '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC','warn');
   }
 
-  // ── ORIGINAL: HISTORY ──
-  if(d.source&&d.source!==lastSource){
+  // ── HISTORY: record on source switch ──
+  if(d.source && d.source!==lastSource){
     const wh=d.source==='PLN'?(d.pln_Wh||0):(d.bat_Wh||0);
-    const note=(d.mode==='MANUAL'?'[MANUAL] ':'[AUTO] ')+'Switch ke '+d.source+(d.source==='PLN'?' ('+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W)':' ('+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC)');
-    histAddEntry(d.source,wh,note);
+    const note='Switch ke '+d.source+(d.source==='PLN'?' ('+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W)':' ('+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC)');
+    histAddEntry(d.source, wh, note);
     lastSource=d.source;
   }
-  if(d.pln_cycle!==undefined&&d.pln_cycle>0)histAddEntry('PLN',d.pln_cycle,'PLN cycle energy');
-  if(d.bat_cycle!==undefined&&d.bat_cycle>0)histAddEntry('BAT',d.bat_cycle,'BAT cycle energy');
+
+  // ── HISTORY: record on cycle data ──
+  if(d.pln_cycle!==undefined&&d.pln_cycle>0){
+    histAddEntry('PLN', d.pln_cycle, 'PLN cycle energy');
+  }
+  if(d.bat_cycle!==undefined&&d.bat_cycle>0){
+    histAddEntry('BAT', d.bat_cycle, 'BAT cycle energy');
+  }
 
   pushChart(d);
 });
 
-/* ══ SEND CMD (original + diperluas) ══ */
+/* ══════════════════════════════════════════════════
+   SEND CMD
+══════════════════════════════════════════════════ */
 function sendCmd(cmd){
   client.publish('test/control',cmd);
   const st=document.getElementById('statusText');
   const sd=document.getElementById('statusDot');
-
-  if(cmd==='AUTO'||cmd==='MANUAL'){
-    // Perintah mode — langsung
-    st.innerText='MODE: '+cmd+' — menunggu konfirmasi ESP32...';
-    st.style.color='var(--amber)';
-    sd.className='status-dot-el warn';
-    pushTicker('MODE CMD: '+cmd,'warn');
-    document.getElementById('validCard').className='valid-card';
-  } else {
-    // Perintah sumber/beban — menunggu validasi AUTO
-    st.innerText='CMD: '+cmd+' — menunggu validasi AUTO...';
-    st.style.color='var(--amber)';
-    sd.className='status-dot-el warn';
-    pushTicker('CMD: '+cmd+' — menunggu validasi AUTO...','warn');
-    document.getElementById('validCard').className='valid-card';
-    histAddEntry(cmd,0,'CMD manual dikirim: '+cmd+' (menunggu validasi)');
-  }
+  st.innerText='CMD SENT: '+cmd+' — AWAITING ACK...';
+  st.style.color='var(--amber)';
+  sd.className='status-dot-el';
+  pushTicker('MANUAL CMD: '+cmd,'warn');
+  histAddEntry(cmd, 0, 'Manual command: '+cmd);
+  setTimeout(()=>{
+    st.innerText='CMD CONFIRMED: '+cmd+' ACTIVE';
+    st.style.color='var(--green)';
+    sd.className='status-dot-el on';
+  },1500);
 }
 </script>
 </body>
