@@ -3,610 +3,443 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>EMS SCADA v3</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<title>EMS — Energy Management System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 <style>
-/* ══════════════════════════════════════════
-   VARIABLES & RESET
-══════════════════════════════════════════ */
-:root{
-  --bg0:#060a10;--bg1:#0b1018;--bg2:#101620;--bg3:#161e2c;--bg4:#1e2a3a;
-  --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.14);
-  --t1:#e8eef8;--t2:#8a9bb8;--t3:#3d4f6a;
-  --blue:#4b90ff;--blue-d:rgba(75,144,255,0.14);
-  --green:#00e5a0;--green-d:rgba(0,229,160,0.12);--green-glow:rgba(0,229,160,0.25);
-  --amber:#ffb020;--amber-d:rgba(255,176,32,0.12);
-  --red:#ff4757;--red-d:rgba(255,71,87,0.12);--red-glow:rgba(255,71,87,0.25);
-  --purple:#a78bfa;--purple-d:rgba(167,139,250,0.12);
-  --r:12px;--rs:8px;
-  --sb:230px;--tb:58px;
-  --mono:'IBM Plex Mono',monospace;
-  --sans:'IBM Plex Sans',sans-serif;
+:root {
+  --bg0:#080c14;--bg1:#0c1220;--bg2:#111827;--bg3:#1a2438;--bg4:#243049;
+  --border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.16);
+  --text1:#f0f4ff;--text2:#94a3c0;--text3:#4b5e7a;
+  --accent:#3b82f6;--accent-dim:rgba(59,130,246,0.15);
+  --green:#22d3a0;--green-dim:rgba(34,211,160,0.13);--green-glow:rgba(34,211,160,0.3);
+  --amber:#f59e0b;--amber-dim:rgba(245,158,11,0.13);
+  --red:#ef4444;--red-dim:rgba(239,68,68,0.13);--red-glow:rgba(239,68,68,0.3);
+  --purple:#8b5cf6;--purple-dim:rgba(139,92,246,0.13);
+  --radius:14px;--radius-sm:9px;
+  --sidebar-w:230px;--topbar-h:60px;
+  --font:'Space Grotesk',sans-serif;--mono:'Space Mono',monospace;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;background:var(--bg0);}
-body{font-family:var(--sans);color:var(--t1);font-size:14px;}
-::-webkit-scrollbar{width:3px;height:3px;}
+html{height:100%;background:var(--bg0);}
+body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;background:var(--bg0);}
+::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
-::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:3px;}
+::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px;}
 
-/* ══════════════════════════════════════════
-   LOGIN
-══════════════════════════════════════════ */
-#loginScreen{
-  position:fixed;inset:0;z-index:9999;
-  display:flex;align-items:center;justify-content:center;padding:16px;
-  background:#060a10;
-}
+/* ══ LOGIN ══ */
+#loginScreen{position:fixed;inset:0;z-index:9999;background:radial-gradient(ellipse 90% 80% at 50% 30%,#0d1829 0%,#050810 100%);display:flex;align-items:center;justify-content:center;padding:16px;}
 #loginScreen.hidden{display:none;}
-.login-grid{
-  position:absolute;inset:0;
-  background-image:linear-gradient(rgba(75,144,255,0.035) 1px,transparent 1px),
-    linear-gradient(90deg,rgba(75,144,255,0.035) 1px,transparent 1px);
-  background-size:48px 48px;
-  mask-image:radial-gradient(ellipse 55% 55% at 50% 50%,black 20%,transparent 80%);
-  -webkit-mask-image:radial-gradient(ellipse 55% 55% at 50% 50%,black 20%,transparent 80%);
-}
-.login-card{
-  position:relative;z-index:1;width:100%;max-width:380px;
-  background:var(--bg1);border:1px solid rgba(75,144,255,0.18);
-  border-radius:16px;padding:36px;
-}
-.login-brand{display:flex;align-items:center;gap:12px;margin-bottom:28px;}
-.login-icon{width:40px;height:40px;border-radius:10px;background:var(--blue-d);
-  border:1px solid rgba(75,144,255,0.3);display:flex;align-items:center;justify-content:center;}
-.login-icon svg{width:18px;height:18px;stroke:var(--blue);fill:none;stroke-width:2.2;}
-.login-name{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--t1);}
-.login-ver{font-family:var(--mono);font-size:10px;color:var(--t3);}
-.login-h{font-size:22px;font-weight:600;color:var(--t1);margin-bottom:6px;}
-.login-p{font-size:13px;color:var(--t2);margin-bottom:28px;line-height:1.6;}
-.field{margin-bottom:16px;}
-.field label{display:block;font-family:var(--mono);font-size:11px;font-weight:500;
-  color:var(--t2);margin-bottom:7px;letter-spacing:.5px;}
-.field input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border2);
-  border-radius:8px;color:var(--t1);font-family:var(--sans);font-size:14px;
-  padding:11px 14px;outline:none;transition:border-color .2s,box-shadow .2s;}
-.field input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(75,144,255,.12);}
-.field input::placeholder{color:var(--t3);}
-.login-btn{width:100%;padding:12px;margin-top:6px;
-  background:linear-gradient(135deg,#4b90ff,#2563eb);border:none;border-radius:8px;
-  color:#fff;font-family:var(--mono);font-size:13px;font-weight:700;
-  cursor:pointer;transition:all .2s;letter-spacing:.5px;}
-.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(75,144,255,.35);}
-.login-btn:active{transform:scale(.98);}
-#loginErr{font-family:var(--mono);font-size:11px;color:var(--red);margin-top:10px;min-height:14px;}
+.login-bg{position:absolute;inset:0;overflow:hidden;background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);background-size:52px 52px;mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,black 20%,transparent 80%);-webkit-mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,black 20%,transparent 80%);}
+.login-orb{position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(59,130,246,0.06) 0%,transparent 70%);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);animation:orb-pulse 4s ease-in-out infinite;}
+@keyframes orb-pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5;}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1;}}
+.login-card{position:relative;z-index:1;width:100%;max-width:400px;background:linear-gradient(160deg,#0d1829 0%,#080c14 100%);border:1px solid rgba(59,130,246,0.2);border-radius:20px;padding:40px;box-shadow:0 40px 80px rgba(0,0,0,0.7);}
+.login-logo{display:flex;align-items:center;gap:14px;margin-bottom:32px;}
+.login-logo-icon{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,rgba(59,130,246,0.25),rgba(59,130,246,0.05));border:1px solid rgba(59,130,246,0.35);display:flex;align-items:center;justify-content:center;}
+.login-logo-icon svg{width:22px;height:22px;stroke:var(--accent);fill:none;stroke-width:2;}
+.login-title{font-size:17px;font-weight:700;color:var(--text1);}
+.login-sub{font-size:11px;color:var(--text3);font-family:var(--mono);}
+.login-heading{font-size:26px;font-weight:700;color:var(--text1);margin-bottom:8px;}
+.login-desc{font-size:14px;color:var(--text2);margin-bottom:32px;line-height:1.6;}
+.field-group{margin-bottom:18px;}
+.field-label{display:block;font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;}
+.field-input{width:100%;background:rgba(255,255,255,0.04);border:1px solid var(--border2);border-radius:10px;color:var(--text1);font-family:var(--font);font-size:15px;padding:13px 16px;outline:none;transition:border-color .2s,box-shadow .2s;}
+.field-input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(59,130,246,0.15);}
+.field-input::placeholder{color:var(--text3);}
+.login-btn{width:100%;padding:14px;margin-top:10px;background:linear-gradient(135deg,#3b82f6,#2563eb);border:none;border-radius:10px;color:#fff;font-family:var(--font);font-size:15px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 4px 20px rgba(59,130,246,0.3);}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 8px 30px rgba(59,130,246,0.45);}
+.login-btn:active{transform:scale(0.98);}
+#loginError{font-family:var(--mono);font-size:12px;color:var(--red);margin-top:12px;min-height:16px;}
 
-/* ══════════════════════════════════════════
-   APP WRAPPER
-══════════════════════════════════════════ */
-#app{display:none;flex-direction:column;height:100vh;overflow:hidden;}
-#app.on{display:flex;}
+/* ══ APP WRAPPER ══ */
+#appWrapper{display:none;flex-direction:column;height:100vh;overflow:hidden;}
+#appWrapper.visible{display:flex;}
 
-/* ══════════════════════════════════════════
-   TOPBAR
-══════════════════════════════════════════ */
-.topbar{
-  height:var(--tb);flex-shrink:0;
-  background:var(--bg1);border-bottom:1px solid var(--border);
-  display:flex;align-items:center;justify-content:space-between;padding:0 16px;
-}
-.tb-left{display:flex;align-items:center;gap:10px;}
-.ham{
-  display:none;width:36px;height:36px;border-radius:8px;
-  background:rgba(255,255,255,0.04);border:1px solid var(--border);
-  cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:4px;padding:9px;
-}
-.ham span{display:block;height:1.5px;background:var(--t2);border-radius:2px;width:16px;}
-.brand{display:flex;align-items:center;gap:10px;}
-.brand-ico{width:32px;height:32px;border-radius:8px;background:var(--blue-d);
-  border:1px solid rgba(75,144,255,.28);display:flex;align-items:center;justify-content:center;}
-.brand-ico svg{width:16px;height:16px;stroke:var(--blue);fill:none;stroke-width:2.2;}
-.brand-name{font-family:var(--mono);font-size:15px;font-weight:700;color:var(--t1);}
-.brand-tag{font-family:var(--mono);font-size:10px;color:var(--t3);
-  background:var(--bg3);border:1px solid var(--border);padding:2px 7px;border-radius:4px;}
-.tb-right{display:flex;align-items:center;gap:8px;}
-.tb-clock{font-family:var(--mono);font-size:11px;color:var(--t1);
-  background:var(--bg2);border:1px solid var(--border);padding:5px 10px;border-radius:7px;white-space:nowrap;}
+/* ══ TOPBAR ══ */
+.topbar{height:var(--topbar-h);flex-shrink:0;background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;}
+.topbar-left{display:flex;align-items:center;gap:10px;}
+.topbar-menu-btn{display:none;width:38px;height:38px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid var(--border);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px;padding:10px;}
+.topbar-menu-btn span{display:block;height:1.5px;background:var(--text2);border-radius:2px;width:18px;}
+.topbar-logo{display:flex;align-items:center;gap:10px;}
+.logo-icon{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,rgba(59,130,246,0.25),rgba(59,130,246,0.05));border:1px solid rgba(59,130,246,0.3);display:flex;align-items:center;justify-content:center;}
+.logo-icon svg{width:17px;height:17px;stroke:var(--accent);fill:none;stroke-width:2.5;}
+.logo-text{font-size:16px;font-weight:700;color:var(--text1);}
+.logo-ver{font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:2px 8px;border-radius:5px;}
+.topbar-right{display:flex;align-items:center;gap:8px;}
+.top-clock{font-family:var(--mono);font-size:12px;color:var(--text1);background:var(--bg2);border:1px solid var(--border);padding:5px 11px;border-radius:var(--radius-sm);letter-spacing:0.5px;white-space:nowrap;}
+.top-badge{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 11px;border-radius:var(--radius-sm);}
+.top-badge.ok{border:1px solid rgba(34,211,160,0.3);background:var(--green-dim);color:var(--green);}
+.top-badge.err{border:1px solid rgba(239,68,68,0.3);background:var(--red-dim);color:var(--red);}
+.top-badge.warn{border:1px solid rgba(245,158,11,0.3);background:var(--amber-dim);color:var(--amber);}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:dot-pulse 2s ease-in-out infinite;}
+@keyframes dot-pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
 
-/* MQTT badge */
-.mqtt-badge{display:flex;align-items:center;gap:6px;
-  font-family:var(--mono);font-size:10px;font-weight:700;
-  padding:5px 10px;border-radius:7px;transition:all .3s;}
-.mqtt-badge.ok{border:1px solid rgba(0,229,160,.3);background:var(--green-d);color:var(--green);}
-.mqtt-badge.err{border:1px solid rgba(255,71,87,.3);background:var(--red-d);color:var(--red);}
-.pulse{width:6px;height:6px;border-radius:50%;background:currentColor;
-  animation:pulse 2s ease-in-out infinite;}
-@keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.35;transform:scale(.65);}}
-
-/* Mode badge */
-.mode-badge{display:flex;align-items:center;gap:7px;
-  font-family:var(--mono);font-size:10px;font-weight:700;
-  padding:5px 12px;border-radius:7px;transition:all .3s;}
-.mode-badge.auto{border:1px solid rgba(75,144,255,.35);background:var(--blue-d);color:var(--blue);}
-.mode-badge.manual{border:1px solid rgba(255,176,32,.35);background:var(--amber-d);color:var(--amber);}
-.mode-badge.kritis{border:1px solid rgba(255,71,87,.35);background:var(--red-d);color:var(--red);}
-
-/* ══════════════════════════════════════════
-   LAYOUT
-══════════════════════════════════════════ */
+/* ══ LAYOUT ══ */
 .layout{display:flex;flex:1;overflow:hidden;position:relative;}
-.overlay{display:none;position:fixed;inset:0;z-index:149;background:rgba(0,0,0,.55);}
-.overlay.on{display:block;}
+.sidebar-overlay{display:none;position:fixed;inset:0;z-index:149;background:rgba(0,0,0,0.6);}
+.sidebar-overlay.active{display:block;}
 
-/* ══════════════════════════════════════════
-   SIDEBAR
-══════════════════════════════════════════ */
-.sidebar{
-  width:var(--sb);flex-shrink:0;
-  background:var(--bg1);border-right:1px solid var(--border);
-  display:flex;flex-direction:column;overflow:hidden;
-  transition:transform .25s cubic-bezier(.4,0,.2,1);position:relative;z-index:100;
-}
-.sb-body{flex:1;overflow-y:auto;padding:12px 8px;}
-.sb-sec{margin-bottom:4px;}
-.sb-label{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1.2px;
-  color:var(--t3);text-transform:uppercase;padding:6px 10px 9px;}
-.nav-btn{
-  display:flex;align-items:center;gap:10px;width:100%;
-  padding:10px 12px;border:none;background:transparent;
-  color:var(--t2);font-family:var(--sans);font-size:13px;font-weight:500;
-  cursor:pointer;border-radius:8px;transition:all .18s;text-align:left;position:relative;
-}
-.nav-btn:hover{background:var(--bg3);color:var(--t1);}
-.nav-btn.act{background:var(--blue-d);color:var(--blue);font-weight:600;}
-.nav-btn.act::after{content:'';position:absolute;right:0;top:22%;bottom:22%;
-  width:2.5px;border-radius:2px;background:var(--blue);}
-.nav-ico{width:32px;height:32px;border-radius:8px;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;background:rgba(255,255,255,0.04);transition:all .18s;}
-.nav-btn:hover .nav-ico,.nav-btn.act .nav-ico{background:rgba(75,144,255,.18);}
-.nav-ico svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;}
-.sb-div{height:1px;background:var(--border);margin:8px 10px;}
-.sb-foot{padding:12px 8px;border-top:1px solid var(--border);}
-.conn-box{background:var(--bg2);border:1px solid var(--border);border-radius:9px;padding:11px 12px;}
-.conn-lbl{font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:7px;}
-.conn-row{display:flex;align-items:center;gap:8px;}
-.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--t3);flex-shrink:0;transition:all .3s;}
-.conn-dot.on{background:var(--green);box-shadow:0 0 10px var(--green-glow);animation:pulse 2s infinite;}
-.conn-txt{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--t2);}
+/* ══ SIDEBAR ══ */
+.sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:transform .25s cubic-bezier(.4,0,.2,1);position:relative;z-index:100;}
+.sidebar-inner{flex:1;overflow-y:auto;padding:14px 10px;}
+.sidebar-section{margin-bottom:6px;}
+.sidebar-label{font-size:10px;font-weight:700;letter-spacing:1.2px;color:var(--text3);text-transform:uppercase;padding:6px 12px 10px;font-family:var(--mono);}
+.nav-item{display:flex;align-items:center;gap:11px;width:100%;padding:11px 13px;border:none;background:transparent;color:var(--text2);font-family:var(--font);font-size:14px;font-weight:500;cursor:pointer;border-radius:var(--radius-sm);transition:all .2s;text-align:left;position:relative;}
+.nav-item:hover{background:var(--bg3);color:var(--text1);}
+.nav-item.active{background:var(--accent-dim);color:var(--accent);font-weight:600;}
+.nav-item.active::after{content:'';position:absolute;right:0;top:20%;bottom:20%;width:2.5px;border-radius:2px;background:var(--accent);}
+.nav-icon{width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;background:rgba(255,255,255,0.04);transition:all .2s;}
+.nav-item:hover .nav-icon,.nav-item.active .nav-icon{background:rgba(59,130,246,0.18);}
+.nav-icon svg{width:17px;height:17px;fill:none;stroke:currentColor;stroke-width:2;}
+.sidebar-divider{height:1px;background:var(--border);margin:10px 12px;}
+.sidebar-bottom{padding:14px 10px;border-top:1px solid var(--border);}
+.conn-card{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;}
+.conn-label{font-size:10px;color:var(--text3);margin-bottom:8px;font-family:var(--mono);}
+.conn-row{display:flex;align-items:center;gap:9px;}
+.conn-dot{width:8px;height:8px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:all .3s;}
+.conn-dot.online{background:var(--green);box-shadow:0 0 10px var(--green-glow);animation:dot-pulse 2s infinite;}
+.conn-text{font-size:13px;font-weight:700;color:var(--text2);font-family:var(--mono);}
 
-/* ══════════════════════════════════════════
-   MAIN
-══════════════════════════════════════════ */
-.main{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px;background:var(--bg0);padding-bottom:46px;}
+/* ══ MAIN ══ */
+.main{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px;background:var(--bg0);padding-bottom:50px;}
 
-/* ══════════════════════════════════════════
-   PAGE
-══════════════════════════════════════════ */
+/* ══ PAGE ══ */
 .page{display:none;}
-.page.act{display:block;animation:fadeup .18s ease;}
-@keyframes fadeup{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+.page.active{display:block;animation:fade-in .2s ease;}
+@keyframes fade-in{from{opacity:0;transform:translateY(5px);}to{opacity:1;transform:none;}}
 
-/* ══════════════════════════════════════════
-   PAGE HEADER
-══════════════════════════════════════════ */
-.ph{display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:14px;flex-wrap:wrap;gap:8px;}
-.ph-left{display:flex;align-items:center;gap:10px;}
-.ph-ico{width:40px;height:40px;border-radius:10px;background:var(--blue-d);
-  border:1px solid rgba(75,144,255,.22);display:flex;align-items:center;justify-content:center;}
-.ph-ico svg{width:19px;height:19px;stroke:var(--blue);fill:none;stroke-width:2;}
-.ph-title{font-size:17px;font-weight:600;color:var(--t1);}
-.ph-sub{font-family:var(--mono);font-size:10px;color:var(--t3);margin-top:2px;}
+/* ══ PAGE HEADER ══ */
+.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px;}
+.page-header-left{display:flex;align-items:center;gap:12px;}
+.page-icon{width:42px;height:42px;border-radius:11px;background:var(--accent-dim);border:1px solid rgba(59,130,246,0.25);display:flex;align-items:center;justify-content:center;}
+.page-icon svg{width:20px;height:20px;stroke:var(--accent);fill:none;stroke-width:2;}
+.page-title{font-size:19px;font-weight:700;color:var(--text1);}
+.page-subtitle{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
 
-/* section divider */
-.sec{display:flex;align-items:center;gap:8px;margin:12px 0 9px;}
-.sec-t{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;
-  color:var(--t3);text-transform:uppercase;white-space:nowrap;}
-.sec-l{flex:1;height:1px;background:var(--border);}
+/* mode pill */
+.mode-pill{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;font-family:var(--mono);}
+.mode-pill.bat{border:1px solid rgba(34,211,160,0.3);background:var(--green-dim);color:var(--green);}
+.mode-pill.pln{border:1px solid rgba(59,130,246,0.3);background:var(--accent-dim);color:var(--accent);}
+.mode-pill.off{border:1px solid rgba(239,68,68,0.3);background:var(--red-dim);color:var(--red);}
+.mode-pill.manual{border:1px solid rgba(245,158,11,0.3);background:var(--amber-dim);color:var(--amber);}
+.mode-pill-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:dot-pulse 2s infinite;}
 
-/* card base */
-.card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);}
-
-/* ══════════════════════════════════════════
-   NOTIFY BANNER  ← sesuai test/notify ESP32
-══════════════════════════════════════════ */
-#notifyBar{
-  position:sticky;top:0;z-index:50;
-  display:none;align-items:center;gap:10px;
-  padding:10px 14px;border-radius:var(--r);margin-bottom:12px;
-  border:1px solid;font-family:var(--mono);font-size:12px;font-weight:500;
-  transition:all .25s;
-}
-#notifyBar.show{display:flex;}
-#notifyBar.ok{background:var(--green-d);border-color:rgba(0,229,160,.3);color:var(--green);}
-#notifyBar.warn{background:var(--amber-d);border-color:rgba(255,176,32,.3);color:var(--amber);}
-#notifyBar.err{background:var(--red-d);border-color:rgba(255,71,87,.3);color:var(--red);}
-#notifyBar.info{background:var(--blue-d);border-color:rgba(75,144,255,.3);color:var(--blue);}
+/* ══ NOTIFY BANNER ← test/notify ══ */
+#notifyBanner{display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:var(--radius-sm);margin-bottom:12px;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid;}
+#notifyBanner.show{display:flex;}
+#notifyBanner.ok{background:var(--green-dim);border-color:rgba(34,211,160,0.3);color:var(--green);}
+#notifyBanner.warn{background:var(--amber-dim);border-color:rgba(245,158,11,0.3);color:var(--amber);}
+#notifyBanner.err{background:var(--red-dim);border-color:rgba(239,68,68,0.3);color:var(--red);}
+#notifyBanner.info{background:var(--accent-dim);border-color:rgba(59,130,246,0.3);color:var(--accent);}
 .notify-dot{width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;}
-#notifyMsg{flex:1;}
-#notifyClose{cursor:pointer;opacity:.6;font-size:14px;line-height:1;padding:2px 4px;}
-#notifyClose:hover{opacity:1;}
+#notifyText{flex:1;}
+.notify-close{cursor:pointer;opacity:.6;font-size:14px;padding:0 4px;}
+.notify-close:hover{opacity:1;}
 
-/* ══════════════════════════════════════════
-   SUMMARY CARDS (top 4)
-══════════════════════════════════════════ */
-.sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:12px;}
-.sum-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);
-  padding:14px;position:relative;overflow:hidden;}
-.sum-card::after{content:'';position:absolute;top:0;left:0;right:0;height:2.5px;}
-.sum-card.pln::after{background:linear-gradient(90deg,transparent,var(--blue),transparent);}
-.sum-card.bat::after{background:linear-gradient(90deg,transparent,var(--green),transparent);}
-.sum-card.load::after{background:linear-gradient(90deg,transparent,var(--amber),transparent);}
-.sum-card.mode::after{background:linear-gradient(90deg,transparent,var(--purple),transparent);}
-.sum-lbl{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.7px;
-  color:var(--t3);text-transform:uppercase;margin-bottom:7px;}
-.sum-val{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--t1);line-height:1;}
-.sum-unit{font-size:11px;color:var(--t3);margin-left:2px;font-weight:400;}
-.sum-sub{font-size:11px;color:var(--t2);margin-top:6px;}
-.bat-bar{width:100%;height:4px;background:var(--bg3);border-radius:2px;margin-top:9px;overflow:hidden;}
-.bat-fill{height:100%;width:0%;border-radius:2px;transition:width .8s,background .4s;}
-
-/* ══════════════════════════════════════════
-   FLOW DIAGRAM
-══════════════════════════════════════════ */
-.flow-card{padding:16px;margin-bottom:12px;}
-.flow-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
-.flow-title{font-family:var(--mono);font-size:10px;font-weight:700;
-  color:var(--t2);text-transform:uppercase;display:flex;align-items:center;gap:7px;}
-.live-dot{display:flex;align-items:center;gap:5px;font-family:var(--mono);
-  font-size:9px;color:var(--green);font-weight:700;}
-.flow-wrap{overflow-x:auto;}
-.flow-svg{width:100%;min-width:310px;max-width:580px;display:block;margin:0 auto;}
-.fd{stroke-width:2;fill:none;stroke-dasharray:6 8;}
-.fd.pln{stroke:var(--blue);opacity:0;}
-.fd.bat{stroke:var(--green);opacity:0;}
-.fd.pln.flow{opacity:.9;animation:da-r .5s linear infinite;}
-.fd.bat.flow{opacity:.9;animation:da-l .5s linear infinite;}
-@keyframes da-r{to{stroke-dashoffset:-28;}}
-@keyframes da-l{to{stroke-dashoffset:28;}}
-
-/* ══════════════════════════════════════════
-   ALARM STRIP
-══════════════════════════════════════════ */
-.alarm-strip{
-  display:none;align-items:center;gap:10px;
-  padding:11px 14px;border-radius:var(--rs);margin-bottom:12px;
-  background:var(--red-d);border:1px solid rgba(255,71,87,.4);
-  font-family:var(--mono);font-size:11px;color:var(--red);font-weight:700;
-}
-.alarm-strip.show{display:flex;}
-.alarm-strip-ico{font-size:14px;animation:blink 1s step-end infinite;}
+/* ══ ALARM STRIP ══ */
+#alarmStrip{display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:var(--radius-sm);margin-bottom:12px;background:var(--red-dim);border:1px solid rgba(239,68,68,0.4);font-family:var(--mono);font-size:11px;color:var(--red);font-weight:700;}
+#alarmStrip.show{display:flex;}
+.alarm-blink{animation:blink 1s step-end infinite;}
 @keyframes blink{50%{opacity:0;}}
 
-/* ══════════════════════════════════════════
-   METRICS GRID
-══════════════════════════════════════════ */
-.met-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;margin-bottom:10px;}
-.met-grid.c2{grid-template-columns:repeat(2,1fr);}
-.met-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:13px 14px;}
-.met-tag{display:inline-block;font-family:var(--mono);font-size:8px;font-weight:700;
-  letter-spacing:.9px;color:var(--blue);text-transform:uppercase;
-  background:var(--blue-d);border:1px solid rgba(75,144,255,.18);
-  padding:2px 6px;border-radius:3px;margin-bottom:7px;}
-.met-tag.g{color:var(--green);background:var(--green-d);border-color:rgba(0,229,160,.18);}
-.met-lbl{font-size:11px;color:var(--t2);margin-bottom:7px;font-weight:500;}
-.met-val{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--t1);line-height:1;}
-.met-val .u{font-size:11px;color:var(--t3);margin-left:2px;}
-.met-bar-wrap{height:2.5px;background:var(--bg3);border-radius:2px;margin-top:10px;overflow:hidden;}
-.met-bar{height:100%;width:0%;border-radius:2px;background:var(--blue);transition:width .7s;}
-.met-bar.g{background:var(--green);}
-.met-bar.a{background:var(--amber);}
+/* ══ CRITICAL OVERLAY ══ */
+#critOverlay{display:none;position:fixed;inset:0;z-index:9000;background:rgba(8,12,20,0.92);align-items:center;justify-content:center;padding:20px;}
+#critOverlay.show{display:flex;}
+.crit-box{background:var(--bg1);border:2px solid rgba(239,68,68,0.5);border-radius:18px;padding:32px;max-width:380px;width:100%;text-align:center;}
+.crit-icon{font-size:40px;display:block;margin-bottom:16px;animation:blink .8s step-end infinite;}
+.crit-title{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--red);margin-bottom:10px;}
+.crit-msg{font-size:13px;color:var(--text2);line-height:1.6;margin-bottom:22px;}
+.crit-ack{padding:10px 24px;background:var(--red-dim);border:1px solid rgba(239,68,68,0.4);border-radius:9px;color:var(--red);font-family:var(--mono);font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;}
+.crit-ack:hover{background:rgba(239,68,68,0.22);}
 
-/* ══════════════════════════════════════════
-   CHART
-══════════════════════════════════════════ */
-.chart-card{padding:14px;margin-bottom:12px;}
-.chart-hdr{display:flex;align-items:center;justify-content:space-between;
-  margin-bottom:12px;flex-wrap:wrap;gap:8px;}
-.ctrl-group{display:flex;gap:4px;flex-wrap:wrap;}
-.cb{font-family:var(--mono);font-size:10px;font-weight:700;padding:4px 10px;
-  border-radius:6px;border:1px solid var(--border2);background:transparent;
-  color:var(--t3);cursor:pointer;transition:all .18s;}
-.cb:hover{background:var(--bg3);color:var(--t1);}
-.cb.b{border-color:rgba(75,144,255,.4);background:var(--blue-d);color:var(--blue);}
-.cb.g{border-color:rgba(0,229,160,.4);background:var(--green-d);color:var(--green);}
-.cb.a{border-color:rgba(255,176,32,.4);background:var(--amber-d);color:var(--amber);}
-.sep{width:1px;height:18px;background:var(--border);margin:0 2px;}
-.chart-meta{font-family:var(--mono);font-size:9px;color:var(--t3);font-weight:700;}
-.chart-wrap{height:170px;position:relative;}
+/* ══ SUMMARY CARDS ══ */
+.source-summary{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:16px;}
+.summary-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:16px;position:relative;overflow:hidden;}
+.summary-card::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;}
+.summary-card.pln::after{background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.summary-card.bat::after{background:linear-gradient(90deg,transparent,var(--green),transparent);}
+.summary-card.load::after{background:linear-gradient(90deg,transparent,var(--amber),transparent);}
+.summary-card.mode::after{background:linear-gradient(90deg,transparent,var(--purple),transparent);}
+.sum-label{font-size:10px;font-weight:700;letter-spacing:.8px;color:var(--text3);text-transform:uppercase;font-family:var(--mono);margin-bottom:8px;}
+.sum-value{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--text1);line-height:1;}
+.sum-unit{font-size:12px;color:var(--text3);margin-left:3px;font-weight:400;}
+.sum-sub{font-size:12px;color:var(--text2);margin-top:7px;}
+.batt-strip{width:100%;height:5px;background:var(--bg3);border-radius:3px;margin-top:10px;overflow:hidden;}
+.batt-fill{height:100%;width:0%;border-radius:3px;transition:width .8s,background .4s;}
 
-/* ══════════════════════════════════════════
-   CONTROL PAGE
-══════════════════════════════════════════ */
+/* ══ FLOW ══ */
+.flow-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:18px;margin-bottom:16px;}
+.flow-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.card-title{font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--text2);text-transform:uppercase;display:flex;align-items:center;gap:8px;font-family:var(--mono);}
+.card-title-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);}
+.live-indicator{font-family:var(--mono);font-size:10px;color:var(--green);display:flex;align-items:center;gap:5px;font-weight:700;}
+.flow-svg-wrap{overflow-x:auto;padding:2px 0;}
+.flow-svg{width:100%;min-width:320px;max-width:600px;display:block;margin:0 auto;}
+.flow-dash{stroke-width:2.5;fill:none;stroke-dasharray:7 9;}
+.flow-dash.pln{stroke:var(--accent);opacity:0;}
+.flow-dash.bat{stroke:var(--green);opacity:0;}
+.flow-dash.pln.flowing{opacity:.9;animation:dash-right .55s linear infinite;}
+.flow-dash.bat.flowing{opacity:.9;animation:dash-left .55s linear infinite;}
+@keyframes dash-right{to{stroke-dashoffset:-32;}}
+@keyframes dash-left{to{stroke-dashoffset:32;}}
 
-/* Mode switch row */
-.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;}
-.mode-card{
-  background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);
-  padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
-}
+/* ══ SECTION HEADER ══ */
+.section-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;margin-top:4px;}
+.section-title{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;font-family:var(--mono);white-space:nowrap;}
+.section-line{flex:1;height:1px;background:var(--border);}
+
+/* ══ METRICS ══ */
+.metrics-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px;}
+.metrics-grid.cols2{grid-template-columns:repeat(2,1fr);}
+.metric-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;}
+.metric-tag{display:inline-block;font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:1px;color:var(--accent);text-transform:uppercase;background:var(--accent-dim);border:1px solid rgba(59,130,246,0.2);padding:2px 7px;border-radius:4px;margin-bottom:8px;}
+.metric-tag.bat{color:var(--green);background:var(--green-dim);border-color:rgba(34,211,160,0.2);}
+.metric-tag.load{color:var(--amber);background:var(--amber-dim);border-color:rgba(245,158,11,0.2);}
+.metric-tag.sys{color:var(--purple);background:var(--purple-dim);border-color:rgba(139,92,246,0.2);}
+.metric-label{font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:500;}
+.metric-value{font-family:var(--mono);font-size:24px;font-weight:700;color:var(--text1);line-height:1;}
+.metric-value .unit{font-size:12px;color:var(--text3);margin-left:3px;}
+.metric-value.sm{font-size:15px;}
+.metric-progress{height:3px;background:var(--bg3);border-radius:2px;margin-top:12px;overflow:hidden;}
+.metric-bar{height:100%;width:0%;border-radius:2px;background:var(--accent);transition:width .8s;}
+.metric-bar.green{background:var(--green);}
+.metric-bar.amber{background:var(--amber);}
+.metric-bar.red{background:var(--red);}
+
+/* ══ FLAG CARDS ══ */
+.flag-ok{color:var(--green)!important;}
+.flag-warn{color:var(--amber)!important;}
+.flag-err{color:var(--red)!important;}
+.flag-dim{color:var(--text3)!important;}
+
+/* ══ CHART ══ */
+.chart-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
+.chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.chart-controls{display:flex;gap:5px;flex-wrap:wrap;}
+.ctrl-btn{font-family:var(--mono);font-size:11px;font-weight:700;padding:5px 11px;border-radius:7px;border:1px solid var(--border2);background:transparent;color:var(--text3);cursor:pointer;transition:all .2s;}
+.ctrl-btn:hover{background:var(--bg3);color:var(--text1);}
+.ctrl-btn.ap{border-color:rgba(59,130,246,0.4);background:var(--accent-dim);color:var(--accent);}
+.ctrl-btn.ag{border-color:rgba(34,211,160,0.4);background:var(--green-dim);color:var(--green);}
+.ctrl-btn.aa{border-color:rgba(245,158,11,0.4);background:var(--amber-dim);color:var(--amber);}
+.chart-sep{width:1px;height:20px;background:var(--border);margin:0 3px;}
+.chart-meta{font-family:var(--mono);font-size:10px;color:var(--text3);font-weight:700;}
+.chart-wrap{height:180px;position:relative;}
+
+/* ══ CONTROL PAGE ══ */
+/* Mode row */
+.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.mode-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
 .mode-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
-.mode-card.m-auto::before{background:var(--blue-d);}
-.mode-card.m-manual::before{background:var(--amber-d);}
+.mode-card.m-auto::before{background:var(--accent-dim);}
+.mode-card.m-manual::before{background:var(--amber-dim);}
 .mode-card:hover::before{opacity:1;}
-.mode-card.m-auto:hover{border-color:rgba(75,144,255,.4);}
-.mode-card.m-manual:hover{border-color:rgba(255,176,32,.4);}
-.mode-card.m-auto.selected{border-color:rgba(75,144,255,.5);background:var(--blue-d);}
-.mode-card.m-manual.selected{border-color:rgba(255,176,32,.5);background:var(--amber-d);}
+.mode-card.m-auto:hover{border-color:rgba(59,130,246,0.4);}
+.mode-card.m-manual:hover{border-color:rgba(245,158,11,0.4);}
+.mode-card.m-auto.selected{border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.08);}
+.mode-card.m-manual.selected{border-color:rgba(245,158,11,0.5);background:rgba(245,158,11,0.06);}
 .mode-card:active{transform:scale(.98);}
 .mc-inner{position:relative;z-index:1;}
-.mc-tag{font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:10px;font-weight:700;}
-.mc-ico{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;
-  justify-content:center;margin-bottom:12px;border:1px solid transparent;}
-.mode-card.m-auto .mc-ico{background:var(--blue-d);border-color:rgba(75,144,255,.28);}
-.mode-card.m-manual .mc-ico{background:var(--amber-d);border-color:rgba(255,176,32,.28);}
-.mc-ico svg{width:18px;height:18px;fill:none;stroke-width:2;}
-.mode-card.m-auto .mc-ico svg{stroke:var(--blue);}
-.mode-card.m-manual .mc-ico svg{stroke:var(--amber);}
-.mc-name{font-size:15px;font-weight:600;margin-bottom:5px;}
-.mode-card.m-auto .mc-name{color:var(--blue);}
+.mc-tag{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:12px;font-weight:700;}
+.mc-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid transparent;}
+.mode-card.m-auto .mc-icon{background:var(--accent-dim);border-color:rgba(59,130,246,0.3);}
+.mode-card.m-manual .mc-icon{background:var(--amber-dim);border-color:rgba(245,158,11,0.3);}
+.mc-icon svg{width:20px;height:20px;fill:none;stroke-width:2;}
+.mode-card.m-auto .mc-icon svg{stroke:var(--accent);}
+.mode-card.m-manual .mc-icon svg{stroke:var(--amber);}
+.mc-name{font-size:16px;font-weight:700;margin-bottom:6px;}
+.mode-card.m-auto .mc-name{color:var(--accent);}
 .mode-card.m-manual .mc-name{color:var(--amber);}
-.mc-desc{font-size:12px;color:var(--t2);line-height:1.55;}
+.mc-desc{font-size:13px;color:var(--text2);line-height:1.6;}
 
-/* Source commands — only shown in MANUAL mode */
-#srcCmds{margin-bottom:12px;}
-.src-disabled-msg{
-  padding:16px;text-align:center;font-family:var(--mono);font-size:11px;
-  color:var(--t3);background:var(--bg1);border:1px solid var(--border);
-  border-radius:var(--r);
-}
-
-.cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.cmd-grid.c3{grid-template-columns:1fr 1fr;}
-.cmd-card{
-  background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);
-  padding:18px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;
-}
+/* CMD cards */
+.cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+.cmd-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:22px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
 .cmd-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
-.cmd-card.c-bat::before{background:var(--green-d);}
-.cmd-card.c-pln::before{background:var(--blue-d);}
-.cmd-card.c-off::before{background:var(--red-d);}
+.cmd-card.c-bat::before{background:var(--green-dim);}
+.cmd-card.c-pln::before{background:var(--accent-dim);}
+.cmd-card.c-off::before{background:var(--red-dim);}
 .cmd-card:hover::before{opacity:1;}
-.cmd-card.c-bat:hover{border-color:rgba(0,229,160,.4);}
-.cmd-card.c-pln:hover{border-color:rgba(75,144,255,.4);}
-.cmd-card.c-off:hover{border-color:rgba(255,71,87,.4);}
+.cmd-card.c-bat:hover{border-color:rgba(34,211,160,0.4);}
+.cmd-card.c-pln:hover{border-color:rgba(59,130,246,0.4);}
+.cmd-card.c-off:hover{border-color:rgba(239,68,68,0.4);}
 .cmd-card:active{transform:scale(.98);}
-.cmd-card.c-full{grid-column:span 2;}
-.cmd-inner{position:relative;z-index:1;}
-.cmd-tag{font-family:var(--mono);font-size:9px;color:var(--t3);margin-bottom:10px;font-weight:700;}
-.cmd-ico{width:40px;height:40px;border-radius:9px;
-  display:flex;align-items:center;justify-content:center;margin-bottom:12px;border:1px solid transparent;}
-.cmd-card.c-bat .cmd-ico{background:var(--green-d);border-color:rgba(0,229,160,.28);}
-.cmd-card.c-pln .cmd-ico{background:var(--blue-d);border-color:rgba(75,144,255,.28);}
-.cmd-card.c-off .cmd-ico{background:var(--red-d);border-color:rgba(255,71,87,.28);}
-.cmd-ico svg{width:18px;height:18px;fill:none;stroke-width:2;}
-.cmd-card.c-bat .cmd-ico svg{stroke:var(--green);}
-.cmd-card.c-pln .cmd-ico svg{stroke:var(--blue);}
-.cmd-card.c-off .cmd-ico svg{stroke:var(--red);}
-.cmd-name{font-size:15px;font-weight:600;margin-bottom:5px;}
+.cmd-card.disabled{opacity:.45;pointer-events:none;cursor:not-allowed;}
+.cmd-card-inner{position:relative;z-index:1;}
+.cmd-tag{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:12px;font-weight:700;}
+.cmd-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid transparent;}
+.cmd-card.c-bat .cmd-icon{background:var(--green-dim);border-color:rgba(34,211,160,0.3);}
+.cmd-card.c-pln .cmd-icon{background:var(--accent-dim);border-color:rgba(59,130,246,0.3);}
+.cmd-card.c-off .cmd-icon{background:var(--red-dim);border-color:rgba(239,68,68,0.3);}
+.cmd-icon svg{width:20px;height:20px;fill:none;stroke-width:2;}
+.cmd-card.c-bat .cmd-icon svg{stroke:var(--green);}
+.cmd-card.c-pln .cmd-icon svg{stroke:var(--accent);}
+.cmd-card.c-off .cmd-icon svg{stroke:var(--red);}
+.cmd-name{font-size:16px;font-weight:700;margin-bottom:6px;}
 .cmd-card.c-bat .cmd-name{color:var(--green);}
-.cmd-card.c-pln .cmd-name{color:var(--blue);}
+.cmd-card.c-pln .cmd-name{color:var(--accent);}
 .cmd-card.c-off .cmd-name{color:var(--red);}
-.cmd-desc{font-size:12px;color:var(--t2);line-height:1.55;}
+.cmd-desc{font-size:13px;color:var(--text2);line-height:1.6;}
+.cmd-full{grid-column:span 2;}
+.manual-disabled-msg{padding:14px 18px;background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);font-family:var(--mono);font-size:11px;color:var(--text3);margin-bottom:14px;}
+.status-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:14px 18px;display:flex;align-items:center;gap:12px;}
+.status-dot-el{width:10px;height:10px;border-radius:50%;background:var(--text3);flex-shrink:0;transition:all .3s;}
+.status-dot-el.on{background:var(--green);box-shadow:0 0 10px var(--green-glow);animation:dot-pulse 2s infinite;}
+.status-dot-el.warn{background:var(--amber);}
+.status-dot-el.err{background:var(--red);box-shadow:0 0 10px var(--red-glow);}
+.status-text{font-family:var(--mono);font-size:12px;color:var(--text2);font-weight:700;}
 
-/* Status row */
-.sts-row{display:flex;align-items:center;gap:10px;
-  padding:12px 16px;background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);}
-.sts-dot{width:9px;height:9px;border-radius:50%;background:var(--t3);flex-shrink:0;transition:all .3s;}
-.sts-dot.on{background:var(--green);box-shadow:0 0 9px var(--green-glow);animation:pulse 2s infinite;}
-.sts-dot.warn{background:var(--amber);}
-.sts-dot.err{background:var(--red);box-shadow:0 0 9px var(--red-glow);}
-.sts-txt{font-family:var(--mono);font-size:11px;color:var(--t2);font-weight:700;}
+/* ══ HISTORY ══ */
+.hist-toolbar{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin-bottom:14px;}
+.hist-date-nav{display:flex;align-items:center;gap:8px;}
+.date-nav-btn{width:32px;height:32px;border-radius:8px;border:1px solid var(--border2);background:var(--bg2);color:var(--text2);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .2s;}
+.date-nav-btn:hover{background:var(--bg3);color:var(--text1);}
+.date-label{font-family:var(--mono);font-size:12px;color:var(--text1);font-weight:700;padding:6px 14px;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;min-width:130px;text-align:center;}
+.hist-stats{display:flex;gap:12px;flex-wrap:wrap;}
+.hist-stat-chip{font-family:var(--mono);font-size:11px;color:var(--text2);background:var(--bg2);border:1px solid var(--border);padding:5px 12px;border-radius:7px;}
+.hist-stat-chip span{color:var(--text1);font-weight:700;}
+.hist-clear-btn{font-family:var(--mono);font-size:10px;color:var(--red);background:var(--red-dim);border:1px solid rgba(239,68,68,0.3);padding:5px 12px;border-radius:7px;cursor:pointer;transition:all .2s;}
+.hist-clear-btn:hover{background:rgba(239,68,68,0.2);}
+.table-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);overflow:hidden;}
+.hist-table{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px;}
+.hist-table th{padding:11px 16px;text-align:left;font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;background:var(--bg2);border-bottom:1px solid var(--border);}
+.hist-table td{padding:11px 16px;border-bottom:1px solid var(--border);color:var(--text2);transition:background .15s;}
+.hist-table tr:last-child td{border-bottom:none;}
+.hist-table tr:hover td{background:var(--bg2);}
+.hist-table td:first-child{color:var(--text1);}
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:10px;font-weight:700;font-family:var(--mono);}
+.badge.pln{background:var(--accent-dim);color:var(--accent);border:1px solid rgba(59,130,246,0.25);}
+.badge.bat{background:var(--green-dim);color:var(--green);border:1px solid rgba(34,211,160,0.25);}
+.badge.auto{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,0.25);}
+.badge.manual{background:var(--amber-dim);color:var(--amber);border:1px solid rgba(245,158,11,0.25);}
+.badge.off{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
+.badge.rej{background:var(--purple-dim);color:var(--purple);border:1px solid rgba(139,92,246,0.25);}
+.badge.alarm{background:var(--red-dim);color:var(--red);border:1px solid rgba(239,68,68,0.25);}
+.hist-empty{padding:40px;text-align:center;font-family:var(--mono);font-size:12px;color:var(--text3);}
 
-/* ══════════════════════════════════════════
-   HISTORY PAGE
-══════════════════════════════════════════ */
-.hist-bar{display:flex;align-items:center;justify-content:space-between;
-  flex-wrap:wrap;gap:10px;margin-bottom:12px;}
-.hist-nav{display:flex;align-items:center;gap:7px;}
-.nav-btn-d{width:30px;height:30px;border-radius:7px;border:1px solid var(--border2);
-  background:var(--bg2);color:var(--t2);cursor:pointer;
-  display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .18s;}
-.nav-btn-d:hover{background:var(--bg3);color:var(--t1);}
-.date-lbl{font-family:var(--mono);font-size:11px;color:var(--t1);font-weight:700;
-  padding:5px 13px;background:var(--bg2);border:1px solid var(--border2);
-  border-radius:7px;min-width:125px;text-align:center;}
-.hist-chips{display:flex;gap:10px;flex-wrap:wrap;}
-.chip{font-family:var(--mono);font-size:10px;color:var(--t2);
-  background:var(--bg2);border:1px solid var(--border);
-  padding:4px 11px;border-radius:6px;}
-.chip span{color:var(--t1);font-weight:700;}
-.clr-btn{font-family:var(--mono);font-size:9px;color:var(--red);
-  background:var(--red-d);border:1px solid rgba(255,71,87,.3);
-  padding:4px 11px;border-radius:6px;cursor:pointer;transition:all .18s;}
-.clr-btn:hover{background:rgba(255,71,87,.2);}
-.tbl-wrap{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
-.hist-tbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:11px;}
-.hist-tbl th{padding:10px 14px;text-align:left;font-size:9px;font-weight:700;
-  letter-spacing:.9px;color:var(--t3);text-transform:uppercase;
-  background:var(--bg2);border-bottom:1px solid var(--border);}
-.hist-tbl td{padding:10px 14px;border-bottom:1px solid var(--border);
-  color:var(--t2);transition:background .13s;}
-.hist-tbl tr:last-child td{border-bottom:none;}
-.hist-tbl tr:hover td{background:var(--bg2);}
-.hist-tbl td:first-child{color:var(--t1);}
-.badge{display:inline-flex;align-items:center;padding:2px 9px;
-  border-radius:20px;font-size:9px;font-weight:700;}
-.badge.pln{background:var(--blue-d);color:var(--blue);border:1px solid rgba(75,144,255,.22);}
-.badge.bat{background:var(--green-d);color:var(--green);border:1px solid rgba(0,229,160,.22);}
-.badge.auto{background:var(--amber-d);color:var(--amber);border:1px solid rgba(255,176,32,.22);}
-.badge.off{background:var(--red-d);color:var(--red);border:1px solid rgba(255,71,87,.22);}
-.badge.rej{background:var(--purple-d);color:var(--purple);border:1px solid rgba(167,139,250,.22);}
-.hist-empty{padding:36px;text-align:center;font-family:var(--mono);font-size:11px;color:var(--t3);}
+/* ══ PROFILE ══ */
+.profile-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.profile-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+.profile-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);text-transform:uppercase;font-family:var(--mono);margin-bottom:8px;}
+.profile-value{font-size:18px;font-weight:700;color:var(--text1);}
+.logout-btn{padding:10px 22px;background:var(--red-dim);border:1px solid rgba(239,68,68,0.3);border-radius:var(--radius-sm);color:var(--red);font-family:var(--font);font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;}
+.logout-btn:hover{background:rgba(239,68,68,0.22);}
 
-/* ══════════════════════════════════════════
-   PROFILE PAGE
-══════════════════════════════════════════ */
-.prof-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px;}
-.prof-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--r);padding:18px;}
-.prof-lbl{font-family:var(--mono);font-size:9px;font-weight:700;letter-spacing:.9px;
-  color:var(--t3);text-transform:uppercase;margin-bottom:7px;}
-.prof-val{font-size:17px;font-weight:600;color:var(--t1);}
-.logout-btn{padding:9px 20px;background:var(--red-d);border:1px solid rgba(255,71,87,.3);
-  border-radius:var(--rs);color:var(--red);font-family:var(--sans);
-  font-size:13px;font-weight:600;cursor:pointer;transition:all .18s;}
-.logout-btn:hover{background:rgba(255,71,87,.2);}
+/* ══ STATUSBAR ══ */
+.statusbar{height:36px;flex-shrink:0;background:var(--bg1);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:10px;}
+.sb-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);font-family:var(--mono);}
+.sb-ticker{font-family:var(--mono);font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .3s;}
+.sb-ticker.ok{color:var(--green);}
+.sb-ticker.warn{color:var(--amber);}
+.sb-ticker.alarm{color:var(--red);animation:blink 1s step-end infinite;}
+.sb-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0;}
+.sb-chip{font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);padding:2px 8px;border-radius:4px;font-weight:700;}
 
-/* ══════════════════════════════════════════
-   STATUSBAR
-══════════════════════════════════════════ */
-.statusbar{
-  height:34px;flex-shrink:0;
-  background:var(--bg1);border-top:1px solid var(--border);
-  display:flex;align-items:center;padding:0 12px;gap:9px;
-}
-.sb-label{font-family:var(--mono);font-size:9px;font-weight:700;
-  letter-spacing:.9px;color:var(--t3);}
-.ticker{font-family:var(--mono);font-size:10px;color:var(--t3);
-  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .3s;}
-.ticker.ok{color:var(--green);}
-.ticker.warn{color:var(--amber);}
-.ticker.err{color:var(--red);animation:blink 1s step-end infinite;}
-.sb-r{margin-left:auto;display:flex;align-items:center;gap:7px;flex-shrink:0;}
-.sb-chip{font-family:var(--mono);font-size:9px;color:var(--t3);
-  background:var(--bg2);border:1px solid var(--border);
-  padding:2px 7px;border-radius:3px;font-weight:700;}
-
-/* ══════════════════════════════════════════
-   FULL-SCREEN ALARM (kondisi kritis ESP32)
-══════════════════════════════════════════ */
-#criticalAlert{
-  display:none;position:fixed;inset:0;z-index:8888;
-  background:rgba(6,10,16,.92);align-items:center;justify-content:center;padding:20px;
-}
-#criticalAlert.show{display:flex;}
-.crit-box{
-  background:var(--bg1);border:2px solid rgba(255,71,87,.5);
-  border-radius:16px;padding:32px;max-width:380px;width:100%;text-align:center;
-}
-.crit-ico{font-size:40px;display:block;margin-bottom:16px;animation:blink .8s step-end infinite;}
-.crit-title{font-family:var(--mono);font-size:18px;font-weight:700;color:var(--red);margin-bottom:10px;}
-.crit-msg{font-size:13px;color:var(--t2);line-height:1.6;margin-bottom:20px;}
-.crit-ack{padding:10px 24px;background:var(--red-d);border:1px solid rgba(255,71,87,.4);
-  border-radius:8px;color:var(--red);font-family:var(--mono);font-size:12px;
-  font-weight:700;cursor:pointer;transition:all .18s;}
-.crit-ack:hover{background:rgba(255,71,87,.2);}
-
-/* ══════════════════════════════════════════
-   RESPONSIVE — TABLET
-══════════════════════════════════════════ */
+/* ══ TABLET ══ */
 @media(max-width:1024px){
-  .sum-grid{grid-template-columns:repeat(2,1fr);}
-  .met-grid{grid-template-columns:repeat(2,1fr);}
-  .prof-grid{grid-template-columns:1fr 1fr;}
+  .source-summary{grid-template-columns:repeat(2,1fr);}
+  .metrics-grid{grid-template-columns:repeat(2,1fr);}
+  .profile-grid{grid-template-columns:1fr 1fr;}
 }
-
-/* ══════════════════════════════════════════
-   RESPONSIVE — MOBILE
-══════════════════════════════════════════ */
+/* ══ MOBILE ══ */
 @media(max-width:640px){
-  :root{--tb:52px;}
-  .topbar{padding:0 10px;}
-  .ham{display:flex;}
-  .brand-tag{display:none;}
-  .tb-clock{font-size:10px;padding:4px 8px;}
-  .mode-badge{font-size:9px;padding:4px 9px;}
-
-  .sidebar{
-    position:fixed;left:0;top:var(--tb);bottom:34px;
-    width:var(--sb);transform:translateX(-100%);
-    z-index:200;box-shadow:6px 0 28px rgba(0,0,0,.55);
-  }
+  :root{--topbar-h:54px;}
+  .topbar{padding:0 12px;}
+  .topbar-menu-btn{display:flex;}
+  .logo-ver{display:none;}
+  .top-clock{font-size:11px;padding:4px 9px;}
+  .top-badge{font-size:10px;padding:4px 9px;}
+  .sidebar{position:fixed;left:0;top:var(--topbar-h);bottom:36px;width:var(--sidebar-w);transform:translateX(-100%);z-index:200;box-shadow:6px 0 30px rgba(0,0,0,0.6);}
   .sidebar.open{transform:translateX(0);}
-
-  .main{padding:10px;padding-bottom:46px;
-    filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
-
-  .sum-grid{grid-template-columns:1fr 1fr;gap:7px;}
-  .sum-card{padding:12px;}
-  .sum-val{font-size:19px;}
-  .met-grid{grid-template-columns:1fr 1fr;gap:7px;}
-  .met-card{padding:11px 12px;}
-  .met-val{font-size:19px;}
-  .chart-wrap{height:140px;}
+  .main{padding:12px;padding-bottom:48px;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
+  .source-summary{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
+  .summary-card{padding:13px;}
+  .sum-value{font-size:20px;}
+  .metrics-grid{grid-template-columns:1fr 1fr;gap:8px;}
+  .metric-card{padding:12px 14px;}
+  .metric-value{font-size:20px;}
+  .metric-label{font-size:12px;}
+  .flow-card{padding:13px;}
+  .chart-card{padding:13px;}
+  .chart-wrap{height:150px;}
   .mode-row{grid-template-columns:1fr;}
   .cmd-grid{grid-template-columns:1fr;}
-  .cmd-grid .cmd-card.c-full{grid-column:span 1;}
-  .prof-grid{grid-template-columns:1fr;}
-  .ph-title{font-size:15px;}
-  .hist-bar{flex-direction:column;align-items:flex-start;}
+  .cmd-full{grid-column:span 1;}
+  .cmd-card{padding:18px;}
+  .profile-grid{grid-template-columns:1fr;}
+  .page-title{font-size:16px;}
+  .mode-pill{font-size:11px;padding:5px 11px;}
+  .hist-toolbar{flex-direction:column;align-items:flex-start;}
+  .hist-stats{gap:8px;}
 }
 @media(max-width:360px){
-  .sum-grid{grid-template-columns:1fr;}
-  .met-grid{grid-template-columns:1fr;}
+  .source-summary{grid-template-columns:1fr;}
+  .metrics-grid{grid-template-columns:1fr;}
 }
 </style>
 </head>
 <body>
 
-<!-- ════ LOGIN ════ -->
+<!-- LOGIN -->
 <div id="loginScreen">
-  <div class="login-grid"></div>
+  <div class="login-bg"></div>
+  <div class="login-orb"></div>
   <div class="login-card">
-    <div class="login-brand">
-      <div class="login-icon">
-        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-      </div>
-      <div>
-        <div class="login-name">EMS SCADA</div>
-        <div class="login-ver">v3.0 — SECURE ACCESS</div>
-      </div>
+    <div class="login-logo">
+      <div class="login-logo-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+      <div><div class="login-title">EMS SCADA</div><div class="login-sub">v3.0 — SECURE ACCESS</div></div>
     </div>
-    <div class="login-h">Sign In</div>
-    <div class="login-p">Masukkan kredensial untuk mengakses Energy Management System.</div>
-    <div class="field">
-      <label>USER ID</label>
-      <input id="uname" placeholder="Username" autocomplete="off">
+    <div class="login-heading">Sign In</div>
+    <div class="login-desc">Masukkan kredensial untuk mengakses Energy Management System.</div>
+    <div class="field-group">
+      <label class="field-label">User ID</label>
+      <input class="field-input" id="uname" placeholder="Username" autocomplete="off">
     </div>
-    <div class="field">
-      <label>ACCESS CODE</label>
-      <input id="upass" type="password" placeholder="••••••••">
+    <div class="field-group">
+      <label class="field-label">Access Code</label>
+      <input class="field-input" id="upass" type="password" placeholder="••••••••">
     </div>
-    <button class="login-btn" onclick="doLogin()">AUTHENTICATE</button>
-    <div id="loginErr"></div>
+    <button class="login-btn" onclick="doLogin()">Authenticate</button>
+    <div id="loginError"></div>
   </div>
 </div>
 
-<!-- ════ CRITICAL ALERT OVERLAY ════ -->
-<div id="criticalAlert">
+<!-- CRITICAL OVERLAY -->
+<div id="critOverlay">
   <div class="crit-box">
-    <span class="crit-ico">⚡</span>
+    <span class="crit-icon">⚡</span>
     <div class="crit-title">KONDISI KRITIS</div>
-    <div class="crit-msg" id="critMsg">PLN mati + Baterai lemah. Beban diputus secara otomatis oleh sistem.</div>
-    <button class="crit-ack" onclick="ackCritical()">SAYA MENGERTI</button>
+    <div class="crit-msg" id="critMsg">PLN mati + Baterai lemah. Beban diputus otomatis.</div>
+    <button class="crit-ack" onclick="document.getElementById('critOverlay').classList.remove('show')">SAYA MENGERTI</button>
   </div>
 </div>
 
-<!-- ════ APP ════ -->
-<div id="app">
+<!-- APP -->
+<div id="appWrapper">
 
   <!-- TOPBAR -->
   <div class="topbar">
-    <div class="tb-left">
-      <div class="ham" id="hamBtn" onclick="toggleSB()">
+    <div class="topbar-left">
+      <button class="topbar-menu-btn" id="menuBtn" onclick="toggleSidebar()">
         <span></span><span></span><span></span>
-      </div>
-      <div class="brand">
-        <div class="brand-ico">
-          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-        </div>
-        <span class="brand-name">EMS</span>
-        <span class="brand-tag">SCADA v3</span>
+      </button>
+      <div class="topbar-logo">
+        <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+        <div class="logo-text">EMS</div>
+        <div class="logo-ver">SCADA v3.0</div>
       </div>
     </div>
-    <div class="tb-right">
-      <div class="tb-clock" id="tbClock">--:--:--</div>
-      <!-- Mode badge: AUTO / MANUAL — dari field mode ESP32 -->
-      <div class="mode-badge auto" id="modeBadge">
-        <div class="pulse"></div>
+    <div class="topbar-right">
+      <div class="top-clock" id="datetime">--:--:--</div>
+      <!-- Mode badge dari ESP32 -->
+      <div class="top-badge warn" id="modeBadge">
+        <div class="badge-dot"></div>
         <span id="modeLabel">AUTO</span>
       </div>
       <!-- MQTT status -->
-      <div class="mqtt-badge err" id="mqttBadge">
-        <div class="pulse"></div>
+      <div class="top-badge err" id="mqttBadge">
+        <div class="badge-dot"></div>
         <span id="mqttLabel">OFFLINE</span>
       </div>
     </div>
@@ -614,255 +447,182 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;}
 
   <!-- LAYOUT -->
   <div class="layout">
-    <div class="overlay" id="overlay" onclick="closeSB()"></div>
+    <div class="sidebar-overlay" id="sideOverlay" onclick="closeSidebar()"></div>
 
     <!-- SIDEBAR -->
     <div class="sidebar" id="sidebar">
-      <div class="sb-body">
-        <div class="sb-sec">
-          <div class="sb-label">Main</div>
-          <button class="nav-btn act" onclick="goPage('monitor',this)">
-            <div class="nav-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+      <div class="sidebar-inner">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Main</div>
+          <button class="nav-item active" onclick="showPage('monitor',this)">
+            <div class="nav-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
             <span>Monitor</span>
           </button>
-          <button class="nav-btn" onclick="goPage('control',this)">
-            <div class="nav-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
+          <button class="nav-item" onclick="showPage('control',this)">
+            <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg></div>
             <span>Control</span>
           </button>
         </div>
-        <div class="sb-div"></div>
-        <div class="sb-sec">
-          <div class="sb-label">Data</div>
-          <button class="nav-btn" onclick="goPage('history',this)">
-            <div class="nav-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Data</div>
+          <button class="nav-item" onclick="showPage('history',this)">
+            <div class="nav-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
             <span>History</span>
           </button>
-          <button class="nav-btn" onclick="goPage('profile',this)">
-            <div class="nav-ico"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+          <button class="nav-item" onclick="showPage('profile',this)">
+            <div class="nav-icon"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
             <span>Profile</span>
           </button>
         </div>
       </div>
-      <div class="sb-foot">
-        <div class="conn-box">
-          <div class="conn-lbl">MQTT BROKER</div>
+      <div class="sidebar-bottom">
+        <div class="conn-card">
+          <div class="conn-label">MQTT BROKER</div>
           <div class="conn-row">
             <div class="conn-dot" id="connDot"></div>
-            <div class="conn-txt" id="connTxt">OFFLINE</div>
+            <div class="conn-text" id="connLabel">OFFLINE</div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- MAIN CONTENT -->
-    <div class="main">
+    <!-- MAIN -->
+    <div class="main" id="mainArea">
 
-      <!-- ═══ MONITOR ═══ -->
-      <div id="monitor" class="page act">
+      <!-- ══ MONITOR ══ -->
+      <div id="monitor" class="page active">
 
-        <!-- Notify banner — menampilkan pesan dari test/notify -->
-        <div id="notifyBar">
+        <!-- Notify banner -->
+        <div id="notifyBanner">
           <div class="notify-dot"></div>
-          <span id="notifyMsg">—</span>
-          <span id="notifyClose" onclick="closeNotify()">✕</span>
+          <span id="notifyText">—</span>
+          <span class="notify-close" onclick="closeNotify()">✕</span>
         </div>
 
-        <!-- Alarm strip — PLN mati / BAT kritis -->
-        <div class="alarm-strip" id="alarmStrip">
-          <span class="alarm-strip-ico">⚠</span>
-          <span id="alarmTxt">—</span>
+        <!-- Alarm strip -->
+        <div id="alarmStrip">
+          <span class="alarm-blink">⚠</span>
+          <span id="alarmText">—</span>
         </div>
 
-        <div class="ph">
-          <div class="ph-left">
-            <div class="ph-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
-            <div>
-              <div class="ph-title">System Monitor</div>
-              <div class="ph-sub">REALTIME TELEMETRY</div>
-            </div>
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
+            <div><div class="page-title">System Monitor</div><div class="page-subtitle">REALTIME TELEMETRY</div></div>
           </div>
-          <!-- source pill -->
-          <div class="mode-badge auto" id="srcPill">
-            <div class="pulse"></div>
-            <span id="srcPillTxt">STANDBY</span>
+          <div class="mode-pill bat" id="srcPill">
+            <div class="mode-pill-dot"></div>
+            <span id="srcPillText">STANDBY</span>
           </div>
         </div>
 
-        <!-- Summary 4 cards -->
-        <div class="sum-grid">
-          <div class="sum-card pln">
-            <div class="sum-lbl">PLN Voltage</div>
-            <div class="sum-val"><span id="s_plnv">0.00</span><span class="sum-unit">V</span></div>
-            <div class="sum-sub">Grid supply</div>
+        <!-- Summary 4 -->
+        <div class="source-summary">
+          <div class="summary-card pln">
+            <div class="sum-label">PLN Voltage</div>
+            <div class="sum-value"><span id="s_pln_v">0.00</span><span class="sum-unit">V</span></div>
+            <div class="sum-sub" id="s_pln_sub">Grid supply</div>
           </div>
-          <div class="sum-card bat">
-            <div class="sum-lbl">Battery SoC</div>
-            <div class="sum-val"><span id="s_batv">0.00</span><span class="sum-unit">V</span></div>
-            <div class="bat-bar"><div class="bat-fill" id="batFill"></div></div>
-            <div class="sum-sub" id="s_soc">0% SoC</div>
+          <div class="summary-card bat">
+            <div class="sum-label">Battery SoC</div>
+            <div class="sum-value"><span id="s_bat_v">0.00</span><span class="sum-unit">V</span></div>
+            <div class="batt-strip"><div class="batt-fill" id="battFill"></div></div>
+            <div class="sum-sub" id="s_bat_pct">0% SoC</div>
           </div>
-          <div class="sum-card load">
-            <div class="sum-lbl">Load Power</div>
-            <div class="sum-val"><span id="s_load">0</span><span class="sum-unit">W</span></div>
-            <div class="sum-sub" id="s_loadSrc">Active consumption</div>
+          <div class="summary-card load">
+            <div class="sum-label">Load Power</div>
+            <div class="sum-value"><span id="s_load_w">0</span><span class="sum-unit">W</span></div>
+            <div class="sum-sub" id="s_load_sub">Active consumption</div>
           </div>
-          <div class="sum-card mode">
-            <div class="sum-lbl">Mode Operasi</div>
-            <div class="sum-val" id="s_mode" style="font-size:18px">AUTO</div>
-            <div class="sum-sub" id="s_modeSub">Sistem mengatur otomatis</div>
+          <div class="summary-card mode">
+            <div class="sum-label">Mode Operasi</div>
+            <div class="sum-value" id="s_mode" style="font-size:18px">AUTO</div>
+            <div class="sum-sub" id="s_mode_sub">Sistem otomatis</div>
           </div>
         </div>
 
-        <!-- Flow diagram -->
-        <div class="card flow-card">
-          <div class="flow-hdr">
-            <div class="flow-title"><span style="width:5px;height:5px;border-radius:50%;background:var(--blue);display:inline-block;"></span>Energy Flow — Real Time</div>
-            <div class="live-dot"><div class="pulse"></div>LIVE</div>
+        <!-- Flow -->
+        <div class="flow-card">
+          <div class="flow-card-header">
+            <div class="card-title"><div class="card-title-dot"></div>Energy Flow — Real Time</div>
+            <div class="live-indicator"><div class="badge-dot"></div>LIVE</div>
           </div>
-          <div class="flow-wrap">
-            <svg class="flow-svg" viewBox="0 0 560 128" xmlns="http://www.w3.org/2000/svg">
-              <!-- PLN node -->
-              <g id="nd_pln">
-                <rect x="10" y="26" width="110" height="70" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.09)" stroke-width="1" id="nd_pln_r"/>
-                <text x="65" y="44" text-anchor="middle" font-size="9" fill="#3d4f6a" font-family="'IBM Plex Mono',monospace">SRC-01</text>
-                <text x="65" y="67" text-anchor="middle" font-size="13" font-weight="700" fill="#e8eef8" font-family="'IBM Plex Mono',monospace">PLN</text>
-                <text x="65" y="84" text-anchor="middle" font-size="10" fill="#3d4f6a" font-family="'IBM Plex Mono',monospace" id="nd_plnv">0.00 V</text>
+          <div class="flow-svg-wrap">
+            <svg class="flow-svg" viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg">
+              <g id="nodeP">
+                <rect x="10" y="27" width="112" height="72" rx="11" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1" id="nodeP_rect"/>
+                <text x="66" y="48" text-anchor="middle" font-size="9" fill="#4b5e7a" font-family="'Space Mono',monospace">SRC-01</text>
+                <text x="66" y="71" text-anchor="middle" font-size="14" font-weight="700" fill="#f0f4ff" font-family="'Space Mono',monospace" id="nodeP_name">PLN</text>
+                <text x="66" y="88" text-anchor="middle" font-size="11" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_pln_v">0.00 V</text>
               </g>
-              <!-- Track PLN→LOAD -->
-              <line x1="122" y1="61" x2="212" y2="61" stroke="rgba(255,255,255,0.07)" stroke-width="1.5" id="trk_pl"/>
-              <line x1="122" y1="61" x2="212" y2="61" class="fd pln" id="fd_pl"/>
-              <text x="167" y="54" text-anchor="middle" font-size="9" fill="#3d4f6a" font-family="'IBM Plex Mono',monospace" id="nd_plndata">—</text>
-              <!-- LOAD node -->
-              <g id="nd_load">
-                <rect x="214" y="18" width="118" height="86" rx="10" fill="rgba(255,176,32,0.07)" stroke="rgba(255,176,32,0.35)" stroke-width="1.5"/>
-                <text x="273" y="40" text-anchor="middle" font-size="9" fill="#78541a" font-family="'IBM Plex Mono',monospace">LOAD</text>
-                <text x="273" y="68" text-anchor="middle" font-size="19" font-weight="700" fill="#ffb020" font-family="'IBM Plex Mono',monospace" id="nd_loadw">0 W</text>
-                <text x="273" y="86" text-anchor="middle" font-size="8" fill="#5a3e14" font-family="'IBM Plex Mono',monospace" id="nd_beban">Active</text>
+              <line x1="124" y1="63" x2="218" y2="63" stroke="rgba(255,255,255,0.08)" stroke-width="2" id="trackPL"/>
+              <line x1="124" y1="63" x2="218" y2="63" class="flow-dash pln" id="dashPL"/>
+              <text x="171" y="55" text-anchor="middle" font-size="10" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_pln_data">—</text>
+              <g id="nodeL">
+                <rect x="220" y="19" width="120" height="88" rx="11" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.35)" stroke-width="1.5" id="nodeL_rect"/>
+                <text x="280" y="40" text-anchor="middle" font-size="9" fill="#92400e" font-family="'Space Mono',monospace">LOAD</text>
+                <text x="280" y="66" text-anchor="middle" font-size="18" font-weight="700" fill="#f59e0b" font-family="'Space Mono',monospace" id="nd_load_w">0 W</text>
+                <text x="280" y="87" text-anchor="middle" font-size="9" fill="#78350f" font-family="'Space Mono',monospace" id="nd_load_stat">Active</text>
               </g>
-              <!-- Track LOAD→BAT -->
-              <line x1="334" y1="61" x2="428" y2="61" stroke="rgba(255,255,255,0.07)" stroke-width="1.5" id="trk_lb"/>
-              <line x1="334" y1="61" x2="428" y2="61" class="fd bat" id="fd_lb"/>
-              <text x="381" y="54" text-anchor="middle" font-size="9" fill="#3d4f6a" font-family="'IBM Plex Mono',monospace" id="nd_batdata">—</text>
-              <!-- BAT node -->
-              <g id="nd_bat">
-                <rect x="430" y="26" width="110" height="70" rx="10" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.09)" stroke-width="1" id="nd_bat_r"/>
-                <text x="485" y="44" text-anchor="middle" font-size="9" fill="#3d4f6a" font-family="'IBM Plex Mono',monospace">SRC-02</text>
-                <text x="485" y="67" text-anchor="middle" font-size="13" font-weight="700" fill="#e8eef8" font-family="'IBM Plex Mono',monospace">BAT</text>
-                <text x="485" y="84" text-anchor="middle" font-size="10" fill="#3d4f6a" font-family="'IBM Plex Mono',monospace" id="nd_batv">0.00 V</text>
+              <line x1="342" y1="63" x2="438" y2="63" stroke="rgba(255,255,255,0.08)" stroke-width="2" id="trackLB"/>
+              <line x1="342" y1="63" x2="438" y2="63" class="flow-dash bat" id="dashLB"/>
+              <text x="390" y="55" text-anchor="middle" font-size="10" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_bat_data">—</text>
+              <g id="nodeB">
+                <rect x="440" y="27" width="112" height="72" rx="11" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1" id="nodeB_rect"/>
+                <text x="496" y="48" text-anchor="middle" font-size="9" fill="#4b5e7a" font-family="'Space Mono',monospace">SRC-02</text>
+                <text x="496" y="71" text-anchor="middle" font-size="14" font-weight="700" fill="#f0f4ff" font-family="'Space Mono',monospace" id="nodeB_name">BAT</text>
+                <text x="496" y="88" text-anchor="middle" font-size="11" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_bat_v">0.00 V</text>
               </g>
             </svg>
           </div>
         </div>
 
-        <!-- PLN Metrics -->
-        <div class="sec"><div class="sec-t">PLN — Grid Parameters</div><div class="sec-l"></div></div>
-        <div class="met-grid">
-          <div class="met-card">
-            <div class="met-tag">PLN</div>
-            <div class="met-lbl">Voltage</div>
-            <div class="met-val"><span id="pln_v">0.00</span><span class="u">V</span></div>
-            <div class="met-bar-wrap"><div class="met-bar" id="bar_plnv"></div></div>
-          </div>
-          <div class="met-card">
-            <div class="met-tag">PLN</div>
-            <div class="met-lbl">Current</div>
-            <div class="met-val"><span id="pln_i">0.00</span><span class="u">A</span></div>
-            <div class="met-bar-wrap"><div class="met-bar" id="bar_plni"></div></div>
-          </div>
-          <div class="met-card">
-            <div class="met-tag">PLN</div>
-            <div class="met-lbl">Power</div>
-            <div class="met-val"><span id="pln_p">0.00</span><span class="u">W</span></div>
-            <div class="met-bar-wrap"><div class="met-bar a" id="bar_plnp"></div></div>
-          </div>
-          <div class="met-card">
-            <div class="met-tag">PLN</div>
-            <div class="met-lbl">Frequency</div>
-            <div class="met-val"><span id="pln_f">0.00</span><span class="u">Hz</span></div>
-            <div class="met-bar-wrap"><div class="met-bar a" style="width:60%"></div></div>
-          </div>
+        <!-- PLN metrics -->
+        <div class="section-header"><div class="section-title">PLN — Grid Parameters</div><div class="section-line"></div></div>
+        <div class="metrics-grid">
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Voltage</div><div class="metric-value"><span id="pln_v">0.00</span><span class="unit">V</span></div><div class="metric-progress"><div class="metric-bar" id="bar_pln_v"></div></div></div>
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Current</div><div class="metric-value"><span id="pln_i">0.00</span><span class="unit">A</span></div><div class="metric-progress"><div class="metric-bar" id="bar_pln_i"></div></div></div>
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Power</div><div class="metric-value"><span id="pln_p">0.00</span><span class="unit">W</span></div><div class="metric-progress"><div class="metric-bar amber" id="bar_pln_p"></div></div></div>
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Frequency</div><div class="metric-value"><span id="pln_f">0.00</span><span class="unit">Hz</span></div><div class="metric-progress"><div class="metric-bar amber" style="width:60%"></div></div></div>
         </div>
-        <div class="met-grid c2">
-          <div class="met-card">
-            <div class="met-tag">PLN</div>
-            <div class="met-lbl">Energy Accumulated</div>
-            <div class="met-val"><span id="pln_e">0.00</span><span class="u">Wh</span></div>
-          </div>
-          <div class="met-card">
-            <div class="met-tag">PLN</div>
-            <div class="met-lbl">Power Factor</div>
-            <div class="met-val"><span id="pln_pf">0.00</span></div>
-            <div class="met-bar-wrap"><div class="met-bar a" id="bar_plnpf"></div></div>
-          </div>
+        <div class="metrics-grid cols2">
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Energy Accumulated</div><div class="metric-value"><span id="pln_e">0.00</span><span class="unit">Wh</span></div></div>
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Power Factor</div><div class="metric-value"><span id="pln_pf">0.00</span></div><div class="metric-progress"><div class="metric-bar amber" id="bar_pln_pf"></div></div></div>
         </div>
 
-        <!-- BAT Metrics -->
-        <div class="sec" style="margin-top:4px;"><div class="sec-t">Battery — Storage Parameters</div><div class="sec-l"></div></div>
-        <div class="met-grid">
-          <div class="met-card">
-            <div class="met-tag g">BAT</div>
-            <div class="met-lbl">Voltage</div>
-            <div class="met-val"><span id="bat_v">0.00</span><span class="u">V</span></div>
-            <div class="met-bar-wrap"><div class="met-bar g" id="bar_batv"></div></div>
-          </div>
-          <div class="met-card">
-            <div class="met-tag g">BAT</div>
-            <div class="met-lbl">Current</div>
-            <div class="met-val"><span id="bat_i">0.00</span><span class="u">A</span></div>
-            <div class="met-bar-wrap"><div class="met-bar g" id="bar_bati"></div></div>
-          </div>
-          <div class="met-card">
-            <div class="met-tag g">BAT</div>
-            <div class="met-lbl">Power</div>
-            <div class="met-val"><span id="bat_p">0.00</span><span class="u">W</span></div>
-            <div class="met-bar-wrap"><div class="met-bar g" id="bar_batp"></div></div>
-          </div>
-          <div class="met-card">
-            <div class="met-tag g">BAT</div>
-            <div class="met-lbl">Energy</div>
-            <div class="met-val"><span id="bat_e">0.00</span><span class="u">Wh</span></div>
-          </div>
+        <!-- BAT metrics -->
+        <div class="section-header" style="margin-top:6px;"><div class="section-title">Battery — Storage Parameters</div><div class="section-line"></div></div>
+        <div class="metrics-grid">
+          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Voltage</div><div class="metric-value"><span id="bat_v">0.00</span><span class="unit">V</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_v"></div></div></div>
+          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Current</div><div class="metric-value"><span id="bat_i">0.00</span><span class="unit">A</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_i"></div></div></div>
+          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Power</div><div class="metric-value"><span id="bat_p">0.00</span><span class="unit">W</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_p"></div></div></div>
+          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Energy</div><div class="metric-value"><span id="bat_e">0.00</span><span class="unit">Wh</span></div></div>
         </div>
 
-        <!-- Alarm Flags dari ESP32 -->
-        <div class="sec" style="margin-top:4px;"><div class="sec-t">Alarm Flags</div><div class="sec-l"></div></div>
-        <div class="met-grid">
-          <div class="met-card" id="flag_pln">
-            <div class="met-tag">PLN</div>
-            <div class="met-lbl">Status PLN</div>
-            <div class="met-val" id="flag_pln_val" style="font-size:14px;color:var(--green)">NORMAL</div>
-          </div>
-          <div class="met-card" id="flag_bat">
-            <div class="met-tag g">BAT</div>
-            <div class="met-lbl">Status Battery</div>
-            <div class="met-val" id="flag_bat_val" style="font-size:14px;color:var(--green)">NORMAL</div>
-          </div>
-          <div class="met-card" id="flag_beban">
-            <div class="met-tag" style="color:var(--amber);background:var(--amber-d);border-color:rgba(255,176,32,.18);">LOAD</div>
-            <div class="met-lbl">Status Beban</div>
-            <div class="met-val" id="flag_beban_val" style="font-size:14px;color:var(--green)">TERSAMBUNG</div>
-          </div>
-          <div class="met-card">
-            <div class="met-tag" style="color:var(--purple);background:var(--purple-d);border-color:rgba(167,139,250,.18);">CMD</div>
-            <div class="met-lbl">Validasi Manual</div>
-            <div class="met-val" id="flag_manual_val" style="font-size:14px;color:var(--t3)">—</div>
-          </div>
+        <!-- Status Flags dari ESP32 -->
+        <div class="section-header" style="margin-top:6px;"><div class="section-title">System Flags</div><div class="section-line"></div></div>
+        <div class="metrics-grid">
+          <div class="metric-card"><div class="metric-tag">FLAG</div><div class="metric-label">Status PLN</div><div class="metric-value sm" id="flag_pln" style="color:var(--green)">NORMAL</div></div>
+          <div class="metric-card"><div class="metric-tag bat">FLAG</div><div class="metric-label">Status Baterai</div><div class="metric-value sm" id="flag_bat" style="color:var(--green)">NORMAL</div></div>
+          <div class="metric-card"><div class="metric-tag load">FLAG</div><div class="metric-label">Status Beban</div><div class="metric-value sm" id="flag_beban" style="color:var(--green)">TERSAMBUNG</div></div>
+          <div class="metric-card"><div class="metric-tag sys">FLAG</div><div class="metric-label">Validasi Manual</div><div class="metric-value sm" id="flag_manual" style="color:var(--text3)">—</div></div>
         </div>
 
         <!-- Chart -->
-        <div class="sec" style="margin-top:4px;"><div class="sec-t">Realtime Graph</div><div class="sec-l"></div></div>
-        <div class="card chart-card">
-          <div class="chart-hdr">
-            <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
-              <div class="ctrl-group" id="srcGrp">
-                <button class="cb b" onclick="setCS(this,'PLN')">PLN</button>
-                <button class="cb" onclick="setCS(this,'BAT')">BAT</button>
+        <div class="section-header" style="margin-top:6px;"><div class="section-title">Realtime Graph</div><div class="section-line"></div></div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
+              <div class="chart-controls" id="srcGroup">
+                <button class="ctrl-btn ap" onclick="setCS(this,'PLN')">PLN</button>
+                <button class="ctrl-btn" onclick="setCS(this,'BAT')">BAT</button>
               </div>
-              <div class="sep"></div>
-              <div class="ctrl-group" id="parGrp">
-                <button class="cb a" onclick="setCP(this,'V')">Volt</button>
-                <button class="cb" onclick="setCP(this,'I')">Curr</button>
-                <button class="cb" onclick="setCP(this,'P')">Pwr</button>
+              <div class="chart-sep"></div>
+              <div class="chart-controls" id="paramGroup">
+                <button class="ctrl-btn aa" onclick="setCP(this,'V')">Volt</button>
+                <button class="ctrl-btn" onclick="setCP(this,'I')">Curr</button>
+                <button class="ctrl-btn" onclick="setCP(this,'P')">Pwr</button>
               </div>
             </div>
             <div class="chart-meta" id="chartMeta">PLN · Voltage · Live</div>
@@ -871,154 +631,130 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;}
         </div>
       </div><!-- /monitor -->
 
-      <!-- ═══ CONTROL ═══ -->
+      <!-- ══ CONTROL ══ -->
       <div id="control" class="page">
-        <div class="ph">
-          <div class="ph-left">
-            <div class="ph-ico" style="background:rgba(255,176,32,.1);border-color:rgba(255,176,32,.2);">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-icon" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);">
               <svg viewBox="0 0 24 24" style="stroke:var(--amber)"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
             </div>
-            <div>
-              <div class="ph-title">Control Panel</div>
-              <div class="ph-sub">SESUAI FLOWCHART ESP32</div>
-            </div>
+            <div><div class="page-title">Control Panel</div><div class="page-subtitle">SESUAI FLOWCHART</div></div>
           </div>
         </div>
 
-        <!-- Notify di control page juga -->
-        <div id="notifyBar2">
-          <div class="notify-dot"></div>
-          <span id="notifyMsg2">—</span>
-          <span onclick="closeNotify2()" style="cursor:pointer;opacity:.6;font-size:14px;padding:2px 4px;">✕</span>
+        <!-- Notify di control page -->
+        <div id="notifyBanner2" style="display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:9px;margin-bottom:12px;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid;">
+          <div style="width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;"></div>
+          <span id="notifyText2" style="flex:1;">—</span>
+          <span onclick="closeNotify2()" style="cursor:pointer;opacity:.6;font-size:14px;padding:0 4px;">✕</span>
         </div>
 
         <!-- MODE SWITCH -->
-        <div class="sec"><div class="sec-t">Mode Operasi</div><div class="sec-l"></div></div>
-        <div class="mode-row" style="margin-bottom:12px;">
+        <div class="section-header"><div class="section-title">Mode Operasi</div><div class="section-line"></div></div>
+        <div class="mode-row">
           <div class="mode-card m-auto selected" id="mc_auto" onclick="sendMode('AUTO')">
             <div class="mc-inner">
               <div class="mc-tag">CMD-MODE-01</div>
-              <div class="mc-ico"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg></div>
+              <div class="mc-icon"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg></div>
               <div class="mc-name">Mode AUTO</div>
-              <div class="mc-desc">Sistem mengatur sumber secara otomatis berdasarkan kondisi PLN & SoC baterai. AUTO selalu jadi prioritas keamanan.</div>
+              <div class="mc-desc">Sistem mengatur sumber otomatis. AUTO selalu jadi prioritas keamanan dan dapat override MANUAL.</div>
             </div>
           </div>
           <div class="mode-card m-manual" id="mc_manual" onclick="sendMode('MANUAL')">
             <div class="mc-inner">
               <div class="mc-tag">CMD-MODE-02</div>
-              <div class="mc-ico"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
+              <div class="mc-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
               <div class="mc-name">Mode MANUAL</div>
-              <div class="mc-desc">Operator menentukan sumber secara manual. Perintah tetap divalidasi sistem AUTO sebelum dieksekusi.</div>
+              <div class="mc-desc">Operator kontrol sumber secara manual. Perintah tetap divalidasi AUTO sebelum dieksekusi.</div>
             </div>
           </div>
         </div>
 
-        <!-- SOURCE COMMANDS — hanya aktif saat MANUAL -->
-        <div class="sec"><div class="sec-t">Perintah Sumber (Manual Only)</div><div class="sec-l"></div></div>
-        <div id="srcCmds">
-          <!-- Jika mode AUTO tampil pesan -->
-          <div class="src-disabled-msg" id="srcDisabledMsg">
-            Mode AUTO aktif — pilih Mode MANUAL terlebih dahulu untuk memberi perintah sumber.
+        <!-- SOURCE COMMANDS — aktif hanya saat MANUAL -->
+        <div class="section-header"><div class="section-title">Perintah Sumber (Manual Only)</div><div class="section-line"></div></div>
+        <div id="manualDisabledMsg" class="manual-disabled-msg">Mode AUTO aktif — pilih Mode MANUAL terlebih dahulu untuk memberi perintah sumber.</div>
+        <div class="cmd-grid" id="cmdCards" style="display:none;">
+          <div class="cmd-card c-bat" id="cmdBat" onclick="sendCmd('BAT')">
+            <div class="cmd-card-inner">
+              <div class="cmd-tag">CMD-SRC-01</div>
+              <div class="cmd-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3M7 7V4M11 7V4"/></svg></div>
+              <div class="cmd-name">Battery</div>
+              <div class="cmd-desc">Pindah ke baterai/inverter. Divalidasi AUTO: Vbat harus ≥ 11.8V.</div>
+            </div>
           </div>
-          <!-- Cmd cards (hidden saat AUTO) -->
-          <div class="cmd-grid" id="cmdCards" style="display:none;">
-            <div class="cmd-card c-bat" onclick="sendCmd('BAT')">
-              <div class="cmd-inner">
-                <div class="cmd-tag">CMD-SRC-01</div>
-                <div class="cmd-ico"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3M7 7V4M11 7V4"/></svg></div>
-                <div class="cmd-name">Battery</div>
-                <div class="cmd-desc">Pindah ke baterai/inverter. Akan divalidasi AUTO: Vbat harus ≥ 11.8V.</div>
-              </div>
+          <div class="cmd-card c-pln" id="cmdPln" onclick="sendCmd('PLN')">
+            <div class="cmd-card-inner">
+              <div class="cmd-tag">CMD-SRC-02</div>
+              <div class="cmd-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+              <div class="cmd-name">PLN Grid</div>
+              <div class="cmd-desc">Pindah ke jaringan PLN. Divalidasi AUTO: PLN harus tersedia ≥ 180V.</div>
             </div>
-            <div class="cmd-card c-pln" onclick="sendCmd('PLN')">
-              <div class="cmd-inner">
-                <div class="cmd-tag">CMD-SRC-02</div>
-                <div class="cmd-ico"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-                <div class="cmd-name">PLN Grid</div>
-                <div class="cmd-desc">Pindah ke jaringan PLN. Akan divalidasi AUTO: PLN harus tersedia ≥ 180V.</div>
-              </div>
-            </div>
-            <div class="cmd-card c-off c-full" onclick="sendCmd('BEBAN_OFF')">
-              <div class="cmd-inner">
-                <div class="cmd-tag">CMD-SRC-03</div>
-                <div class="cmd-ico"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
-                <div class="cmd-name">Beban OFF</div>
-                <div class="cmd-desc">Putuskan beban secara manual. Semua relay dimatikan. Selalu diizinkan oleh AUTO.</div>
-              </div>
+          </div>
+          <div class="cmd-card c-off cmd-full" id="cmdOff" onclick="sendCmd('BEBAN_OFF')">
+            <div class="cmd-card-inner">
+              <div class="cmd-tag">CMD-SRC-03</div>
+              <div class="cmd-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
+              <div class="cmd-name">Beban OFF</div>
+              <div class="cmd-desc">Putuskan semua relay. Selalu diizinkan oleh AUTO. Untuk mengaktifkan kembali, kirim perintah PLN atau BAT.</div>
             </div>
           </div>
         </div>
 
-        <!-- Status bar -->
-        <div class="sts-row" id="stsRow">
-          <div class="sts-dot on" id="stsDot"></div>
-          <div class="sts-txt" id="stsTxt">MENUNGGU PERINTAH</div>
+        <div class="status-card">
+          <div class="status-dot-el on" id="statusDot"></div>
+          <div class="status-text" id="statusText">MENUNGGU PERINTAH</div>
         </div>
       </div><!-- /control -->
 
-      <!-- ═══ HISTORY ═══ -->
+      <!-- ══ HISTORY ══ -->
       <div id="history" class="page">
-        <div class="ph">
-          <div class="ph-left">
-            <div class="ph-ico" style="background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.2);">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-icon" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.2);">
               <svg viewBox="0 0 24 24" style="stroke:var(--purple)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
             </div>
-            <div>
-              <div class="ph-title">Event History</div>
-              <div class="ph-sub">PERSISTENT LOG</div>
-            </div>
+            <div><div class="page-title">Event History</div><div class="page-subtitle">PERSISTENT LOG</div></div>
           </div>
         </div>
-        <div class="hist-bar">
-          <div class="hist-nav">
-            <button class="nav-btn-d" onclick="histNav(-1)">‹</button>
-            <div class="date-lbl" id="histDateLbl">—</div>
-            <button class="nav-btn-d" id="histFwdBtn" onclick="histNav(+1)">›</button>
+        <div class="hist-toolbar">
+          <div class="hist-date-nav">
+            <button class="date-nav-btn" onclick="histNavDay(-1)">&#8249;</button>
+            <div class="date-label" id="histDateLabel">—</div>
+            <button class="date-nav-btn" id="histFwdBtn" onclick="histNavDay(+1)">&#8250;</button>
           </div>
-          <div class="hist-chips">
-            <div class="chip">Events: <span id="hc_total">0</span></div>
-            <div class="chip">PLN: <span id="hc_pln">0.000</span> Wh</div>
-            <div class="chip">BAT: <span id="hc_bat">0.000</span> Wh</div>
-            <div class="chip">Tolak: <span id="hc_rej">0</span></div>
+          <div class="hist-stats">
+            <div class="hist-stat-chip">Events: <span id="histCountEl">0</span></div>
+            <div class="hist-stat-chip">PLN: <span id="histPlnWh">0.000</span> Wh</div>
+            <div class="hist-stat-chip">BAT: <span id="histBatWh">0.000</span> Wh</div>
+            <div class="hist-stat-chip">Tolak: <span id="histRejCount">0</span></div>
           </div>
-          <button class="clr-btn" onclick="histClear()">Hapus Hari Ini</button>
+          <button class="hist-clear-btn" onclick="histClearDay()">Hapus Hari Ini</button>
         </div>
-        <div class="sec"><div class="sec-t" id="histSecTitle">Switching Events</div><div class="sec-l"></div></div>
-        <div class="tbl-wrap">
-          <table class="hist-tbl">
-            <thead>
-              <tr>
-                <th>Waktu</th>
-                <th>Tipe</th>
-                <th>Source</th>
-                <th>Energy (Wh)</th>
-                <th>Keterangan</th>
-              </tr>
-            </thead>
-            <tbody id="histTbody"></tbody>
+        <div class="section-header"><div class="section-title" id="histSectionTitle">Switching Events</div><div class="section-line"></div></div>
+        <div class="table-card">
+          <table class="hist-table">
+            <thead><tr><th>Waktu</th><th>Tipe</th><th>Source</th><th>Energy (Wh)</th><th>Keterangan</th></tr></thead>
+            <tbody id="histTable"></tbody>
           </table>
           <div class="hist-empty" id="histEmpty" style="display:none;">Tidak ada data untuk tanggal ini.</div>
         </div>
       </div><!-- /history -->
 
-      <!-- ═══ PROFILE ═══ -->
+      <!-- ══ PROFILE ══ -->
       <div id="profile" class="page">
-        <div class="ph">
-          <div class="ph-left">
-            <div class="ph-ico" style="background:rgba(0,229,160,.1);border-color:rgba(0,229,160,.2);">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-icon" style="background:rgba(34,211,160,0.1);border-color:rgba(34,211,160,0.2);">
               <svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
             </div>
-            <div>
-              <div class="ph-title">User Profile</div>
-              <div class="ph-sub">SESSION ACTIVE</div>
-            </div>
+            <div><div class="page-title">User Profile</div><div class="page-subtitle">SESSION ACTIVE</div></div>
           </div>
         </div>
-        <div class="sec"><div class="sec-t">Session Info</div><div class="sec-l"></div></div>
-        <div class="prof-grid">
-          <div class="prof-card"><div class="prof-lbl">User ID</div><div class="prof-val" id="profUser">—</div></div>
-          <div class="prof-card"><div class="prof-lbl">Role</div><div class="prof-val">OPERATOR</div></div>
-          <div class="prof-card"><div class="prof-lbl">System</div><div class="prof-val">EMS v3.0</div></div>
+        <div class="section-header"><div class="section-title">Session Info</div><div class="section-line"></div></div>
+        <div class="profile-grid">
+          <div class="profile-card"><div class="profile-label">User ID</div><div class="profile-value" id="userId">—</div></div>
+          <div class="profile-card"><div class="profile-label">Role</div><div class="profile-value">OPERATOR</div></div>
+          <div class="profile-card"><div class="profile-label">System</div><div class="profile-value">EMS v3.0</div></div>
         </div>
         <button class="logout-btn" onclick="confirmLogout()">Terminate Session</button>
       </div><!-- /profile -->
@@ -1029,698 +765,534 @@ body{font-family:var(--sans);color:var(--t1);font-size:14px;}
   <!-- STATUSBAR -->
   <div class="statusbar">
     <div class="sb-label">LOG</div>
-    <div class="ticker" id="ticker">SYSTEM ONLINE — AWAITING DATA</div>
-    <div class="sb-r">
-      <div class="sb-chip" id="sbSrc">—</div>
+    <div class="sb-ticker" id="sbTicker">SYSTEM ONLINE — AWAITING DATA STREAM</div>
+    <div class="sb-right">
+      <div class="sb-chip" id="sbSource">—</div>
       <div class="sb-chip" id="sbMode">AUTO</div>
     </div>
   </div>
 
-</div><!-- /app -->
+</div><!-- /appWrapper -->
 
 <script>
-/* ════════════════════════════════════════════
+/* ════════════════════════════════════════
    CLOCK
-════════════════════════════════════════════ */
-function tickClock(){
+════════════════════════════════════════ */
+function updateClock(){
   const n=new Date();
-  const d=n.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-  const t=n.toLocaleTimeString('id-ID');
-  const el=document.getElementById('tbClock');
-  if(el) el.innerText=d+' | '+t;
+  document.getElementById('datetime').innerText=
+    n.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+' | '+
+    n.toLocaleTimeString('id-ID');
 }
-setInterval(tickClock,1000);tickClock();
+setInterval(updateClock,1000);updateClock();
 
-/* ════════════════════════════════════════════
-   SHOW / HIDE APP
-════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   APP SHOW/HIDE
+════════════════════════════════════════ */
 function showApp(){
   document.getElementById('loginScreen').classList.add('hidden');
-  document.getElementById('app').classList.add('on');
+  document.getElementById('appWrapper').classList.add('visible');
 }
 function hideApp(){
   document.getElementById('loginScreen').classList.remove('hidden');
-  document.getElementById('app').classList.remove('on');
+  document.getElementById('appWrapper').classList.remove('visible');
 }
 
-/* ════════════════════════════════════════════
+/* ════════════════════════════════════════
    IDLE LOGOUT (10 menit)
-════════════════════════════════════════════ */
-let idleT;
-function resetIdle(){clearTimeout(idleT);idleT=setTimeout(doLogout,10*60*1000);}
-['click','mousemove','keydown','touchstart'].forEach(e=>document.addEventListener(e,resetIdle));
-function doLogout(){clearTimeout(idleT);localStorage.removeItem('ems_login');localStorage.removeItem('ems_user');hideApp();}
-function confirmLogout(){if(confirm('Terminate current session?'))doLogout();}
+════════════════════════════════════════ */
+let idleTimer;
+function resetTimer(){clearTimeout(idleTimer);idleTimer=setTimeout(logout,10*60*1000);}
+['click','mousemove','keydown','touchstart'].forEach(e=>document.addEventListener(e,resetTimer));
+function logout(){clearTimeout(idleTimer);localStorage.removeItem('ems_login');localStorage.removeItem('ems_user');hideApp();}
+function confirmLogout(){if(confirm('Terminate current session?'))logout();}
 
-/* ════════════════════════════════════════════
+/* ════════════════════════════════════════
    LOGIN
-════════════════════════════════════════════ */
+════════════════════════════════════════ */
 function doLogin(){
   const u=document.getElementById('uname').value.trim();
   const p=document.getElementById('upass').value;
   if(u==='admin'&&p==='1234'){
-    localStorage.setItem('ems_login','1');
-    localStorage.setItem('ems_user',u);
-    document.getElementById('profUser').innerText=u;
-    showApp();resetIdle();
+    localStorage.setItem('ems_login','1');localStorage.setItem('ems_user',u);
+    document.getElementById('userId').innerText=u;
+    showApp();resetTimer();
     setTimeout(initChart,80);
-    pushTicker('SESSION OK — USER: '+u.toUpperCase(),'ok');
+    pushTicker('SESSION AUTHENTICATED — USER: '+u.toUpperCase(),'ok');
   } else {
-    document.getElementById('loginErr').innerText='Access denied — kredensial tidak valid';
+    document.getElementById('loginError').innerText='Access denied — invalid credentials';
   }
 }
-// Auto restore session
 (function(){
   if(localStorage.getItem('ems_login')==='1'){
     const u=localStorage.getItem('ems_user')||'admin';
-    document.getElementById('profUser').innerText=u;
-    showApp();resetIdle();
-    setTimeout(initChart,80);
+    document.getElementById('userId').innerText=u;
+    showApp();resetTimer();setTimeout(initChart,80);
   }
 })();
 window.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
 
-/* ════════════════════════════════════════════
-   NAVIGATION
-════════════════════════════════════════════ */
-function goPage(id,btn){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('act'));
-  document.getElementById(id).classList.add('act');
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('act'));
-  if(btn)btn.classList.add('act');
-  closeSB();
-  if(id==='history')renderHist();
+/* ════════════════════════════════════════
+   NAV
+════════════════════════════════════════ */
+function showPage(page,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(page).classList.add('active');
+  document.querySelectorAll('.nav-item').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  closeSidebar();
+  if(page==='history')renderHistory();
 }
-
-/* ════════════════════════════════════════════
-   SIDEBAR
-════════════════════════════════════════════ */
-function toggleSB(){
+function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('on');
+  document.getElementById('sideOverlay').classList.toggle('active');
 }
-function closeSB(){
+function closeSidebar(){
   document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('on');
+  document.getElementById('sideOverlay').classList.remove('active');
 }
 
-/* ════════════════════════════════════════════
+/* ════════════════════════════════════════
    TICKER
-════════════════════════════════════════════ */
+════════════════════════════════════════ */
 function pushTicker(msg,type=''){
-  const el=document.getElementById('ticker');
+  const el=document.getElementById('sbTicker');
   if(!el)return;
-  el.className='ticker '+(type||'');
+  el.className='sb-ticker '+(type||'');
   el.innerText=new Date().toLocaleTimeString('id-ID')+' — '+msg;
 }
 
-/* ════════════════════════════════════════════
-   NOTIFY BANNER (dari test/notify ESP32)
-   Ditampilkan di monitor & control page
-════════════════════════════════════════════ */
+/* ════════════════════════════════════════
+   NOTIFY BANNER (test/notify)
+════════════════════════════════════════ */
 let notifyTimer,notifyTimer2;
-
-function showNotify(msg, type){
-  // type: ok | warn | err | info
-  const bar=document.getElementById('notifyBar');
-  const bar2=document.getElementById('notifyBar2');
-  const bar2style=bar2?bar2.style:'';
-
-  if(bar){
-    bar.className='show '+type;
-    document.getElementById('notifyMsg').innerText=msg;
-    clearTimeout(notifyTimer);
-    notifyTimer=setTimeout(()=>bar.className='',8000);
-  }
-  if(bar2){
-    bar2.className='show '+type;
-    // Apply same style as notifyBar
-    bar2.style.cssText='display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;margin-bottom:12px;border:1px solid;font-family:var(--mono);font-size:12px;font-weight:500;';
-    if(type==='ok') bar2.style.cssText+='background:var(--green-d);border-color:rgba(0,229,160,.3);color:var(--green);';
-    else if(type==='warn') bar2.style.cssText+='background:var(--amber-d);border-color:rgba(255,176,32,.3);color:var(--amber);';
-    else if(type==='err') bar2.style.cssText+='background:var(--red-d);border-color:rgba(255,71,87,.3);color:var(--red);';
-    else bar2.style.cssText+='background:var(--blue-d);border-color:rgba(75,144,255,.3);color:var(--blue);';
-    document.getElementById('notifyMsg2').innerText=msg;
-    clearTimeout(notifyTimer2);
-    notifyTimer2=setTimeout(()=>{bar2.style.display='none';},8000);
-  }
+function showNotify(msg,type){
+  // monitor page
+  const b=document.getElementById('notifyBanner');
+  b.className='show '+type;
+  document.getElementById('notifyText').innerText=msg;
+  clearTimeout(notifyTimer);
+  notifyTimer=setTimeout(()=>b.className='',9000);
+  // control page
+  const b2=document.getElementById('notifyBanner2');
+  const colorMap={ok:'var(--green-dim),rgba(34,211,160,0.3),var(--green)',warn:'var(--amber-dim),rgba(245,158,11,0.3),var(--amber)',err:'var(--red-dim),rgba(239,68,68,0.3),var(--red)',info:'var(--accent-dim),rgba(59,130,246,0.3),var(--accent)'};
+  const [bg,bc,fc]=(colorMap[type]||colorMap.info).split(',');
+  b2.style.cssText=`display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:9px;margin-bottom:12px;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid;background:${bg};border-color:${bc};color:${fc};`;
+  b2.querySelector('div').style.background='currentColor';
+  document.getElementById('notifyText2').innerText=msg;
+  clearTimeout(notifyTimer2);
+  notifyTimer2=setTimeout(()=>b2.style.display='none',9000);
 }
-function closeNotify(){const b=document.getElementById('notifyBar');if(b)b.className='';}
-function closeNotify2(){const b=document.getElementById('notifyBar2');if(b)b.style.display='none';}
+function closeNotify(){document.getElementById('notifyBanner').className='';}
+function closeNotify2(){document.getElementById('notifyBanner2').style.display='none';}
 
-/* ════════════════════════════════════════════
-   CRITICAL ALERT OVERLAY (alarm KRITIS ESP32)
-════════════════════════════════════════════ */
-function showCritical(msg){
-  document.getElementById('critMsg').innerText=msg;
-  document.getElementById('criticalAlert').classList.add('show');
-  pushTicker('⚡ KRITIS: '+msg,'err');
-}
-function ackCritical(){document.getElementById('criticalAlert').classList.remove('show');}
-
-/* ════════════════════════════════════════════
-   ALARM STRIP (monitor page)
-════════════════════════════════════════════ */
-function setAlarmStrip(show,msg){
+/* ════════════════════════════════════════
+   ALARM STRIP
+════════════════════════════════════════ */
+function setAlarm(show,msg){
   const el=document.getElementById('alarmStrip');
-  if(!el)return;
-  if(show){el.classList.add('show');document.getElementById('alarmTxt').innerText=msg;}
-  else{el.classList.remove('show');}
+  if(show){el.classList.add('show');document.getElementById('alarmText').innerText=msg;}
+  else el.classList.remove('show');
 }
 
-/* ════════════════════════════════════════════
-   MODE UI — sinkron dengan mode dari ESP32
-   Mode ditentukan ESP32, UI hanya mengirim perintah
-════════════════════════════════════════════ */
-let currentMode='AUTO'; // track mode terakhir dari ESP32
+/* ════════════════════════════════════════
+   MODE UI — sinkron dari ESP32 (field mode)
+   currentMode hanya diupdate dari data ESP32
+   BUKAN dari UI sendiri
+════════════════════════════════════════ */
+let currentMode='AUTO';
 
 function updateModeUI(mode){
   currentMode=mode;
-  // Topbar mode badge
+  // topbar badge
   const mb=document.getElementById('modeBadge');
-  const ml=document.getElementById('modeLabel');
-  if(mb&&ml){
-    mb.className='mode-badge '+(mode==='AUTO'?'auto':'manual');
-    ml.innerText=mode;
-  }
-  // Status bar chip
-  const sbm=document.getElementById('sbMode');
-  if(sbm)sbm.innerText=mode;
-  // Summary card
-  const sm=document.getElementById('s_mode');
-  const ss=document.getElementById('s_modeSub');
-  if(sm)sm.innerText=mode;
-  if(ss)ss.innerText=mode==='AUTO'?'Sistem mengatur otomatis':'Operator kontrol manual';
-  // Control page: highlight mode card & show/hide cmd cards
+  mb.className='top-badge '+(mode==='AUTO'?'warn':'ok');
+  document.getElementById('modeLabel').innerText=mode;
+  // statusbar
+  document.getElementById('sbMode').innerText=mode;
+  // summary card
+  document.getElementById('s_mode').innerText=mode;
+  document.getElementById('s_mode_sub').innerText=mode==='AUTO'?'Sistem otomatis':'Operator kontrol';
+  // control page highlight
   document.getElementById('mc_auto').classList.toggle('selected',mode==='AUTO');
   document.getElementById('mc_manual').classList.toggle('selected',mode==='MANUAL');
-  const disabledMsg=document.getElementById('srcDisabledMsg');
-  const cmdCards=document.getElementById('cmdCards');
-  if(disabledMsg&&cmdCards){
-    disabledMsg.style.display=mode==='AUTO'?'block':'none';
-    cmdCards.style.display=mode==='MANUAL'?'grid':'none';
-  }
+  // show/hide cmd cards
+  document.getElementById('manualDisabledMsg').style.display=mode==='AUTO'?'block':'none';
+  document.getElementById('cmdCards').style.display=mode==='MANUAL'?'grid':'none';
 }
 
-/* ════════════════════════════════════════════
+/* ════════════════════════════════════════
    CHART
-════════════════════════════════════════════ */
-const cLabels=[];
-const cData={PLN:{V:[],I:[],P:[]},BAT:{V:[],I:[],P:[]}};
+════════════════════════════════════════ */
+const chartLabels=[];
+const chartData={PLN:{V:[],I:[],P:[]},BAT:{V:[],I:[],P:[]}};
 let cSrc='PLN',cPar='V',mainChart=null;
-const cCfg={
-  PLN:{V:{lbl:'PLN · Voltage',col:'#4b90ff',min:190,max:245},
-       I:{lbl:'PLN · Current',col:'#67e8f9',min:0,max:12},
-       P:{lbl:'PLN · Power',  col:'#ffb020',min:0,max:2200}},
-  BAT:{V:{lbl:'BAT · Voltage',col:'#00e5a0',min:9,max:15},
-       I:{lbl:'BAT · Current',col:'#6ee7b7',min:0,max:22},
-       P:{lbl:'BAT · Power',  col:'#a78bfa',min:0,max:320}}
+const chartCfg={
+  PLN:{V:{label:'PLN · Voltage · Live',color:'#3b82f6',min:180,max:245},
+       I:{label:'PLN · Current · Live',color:'#67e8f9',min:0,max:12},
+       P:{label:'PLN · Power · Live',color:'#f59e0b',min:0,max:2200}},
+  BAT:{V:{label:'BAT · Voltage · Live',color:'#22d3a0',min:9,max:15},
+       I:{label:'BAT · Current · Live',color:'#6ee7b7',min:0,max:22},
+       P:{label:'BAT · Power · Live',color:'#8b5cf6',min:0,max:320}}
 };
 function initChart(){
   const c=document.getElementById('mainChart');
   if(!c||mainChart)return;
-  Chart.defaults.color='#3d4f6a';
-  Chart.defaults.borderColor='rgba(255,255,255,0.04)';
-  mainChart=new Chart(c,{
-    type:'line',
-    data:{labels:cLabels,datasets:[{data:[],borderColor:'#4b90ff',
-      backgroundColor:'rgba(75,144,255,0.07)',fill:true,tension:0.4,
-      pointRadius:0,pointHoverRadius:4,borderWidth:2}]},
-    options:{
-      maintainAspectRatio:false,responsive:true,
-      animation:{duration:250,easing:'easeOutQuart'},
-      plugins:{legend:{display:false},
-        tooltip:{backgroundColor:'#101620',borderColor:'rgba(255,255,255,0.1)',
-          borderWidth:1,padding:9,cornerRadius:7,
-          titleFont:{family:'IBM Plex Mono',size:10},
-          bodyFont:{family:'IBM Plex Mono',size:12},
-          titleColor:'#8a9bb8',bodyColor:'#e8eef8'}},
-      scales:{
-        y:{min:190,max:245,grid:{color:'rgba(255,255,255,0.03)'},
-          ticks:{font:{family:'IBM Plex Mono',size:9},color:'#3d4f6a'},
-          border:{color:'transparent'}},
-        x:{grid:{display:false},
-          ticks:{font:{family:'IBM Plex Mono',size:9},color:'#3d4f6a',maxTicksLimit:5},
-          border:{color:'transparent'}}
-      }
-    }
-  });
+  Chart.defaults.color='#4b5e7a';Chart.defaults.borderColor='rgba(255,255,255,0.05)';
+  mainChart=new Chart(c,{type:'line',data:{labels:chartLabels,datasets:[{data:[],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.07)',fill:true,tension:0.4,pointRadius:0,pointHoverRadius:5,borderWidth:2}]},options:{maintainAspectRatio:false,responsive:true,animation:{duration:300,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#111827',borderColor:'rgba(255,255,255,0.12)',borderWidth:1,titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Space Mono',size:12},titleColor:'#94a3c0',bodyColor:'#f0f4ff',padding:10,cornerRadius:8}},scales:{y:{min:180,max:245,grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{family:'Space Mono',size:10},color:'#4b5e7a'},border:{color:'transparent'}},x:{grid:{display:false},ticks:{font:{family:'Space Mono',size:10},color:'#4b5e7a',maxTicksLimit:6},border:{color:'transparent'}}}}});
 }
-function setCS(btn,src){
-  document.querySelectorAll('#srcGrp .cb').forEach(b=>b.className='cb');
-  btn.className='cb '+(src==='PLN'?'b':'g');
-  cSrc=src;refreshChart();
-}
-function setCP(btn,par){
-  document.querySelectorAll('#parGrp .cb').forEach(b=>b.className='cb');
-  btn.className='cb a';cPar=par;refreshChart();
-}
+function setCS(btn,src){document.querySelectorAll('#srcGroup .ctrl-btn').forEach(b=>b.className='ctrl-btn');btn.className='ctrl-btn '+(src==='PLN'?'ap':'ag');cSrc=src;refreshChart();}
+function setCP(btn,par){document.querySelectorAll('#paramGroup .ctrl-btn').forEach(b=>b.className='ctrl-btn');btn.className='ctrl-btn aa';cPar=par;refreshChart();}
 function refreshChart(){
   if(!mainChart)return;
-  const cfg=cCfg[cSrc][cPar];
-  document.getElementById('chartMeta').innerText=cfg.lbl+' · Live';
-  mainChart.data.datasets[0].data=[...cData[cSrc][cPar]];
-  mainChart.data.datasets[0].borderColor=cfg.col;
-  mainChart.data.datasets[0].backgroundColor=cfg.col+'15';
-  mainChart.options.scales.y.min=cfg.min;
-  mainChart.options.scales.y.max=cfg.max;
+  const cfg=chartCfg[cSrc][cPar];
+  document.getElementById('chartMeta').innerText=cfg.label;
+  mainChart.data.datasets[0].data=[...chartData[cSrc][cPar]];
+  mainChart.data.datasets[0].borderColor=cfg.color;
+  mainChart.data.datasets[0].backgroundColor=cfg.color+'18';
+  mainChart.options.scales.y.min=cfg.min;mainChart.options.scales.y.max=cfg.max;
   mainChart.update('none');
 }
 function pushChart(d){
   const t=new Date().toLocaleTimeString('id-ID');
-  cLabels.push(t);
-  cData.PLN.V.push(d.pln_v);cData.PLN.I.push(d.pln_i);cData.PLN.P.push(d.pln_p);
-  cData.BAT.V.push(d.bat_v);cData.BAT.I.push(d.bat_i);cData.BAT.P.push(d.bat_p);
-  if(cLabels.length>40){
-    cLabels.shift();
-    ['V','I','P'].forEach(k=>{cData.PLN[k].shift();cData.BAT[k].shift();});
-  }
+  chartLabels.push(t);
+  chartData.PLN.V.push(d.pln_v);chartData.PLN.I.push(d.pln_i);chartData.PLN.P.push(d.pln_p);
+  chartData.BAT.V.push(d.bat_v);chartData.BAT.I.push(d.bat_i);chartData.BAT.P.push(d.bat_p);
+  if(chartLabels.length>40){chartLabels.shift();['V','I','P'].forEach(k=>{chartData.PLN[k].shift();chartData.BAT[k].shift();});}
   refreshChart();
 }
 function setBar(id,pct){const e=document.getElementById(id);if(e)e.style.width=Math.min(100,Math.max(0,pct))+'%';}
 
-/* ════════════════════════════════════════════
-   FLOW DIAGRAM
-════════════════════════════════════════════ */
-function setFlow(src){
-  const pR=document.getElementById('nd_pln_r');
-  const bR=document.getElementById('nd_bat_r');
-  const dpl=document.getElementById('fd_pl');
-  const dlb=document.getElementById('fd_lb');
-  const tpl=document.getElementById('trk_pl');
-  const tlb=document.getElementById('trk_lb');
+/* ════════════════════════════════════════
+   FLOW SVG
+════════════════════════════════════════ */
+function setFlowState(src){
+  const pR=document.getElementById('nodeP_rect');const bR=document.getElementById('nodeB_rect');
+  const pN=document.getElementById('nodeP_name');const bN=document.getElementById('nodeB_name');
+  const pV=document.getElementById('nd_pln_v');const bV=document.getElementById('nd_bat_v');
+  const dPL=document.getElementById('dashPL');const dLB=document.getElementById('dashLB');
+  const tPL=document.getElementById('trackPL');const tLB=document.getElementById('trackLB');
+  const lR=document.getElementById('nodeL_rect');
   if(!pR)return;
   // reset
-  pR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.09);stroke-width:1';
-  bR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.09);stroke-width:1';
-  dpl.className='fd pln';dlb.className='fd bat';
-  tpl.style.stroke='rgba(255,255,255,0.07)';tlb.style.stroke='rgba(255,255,255,0.07)';
+  pR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.1);stroke-width:1';
+  bR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.1);stroke-width:1';
+  lR.style.cssText='fill:rgba(245,158,11,0.07);stroke:rgba(245,158,11,0.35);stroke-width:1.5';
+  pN.style.fill='#f0f4ff';bN.style.fill='#f0f4ff';
+  pV.style.fill='#4b5e7a';bV.style.fill='#4b5e7a';
+  dPL.className='flow-dash pln';dLB.className='flow-dash bat';
+  tPL.style.stroke='rgba(255,255,255,0.08)';tLB.style.stroke='rgba(255,255,255,0.08)';
+  document.getElementById('nd_load_stat').textContent='Active';
+
   if(src==='PLN'){
-    pR.style.cssText='fill:rgba(75,144,255,0.1);stroke:rgba(75,144,255,0.5);stroke-width:2';
-    dpl.className='fd pln flow';tpl.style.stroke='rgba(75,144,255,0.28)';
+    pR.style.cssText='fill:rgba(59,130,246,0.1);stroke:rgba(59,130,246,0.5);stroke-width:2';
+    pN.style.fill='#93c5fd';pV.style.fill='#3b82f6';
+    dPL.className='flow-dash pln flowing';tPL.style.stroke='rgba(59,130,246,0.3)';
   } else if(src==='BAT'){
-    bR.style.cssText='fill:rgba(0,229,160,0.1);stroke:rgba(0,229,160,0.5);stroke-width:2';
-    dlb.className='fd bat flow';tlb.style.stroke='rgba(0,229,160,0.28)';
-  } else {
-    // BEBAN_OFF — semua off
-    document.getElementById('nd_beban').textContent='OFF';
+    bR.style.cssText='fill:rgba(34,211,160,0.1);stroke:rgba(34,211,160,0.5);stroke-width:2';
+    bN.style.fill='#6ee7b7';bV.style.fill='#22d3a0';
+    dLB.className='flow-dash bat flowing';tLB.style.stroke='rgba(34,211,160,0.3)';
+  } else if(src==='OFF'){
+    lR.style.cssText='fill:rgba(239,68,68,0.07);stroke:rgba(239,68,68,0.35);stroke-width:1.5';
+    document.getElementById('nd_load_stat').textContent='BEBAN OFF';
   }
 }
 
-/* ════════════════════════════════════════════
-   HISTORY (persistent localStorage per hari)
-   Kolom tambahan: type (SWITCH/CMD/ALARM/NOTIFY)
-════════════════════════════════════════════ */
-let histViewDate=todayKey();
-let histSeq=0;
-let lastSrc='';
-
-function todayKey(){
-  const n=new Date();
-  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
-}
-function fmtDateLabel(k){
-  const [y,m,d]=k.split('-');
-  return new Date(+y,+m-1,+d).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-}
-function hKey(d){return 'ems_h_'+d;}
-function hLoad(d){try{return JSON.parse(localStorage.getItem(hKey(d))||'[]');}catch{return [];}}
-function hSave(d,a){try{localStorage.setItem(hKey(d),JSON.stringify(a));}catch(e){}}
-
-function hAdd(type,source,energyWh,note){
-  const dk=todayKey();
-  const a=hLoad(dk);
+/* ════════════════════════════════════════
+   HISTORY
+════════════════════════════════════════ */
+let histViewDate=todayKey(),histSeq=0,lastSource='';
+function todayKey(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
+function dateLabel(k){const[y,m,d]=k.split('-');return new Date(+y,+m-1,+d).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+function histKey(d){return 'ems_hist_'+d;}
+function histLoad(d){try{return JSON.parse(localStorage.getItem(histKey(d))||'[]');}catch{return [];}}
+function histSave(d,a){try{localStorage.setItem(histKey(d),JSON.stringify(a));}catch(e){}}
+function histAdd(type,source,energyWh,note){
+  const dk=todayKey(),a=histLoad(dk);
   histSeq++;
-  a.unshift({
-    ts:new Date().toLocaleTimeString('id-ID'),
-    type:type,          // SWITCH | CMD | ALARM | NOTIFY | REJECT
-    source:source||'—',
-    energy:parseFloat(energyWh||0).toFixed(3),
-    note:note||'',
-    seq:histSeq,date:dk
-  });
-  hSave(dk,a);
-  if(histViewDate===dk&&document.getElementById('history').classList.contains('act'))renderHist();
+  a.unshift({ts:new Date().toLocaleTimeString('id-ID'),type:type,source:source||'—',energy:parseFloat(energyWh||0).toFixed(3),note:note||'',seq:histSeq,date:dk});
+  histSave(dk,a);
+  if(histViewDate===dk&&document.getElementById('history').classList.contains('active'))renderHistory();
 }
-
-function histNav(delta){
-  const[y,m,d]=histViewDate.split('-').map(Number);
-  const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()+delta);
+function histNavDay(delta){
+  const[y,m,d]=histViewDate.split('-').map(Number);const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()+delta);
   if(dt>new Date())return;
   histViewDate=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
-  renderHist();
+  renderHistory();
 }
-function histClear(){
-  if(!confirm('Hapus semua history untuk '+fmtDateLabel(histViewDate)+'?'))return;
-  localStorage.removeItem(hKey(histViewDate));renderHist();
+function histClearDay(){
+  if(!confirm('Hapus semua history untuk '+dateLabel(histViewDate)+'?'))return;
+  localStorage.removeItem(histKey(histViewDate));renderHistory();
   pushTicker('HISTORY CLEARED: '+histViewDate,'warn');
 }
-function renderHist(){
-  const arr=hLoad(histViewDate);
-  document.getElementById('histDateLbl').innerText=fmtDateLabel(histViewDate);
-  document.getElementById('histSecTitle').innerText='Events — '+histViewDate;
+function renderHistory(){
+  const arr=histLoad(histViewDate);
+  document.getElementById('histDateLabel').innerText=dateLabel(histViewDate);
+  document.getElementById('histSectionTitle').innerText='Events — '+histViewDate;
   const isToday=histViewDate===todayKey();
   const fwd=document.getElementById('histFwdBtn');
-  if(fwd){fwd.style.opacity=isToday?'.3':'1';fwd.style.pointerEvents=isToday?'none':'auto';}
-  let plnWh=0,batWh=0,rejCount=0;
+  if(fwd){fwd.style.opacity=isToday?'0.3':'1';fwd.style.pointerEvents=isToday?'none':'auto';}
+  let plnWh=0,batWh=0,rejCnt=0;
   arr.forEach(r=>{
     if(r.source==='PLN')plnWh+=parseFloat(r.energy||0);
     else if(r.source==='BAT')batWh+=parseFloat(r.energy||0);
-    if(r.type==='REJECT')rejCount++;
+    if(r.type==='REJECT')rejCnt++;
   });
-  document.getElementById('hc_total').innerText=arr.length;
-  document.getElementById('hc_pln').innerText=plnWh.toFixed(3);
-  document.getElementById('hc_bat').innerText=batWh.toFixed(3);
-  document.getElementById('hc_rej').innerText=rejCount;
-  const tbody=document.getElementById('histTbody');
+  document.getElementById('histCountEl').innerText=arr.length;
+  document.getElementById('histPlnWh').innerText=plnWh.toFixed(3);
+  document.getElementById('histBatWh').innerText=batWh.toFixed(3);
+  document.getElementById('histRejCount').innerText=rejCnt;
+  const tbody=document.getElementById('histTable');
   const empty=document.getElementById('histEmpty');
   if(arr.length===0){tbody.innerHTML='';empty.style.display='block';}
   else{
     empty.style.display='none';
     tbody.innerHTML=arr.map(r=>{
-      const srcLow=(r.source||'').toLowerCase();
-      const typeLow=(r.type||'switch').toLowerCase();
-      const typeBadge=r.type==='REJECT'?'rej':r.type==='ALARM'?'off':r.type==='CMD'?'auto':srcLow;
+      const sl=(r.source||'').toLowerCase();
+      const tl=(r.type||'switch').toLowerCase();
+      const tbadge=r.type==='REJECT'?'rej':r.type==='ALARM'?'alarm':r.type==='CMD'?'auto':sl;
       return `<tr>
         <td style="font-family:var(--mono)">${r.ts}</td>
-        <td><span class="badge ${typeBadge}" style="text-transform:uppercase">${r.type||'SWITCH'}</span></td>
-        <td><span class="badge ${srcLow}">${r.source}</span></td>
+        <td><span class="badge ${tbadge}">${r.type||'SWITCH'}</span></td>
+        <td><span class="badge ${sl}">${r.source}</span></td>
         <td style="font-family:var(--mono)">${r.energy} Wh</td>
-        <td style="font-size:11px;color:var(--t3)">${r.note||'—'}</td>
+        <td style="font-size:11px;color:var(--text3)">${r.note||'—'}</td>
       </tr>`;
     }).join('');
   }
 }
 histViewDate=todayKey();
 
-/* ════════════════════════════════════════════
-   SEND COMMANDS ke ESP32 via MQTT
+/* ════════════════════════════════════════
+   SEND MODE & CMD ke ESP32
    Topic: test/control
    Payload: AUTO | MANUAL | PLN | BAT | BEBAN_OFF
-════════════════════════════════════════════ */
+════════════════════════════════════════ */
 function sendMode(mode){
-  if(!mqttReady()){showNotify('MQTT tidak terhubung!','err');return;}
+  if(!client||!client.connected){showNotify('MQTT tidak terhubung!','err');return;}
   client.publish('test/control',mode);
   pushTicker('CMD MODE: '+mode,'warn');
-  hAdd('CMD',mode,0,'Kirim mode: '+mode);
-  const st=document.getElementById('stsTxt');
-  const sd=document.getElementById('stsDot');
-  if(st)st.innerText='CMD DIKIRIM: '+mode+' — menunggu konfirmasi ESP32...';
-  if(sd){sd.className='sts-dot warn';}
+  histAdd('CMD',mode,0,'Kirim mode: '+mode);
+  setStatus('CMD DIKIRIM: '+mode+' — menunggu konfirmasi ESP32...','warn');
 }
 
 function sendCmd(cmd){
-  if(!mqttReady()){showNotify('MQTT tidak terhubung!','err');return;}
-  if(currentMode!=='MANUAL'){
-    showNotify('Pilih Mode MANUAL terlebih dahulu!','warn');return;
-  }
+  if(!client||!client.connected){showNotify('MQTT tidak terhubung!','err');return;}
+  // Proteksi UI: hanya bisa kirim sumber jika mode MANUAL
+  if(currentMode!=='MANUAL'){showNotify('Aktifkan Mode MANUAL terlebih dahulu!','warn');return;}
   client.publish('test/control',cmd);
-  pushTicker('CMD SUMBER: '+cmd,'warn');
-  hAdd('CMD',cmd,0,'Kirim perintah sumber: '+cmd);
-  const st=document.getElementById('stsTxt');
-  const sd=document.getElementById('stsDot');
-  if(st)st.innerText='CMD DIKIRIM: '+cmd+' — menunggu validasi AUTO...';
-  if(sd){sd.className='sts-dot warn';}
-  showNotify('Perintah '+cmd+' dikirim — menunggu validasi ESP32','info');
+  pushTicker('CMD: '+cmd,'warn');
+  histAdd('CMD',cmd,0,'Kirim perintah: '+cmd);
+  setStatus('CMD DIKIRIM: '+cmd+' — menunggu validasi AUTO...','warn');
+  showNotify('Perintah '+cmd+' dikirim ke ESP32 — menunggu validasi...','info');
 }
 
-/* ════════════════════════════════════════════
+function setStatus(msg,type){
+  const st=document.getElementById('statusText');
+  const sd=document.getElementById('statusDot');
+  if(st)st.innerText=msg;
+  if(sd)sd.className='status-dot-el '+(type==='ok'?'on':type==='err'?'err':type==='warn'?'warn':'');
+}
+
+/* ════════════════════════════════════════
    MQTT
    Subscribe: test/monitor, test/notify
    Publish:   test/control
-════════════════════════════════════════════ */
+════════════════════════════════════════ */
 let client;
-let _mqttOk=false;
-function mqttReady(){return _mqttOk&&client&&client.connected;}
+const mqttUrl='wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt';
 
 function initMQTT(){
-  client=mqtt.connect('wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt',{
-    username:'esp32',password:'123456'
-  });
+  client=mqtt.connect(mqttUrl,{username:'esp32',password:'123456'});
 
   client.on('connect',()=>{
-    _mqttOk=true;
-    // Subscribe KEDUA topic dari ESP32
     client.subscribe('test/monitor');
-    client.subscribe('test/notify');   // ← penting: notifikasi validasi & alarm
-    // Update UI
-    document.getElementById('connDot').className='conn-dot on';
-    document.getElementById('connTxt').innerText='ONLINE';
-    document.getElementById('mqttBadge').className='mqtt-badge ok';
+    client.subscribe('test/notify'); // ← notifikasi validasi dari ESP32
+    document.getElementById('connDot').className='conn-dot online';
+    document.getElementById('connLabel').innerText='ONLINE';
+    document.getElementById('mqttBadge').className='top-badge ok';
     document.getElementById('mqttLabel').innerText='ONLINE';
     pushTicker('MQTT BROKER CONNECTED','ok');
   });
-
   client.on('disconnect',()=>{
-    _mqttOk=false;
     document.getElementById('connDot').className='conn-dot';
-    document.getElementById('connTxt').innerText='OFFLINE';
-    document.getElementById('mqttBadge').className='mqtt-badge err';
+    document.getElementById('connLabel').innerText='OFFLINE';
+    document.getElementById('mqttBadge').className='top-badge err';
     document.getElementById('mqttLabel').innerText='OFFLINE';
-    pushTicker('MQTT DISCONNECTED','err');
+    pushTicker('MQTT CONNECTION LOST','alarm');
   });
-
   client.on('error',()=>{
-    _mqttOk=false;
-    document.getElementById('mqttBadge').className='mqtt-badge err';
+    document.getElementById('mqttBadge').className='top-badge err';
     document.getElementById('mqttLabel').innerText='ERROR';
   });
 
-  /* ────────────────────────────────────────────
-     HANDLER test/monitor
-     Field dari ESP32:
-     pln_v, pln_i, pln_p, pln_f, pln_Wh, pln_pf
-     bat_v, bat_i, bat_p, bat_Wh
-     source ("PLN"|"BAT")
-     mode   ("AUTO"|"MANUAL")
-     alarm_pln, alarm_bat, beban_off, manual_ok
-     bat_cycle (opsional), pln_cycle (opsional)
-  ──────────────────────────────────────────── */
   client.on('message',(topic,payload)=>{
-    resetIdle();
+    resetTimer();
     const msg=payload.toString();
 
-    /* ── topic: test/notify ───────────────────
-       Pesan notifikasi validasi dari ESP32:
-       {"status":"ACCEPTED"|"REJECTED"|"MODE_AUTO"|"MODE_MANUAL"|"IGNORED"|"KRITIS","msg":"...","reason":"..."}
-    ─────────────────────────────────────────── */
+    /* ─── test/notify: hasil validasi dari ESP32 ─── */
     if(topic==='test/notify'){
       let n;try{n=JSON.parse(msg);}catch{return;}
       const txt=n.msg||n.reason||'—';
-      const st=document.getElementById('stsTxt');
-      const sd=document.getElementById('stsDot');
 
       if(n.alarm==='KRITIS'||n.status==='KRITIS'){
-        // Kondisi paling kritis — tampilkan overlay
-        showCritical(txt);
-        setAlarmStrip(true,'🔴 KRITIS: '+txt);
-        pushTicker('⚡ KRITIS: '+txt,'err');
-        hAdd('ALARM','—',0,'KRITIS: '+txt);
-        if(sd)sd.className='sts-dot err';
-        if(st)st.innerText='⚡ KRITIS: '+txt;
+        document.getElementById('critMsg').innerText=txt;
+        document.getElementById('critOverlay').classList.add('show');
+        setAlarm(true,'🔴 KRITIS: '+txt);
+        pushTicker('⚡ KRITIS: '+txt,'alarm');
+        histAdd('ALARM','—',0,'KRITIS: '+txt);
+        setStatus('⚡ KRITIS: '+txt,'err');
 
       } else if(n.status==='ACCEPTED'){
         showNotify('✅ DIIZINKAN: '+txt,'ok');
-        pushTicker('CMD DIIJINKAN: '+txt,'ok');
-        hAdd('NOTIFY','—',0,'ACCEPTED: '+txt);
-        if(sd){sd.className='sts-dot on';}
-        if(st)st.innerText='✅ CMD DITERIMA: '+txt;
+        pushTicker('CMD DIIJINKAN','ok');
+        histAdd('NOTIFY','—',0,'ACCEPTED: '+txt);
+        setStatus('✅ CMD DITERIMA & DIEKSEKUSI','ok');
 
       } else if(n.status==='REJECTED'){
         showNotify('❌ DITOLAK: '+txt,'err');
-        pushTicker('CMD DITOLAK: '+txt,'err');
-        hAdd('REJECT','—',0,'REJECTED: '+txt);
-        if(sd){sd.className='sts-dot err';}
-        if(st)st.innerText='❌ CMD DITOLAK: '+txt;
+        pushTicker('CMD DITOLAK: '+txt,'alarm');
+        histAdd('REJECT','—',0,'REJECTED: '+txt);
+        setStatus('❌ CMD DITOLAK: '+txt,'err');
 
       } else if(n.status==='MODE_AUTO'){
-        showNotify('Mode AUTO aktif — '+txt,'info');
+        showNotify('Mode AUTO aktif','info');
         pushTicker('MODE: AUTO','ok');
-        hAdd('CMD','AUTO',0,txt);
+        histAdd('CMD','AUTO',0,txt);
+        setStatus('Mode AUTO aktif','ok');
 
       } else if(n.status==='MODE_MANUAL'){
-        showNotify('Mode MANUAL aktif — '+txt,'warn');
+        showNotify('Mode MANUAL aktif — kirim perintah sumber','warn');
         pushTicker('MODE: MANUAL','warn');
-        hAdd('CMD','MANUAL',0,txt);
+        histAdd('CMD','MANUAL',0,txt);
+        setStatus('Mode MANUAL aktif — tunggu perintah sumber','warn');
 
       } else if(n.status==='IGNORED'){
-        showNotify('⚠ DIABAIKAN: '+txt,'warn');
-        pushTicker('CMD DIABAIKAN: '+txt,'warn');
-        hAdd('NOTIFY','—',0,'IGNORED: '+txt);
-        if(st)st.innerText='⚠ Perintah diabaikan: '+txt;
+        showNotify('⚠ Perintah diabaikan: '+txt,'warn');
+        pushTicker('CMD DIABAIKAN','warn');
+        histAdd('NOTIFY','—',0,'IGNORED: '+txt);
+        setStatus('⚠ Perintah diabaikan — aktifkan MODE MANUAL dulu','warn');
       }
       return;
     }
 
-    /* ── topic: test/monitor ─────────────────── */
+    /* ─── test/monitor: data sensor dari ESP32 ─── */
     if(topic!=='test/monitor')return;
     let d;try{d=JSON.parse(msg);}catch{return;}
 
-    /* ── Update MODE dari ESP32 ── */
-    if(d.mode){updateModeUI(d.mode);}
+    // ── Update mode dari ESP32 ──
+    if(d.mode)updateModeUI(d.mode);
 
-    /* ── Alarm flags dari ESP32 ── */
-    // alarm_pln
-    const fPlnVal=document.getElementById('flag_pln_val');
-    if(fPlnVal){
-      if(d.alarm_pln){
-        fPlnVal.innerText='MATI / DROPOUT';fPlnVal.style.color='var(--red)';
-      } else {
-        fPlnVal.innerText='NORMAL';fPlnVal.style.color='var(--green)';
-      }
-    }
-    // alarm_bat
-    const fBatVal=document.getElementById('flag_bat_val');
-    if(fBatVal){
-      if(d.alarm_bat){
-        fBatVal.innerText='KRITIS';fBatVal.style.color='var(--red)';
-      } else {
-        fBatVal.innerText='NORMAL';fBatVal.style.color='var(--green)';
-      }
-    }
-    // beban_off
-    const fBeban=document.getElementById('flag_beban_val');
-    if(fBeban){
-      if(d.beban_off){
-        fBeban.innerText='TERPUTUS';fBeban.style.color='var(--red)';
-        setFlow('OFF');
-        document.getElementById('nd_beban').textContent='OFF';
-      } else {
-        fBeban.innerText='TERSAMBUNG';fBeban.style.color='var(--green)';
-      }
-    }
-    // manual_ok
-    const fMan=document.getElementById('flag_manual_val');
-    if(fMan){
-      if(d.manual_ok===undefined||d.manual_ok===null){
-        fMan.innerText='—';fMan.style.color='var(--t3)';
-      } else if(d.manual_ok){
-        fMan.innerText='DIIJINKAN';fMan.style.color='var(--green)';
-      } else {
-        fMan.innerText='DITOLAK';fMan.style.color='var(--red)';
-      }
+    // ── Alarm flags dari ESP32 ──
+    // PLN alarm
+    const fp=document.getElementById('flag_pln');
+    if(fp){fp.innerText=d.alarm_pln?'MATI / DROPOUT':'NORMAL';fp.style.color=d.alarm_pln?'var(--red)':'var(--green)';}
+    // BAT alarm
+    const fb=document.getElementById('flag_bat');
+    if(fb){fb.innerText=d.alarm_bat?'KRITIS':'NORMAL';fb.style.color=d.alarm_bat?'var(--red)':'var(--green)';}
+    // Beban off
+    const fl=document.getElementById('flag_beban');
+    if(fl){fl.innerText=d.beban_off?'TERPUTUS':'TERSAMBUNG';fl.style.color=d.beban_off?'var(--red)':'var(--green)';}
+    // Manual ok
+    const fm=document.getElementById('flag_manual');
+    if(fm){
+      if(d.manual_ok===undefined||d.manual_ok===null){fm.innerText='—';fm.style.color='var(--text3)';}
+      else if(d.manual_ok){fm.innerText='DIIJINKAN';fm.style.color='var(--green)';}
+      else{fm.innerText='DITOLAK';fm.style.color='var(--red)';}
     }
 
-    // Alarm strip di monitor page
-    const alarmAkt=(d.alarm_pln||d.alarm_bat||d.beban_off);
+    // Alarm strip
+    const alarmAktif=d.alarm_pln||d.alarm_bat||d.beban_off;
     let alarmMsg='';
-    if(d.alarm_pln) alarmMsg+='PLN DROPOUT ';
-    if(d.alarm_bat) alarmMsg+='BAT KRITIS ';
-    if(d.beban_off) alarmMsg+='BEBAN TERPUTUS';
-    setAlarmStrip(alarmAkt,alarmMsg.trim());
+    if(d.alarm_pln)alarmMsg+='PLN DROPOUT ';
+    if(d.alarm_bat)alarmMsg+='BAT KRITIS ';
+    if(d.beban_off)alarmMsg+='BEBAN TERPUTUS';
+    setAlarm(!!alarmAktif,alarmMsg.trim());
 
-    /* ── Battery SoC ── */
-    // Range 11.8V (0%) – 13V (100%) sesuai thresholds ESP32
+    // ── Battery SoC (range 11.8V–13V sesuai ESP32) ──
     let pct=((d.bat_v-11.8)/(13-11.8))*100;pct=Math.max(0,Math.min(100,pct));
-    const fill=document.getElementById('batFill');
-    if(fill){
-      fill.style.width=pct+'%';
-      fill.style.background=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';
-    }
-    const socEl=document.getElementById('s_soc');
-    if(socEl){
-      socEl.innerText=pct.toFixed(0)+'% SoC';
-      socEl.style.color=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';
-    }
+    const fill=document.getElementById('battFill');
+    if(fill){fill.style.width=pct+'%';fill.style.background=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';}
+    const pctEl=document.getElementById('s_bat_pct');
+    if(pctEl){pctEl.innerText=pct.toFixed(0)+'% SoC';pctEl.style.color=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';}
 
-    /* ── Summary cards ── */
-    document.getElementById('s_plnv').innerText=d.pln_v.toFixed(2);
-    document.getElementById('s_batv').innerText=d.bat_v.toFixed(2);
-    const totalW=d.source==='PLN'?d.pln_p:d.bat_p;
-    document.getElementById('s_load').innerText=totalW.toFixed(0);
-    document.getElementById('s_loadSrc').innerText='Dari: '+(d.source||'—');
+    // ── Summary cards ──
+    document.getElementById('s_pln_v').innerText=d.pln_v.toFixed(2);
+    document.getElementById('s_bat_v').innerText=d.bat_v.toFixed(2);
+    const totalW=d.beban_off?0:(d.source==='PLN'?d.pln_p:d.bat_p);
+    document.getElementById('s_load_w').innerText=totalW.toFixed(0);
+    document.getElementById('s_load_sub').innerText=d.beban_off?'BEBAN TERPUTUS':'Dari: '+(d.source||'—');
+    if(d.pln_Wh!==undefined){}// handled in pln_e below
 
-    /* ── Flow SVG labels ── */
-    document.getElementById('nd_plnv').textContent=d.pln_v.toFixed(2)+' V';
-    document.getElementById('nd_batv').textContent=d.bat_v.toFixed(2)+' V';
-    document.getElementById('nd_loadw').textContent=totalW.toFixed(0)+' W';
+    // ── Flow SVG ──
+    document.getElementById('nd_pln_v').textContent=d.pln_v.toFixed(2)+' V';
+    document.getElementById('nd_bat_v').textContent=d.bat_v.toFixed(2)+' V';
+    document.getElementById('nd_load_w').textContent=totalW.toFixed(0)+' W';
 
-    /* ── PLN metrics ── */
+    // ── PLN metrics ──
     document.getElementById('pln_v').innerText=d.pln_v.toFixed(2);
     document.getElementById('pln_i').innerText=d.pln_i.toFixed(2);
     document.getElementById('pln_p').innerText=d.pln_p.toFixed(2);
     if(d.pln_f!==undefined)document.getElementById('pln_f').innerText=d.pln_f.toFixed(2);
-    if(d.pln_Wh!==undefined){
-      document.getElementById('pln_e').innerText=d.pln_Wh.toFixed(2);
-      document.getElementById('s_pln_wh') && (document.getElementById('s_pln_wh').innerText=d.pln_Wh.toFixed(2));
-    }
-    if(d.pln_pf!==undefined){
-      document.getElementById('pln_pf').innerText=d.pln_pf.toFixed(2);
-      setBar('bar_plnpf',d.pln_pf*100);
-    }
-    setBar('bar_plnv',((d.pln_v-180)/65)*100);  // 180-245V range
-    setBar('bar_plni',(d.pln_i/12)*100);
-    setBar('bar_plnp',(d.pln_p/2200)*100);
+    if(d.pln_Wh!==undefined)document.getElementById('pln_e').innerText=d.pln_Wh.toFixed(2);
+    if(d.pln_pf!==undefined){document.getElementById('pln_pf').innerText=d.pln_pf.toFixed(2);setBar('bar_pln_pf',d.pln_pf*100);}
+    setBar('bar_pln_v',((d.pln_v-180)/65)*100);
+    setBar('bar_pln_i',(d.pln_i/12)*100);
+    setBar('bar_pln_p',(d.pln_p/2200)*100);
 
-    /* ── BAT metrics ── */
+    // ── BAT metrics ──
     document.getElementById('bat_v').innerText=d.bat_v.toFixed(2);
     document.getElementById('bat_i').innerText=d.bat_i.toFixed(2);
     document.getElementById('bat_p').innerText=d.bat_p.toFixed(2);
     if(d.bat_Wh!==undefined)document.getElementById('bat_e').innerText=d.bat_Wh.toFixed(2);
-    setBar('bar_batv',((d.bat_v-8.5)/6.5)*100);  // 8.5-15V
-    setBar('bar_bati',(d.bat_i/22)*100);
-    setBar('bar_batp',(d.bat_p/320)*100);
+    setBar('bar_bat_v',((d.bat_v-8.5)/6.5)*100);
+    setBar('bar_bat_i',(d.bat_i/22)*100);
+    setBar('bar_bat_p',(d.bat_p/320)*100);
 
-    /* ── Source & Mode pill ── */
-    const srcPill=document.getElementById('srcPill');
-    const srcPillTxt=document.getElementById('srcPillTxt');
-    const sbSrc=document.getElementById('sbSrc');
+    // ── Source pill & flow ──
+    const pill=document.getElementById('srcPill');
+    const pillTxt=document.getElementById('srcPillText');
+    const sbSrc=document.getElementById('sbSource');
 
-    if(!d.beban_off){
-      if(d.source==='PLN'){
-        if(srcPill){srcPill.className='mode-badge auto';}
-        if(srcPillTxt)srcPillTxt.innerText='PLN AKTIF';
-        if(sbSrc)sbSrc.innerText='PLN';
-        document.getElementById('nd_plndata').textContent=d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W';
-        document.getElementById('nd_batdata').textContent='—';
-        setFlow('PLN');
-        pushTicker('SRC: PLN '+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W | PF:'+((d.pln_pf||0).toFixed(2)));
-      } else if(d.source==='BAT'){
-        if(srcPill){srcPill.className='mode-badge manual';}
-        if(srcPillTxt)srcPillTxt.innerText='BAT AKTIF';
-        if(sbSrc)sbSrc.innerText='BAT';
-        document.getElementById('nd_batdata').textContent=d.bat_v.toFixed(2)+'V / '+d.bat_p.toFixed(0)+'W';
-        document.getElementById('nd_plndata').textContent='—';
-        setFlow('BAT');
-        pushTicker('SRC: BAT '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC','warn');
-      }
-    } else {
-      if(srcPill){srcPill.className='mode-badge kritis';}
-      if(srcPillTxt)srcPillTxt.innerText='BEBAN OFF';
+    if(d.beban_off){
+      pill.className='mode-pill off';pillTxt.innerText='BEBAN OFF';
       if(sbSrc)sbSrc.innerText='OFF';
-      pushTicker('BEBAN TERPUTUS — kondisi kritis','err');
+      setFlowState('OFF');
+      pushTicker('BEBAN TERPUTUS — kondisi kritis','alarm');
+
+    } else if(d.source==='PLN'){
+      pill.className='mode-pill pln';pillTxt.innerText='PLN AKTIF';
+      if(sbSrc)sbSrc.innerText='PLN';
+      document.getElementById('nd_pln_data').textContent=d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W';
+      document.getElementById('nd_bat_data').textContent='—';
+      setFlowState('PLN');
+      pushTicker('SRC: PLN '+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W | PF:'+((d.pln_pf||0).toFixed(2)));
+
+    } else if(d.source==='BAT'){
+      pill.className='mode-pill bat';pillTxt.innerText='BAT AKTIF';
+      if(sbSrc)sbSrc.innerText='BAT';
+      document.getElementById('nd_bat_data').textContent=d.bat_v.toFixed(2)+'V / '+d.bat_p.toFixed(0)+'W';
+      document.getElementById('nd_pln_data').textContent='—';
+      setFlowState('BAT');
+      pushTicker('SRC: BAT '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC','warn');
     }
 
-    /* ── History: catat saat source berganti ── */
-    if(d.source&&d.source!==lastSrc){
+    // ── History: catat saat source berganti ──
+    if(d.source&&d.source!==lastSource){
       const wh=d.source==='PLN'?(d.pln_Wh||0):(d.bat_Wh||0);
       const note='Switch ke '+d.source+' | Mode: '+(d.mode||'—')+
-        (d.source==='PLN'?' | '+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W':
-         ' | '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC');
-      hAdd('SWITCH',d.source,wh,note);
-      lastSrc=d.source;
+        (d.source==='PLN'?' | '+d.pln_v.toFixed(1)+'V':' | '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC');
+      histAdd('SWITCH',d.source,wh,note);
+      lastSource=d.source;
     }
+    if(d.pln_cycle!==undefined&&d.pln_cycle>0)histAdd('SWITCH','PLN',d.pln_cycle,'PLN cycle energy');
+    if(d.bat_cycle!==undefined&&d.bat_cycle>0)histAdd('SWITCH','BAT',d.bat_cycle,'BAT cycle energy');
 
-    // Cycle energy
-    if(d.pln_cycle!==undefined&&d.pln_cycle>0){hAdd('SWITCH','PLN',d.pln_cycle,'PLN cycle energy');}
-    if(d.bat_cycle!==undefined&&d.bat_cycle>0){hAdd('SWITCH','BAT',d.bat_cycle,'BAT cycle energy');}
-
-    /* ── Chart update ── */
     pushChart(d);
   });
 }
 
-// Inisialisasi MQTT setelah app visible
-document.addEventListener('DOMContentLoaded',()=>{
-  initMQTT();
-  // Init notifyBar2 style
-  const b2=document.getElementById('notifyBar2');
-  if(b2){
-    b2.style.cssText='display:none;align-items:center;gap:10px;padding:10px 14px;'+
-      'border-radius:12px;margin-bottom:12px;border:1px solid;'+
-      'font-family:var(--mono);font-size:12px;font-weight:500;';
-  }
-});
+document.addEventListener('DOMContentLoaded',()=>{initMQTT();});
 </script>
 </body>
 </html>
