@@ -39,24 +39,34 @@
   --mono: 'Space Mono', monospace;
 }
 
+/* ── RESET ── */
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
-html,body{height:100%;overflow:hidden;background:var(--bg0);}
-body{font-family:var(--font);color:var(--text1);font-size:14px;}
+
+/* FIX #1: Hapus overflow:hidden dari html/body agar dashboard bisa render */
+html{height:100%;background:var(--bg0);}
+body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;background:var(--bg0);}
+
 ::-webkit-scrollbar{width:4px;height:4px;}
 ::-webkit-scrollbar-track{background:transparent;}
 ::-webkit-scrollbar-thumb{background:var(--bg4);border-radius:4px;}
 
 /* ═══ LOGIN ═══ */
+/* FIX #2: Gunakan class .hidden untuk sembunyikan login, bukan inline style */
 #loginScreen{
   position:fixed;inset:0;z-index:9999;
   background:radial-gradient(ellipse 90% 80% at 50% 30%,#0d1829 0%,#050810 100%);
   display:flex;align-items:center;justify-content:center;padding:16px;
+  transition:opacity 0.3s;
+}
+#loginScreen.hidden{
+  display:none;
 }
 .login-bg{
   position:absolute;inset:0;overflow:hidden;
   background-image:linear-gradient(rgba(59,130,246,0.04) 1px,transparent 1px),linear-gradient(90deg,rgba(59,130,246,0.04) 1px,transparent 1px);
   background-size:52px 52px;
   mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,black 20%,transparent 80%);
+  -webkit-mask-image:radial-gradient(ellipse 60% 60% at 50% 50%,black 20%,transparent 80%);
 }
 .login-orb{position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(59,130,246,0.06) 0%,transparent 70%);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);animation:orb-pulse 4s ease-in-out infinite;}
 @keyframes orb-pulse{0%,100%{transform:translate(-50%,-50%) scale(1);opacity:0.5;}50%{transform:translate(-50%,-50%) scale(1.12);opacity:1;}}
@@ -78,8 +88,19 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
 .login-btn:active{transform:scale(0.98);}
 #loginError{font-family:var(--mono);font-size:12px;color:var(--red);margin-top:12px;min-height:16px;}
 
+/* ═══ APP WRAPPER — FIX #3: Sembunyikan dashboard saat login ═══ */
+#appWrapper{
+  display:none; /* hidden by default, shown after login */
+  flex-direction:column;
+  height:100vh;
+  overflow:hidden;
+}
+#appWrapper.visible{
+  display:flex;
+}
+
 /* ═══ TOPBAR ═══ */
-.topbar{height:var(--topbar-h);background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:fixed;top:0;left:0;right:0;z-index:300;}
+.topbar{height:var(--topbar-h);background:var(--bg1);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 16px;flex-shrink:0;}
 .topbar-left{display:flex;align-items:center;gap:10px;}
 .topbar-menu-btn{display:none;width:38px;height:38px;border-radius:9px;background:rgba(255,255,255,0.05);border:1px solid var(--border);cursor:pointer;align-items:center;justify-content:center;flex-direction:column;gap:5px;padding:10px;}
 .topbar-menu-btn span{display:block;height:1.5px;background:var(--text2);border-radius:2px;width:18px;}
@@ -96,7 +117,13 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
 @keyframes dot-pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:0.4;transform:scale(0.7);}}
 
 /* ═══ LAYOUT ═══ */
-.layout{display:flex;height:100vh;padding-top:var(--topbar-h);}
+/* FIX #4: Layout mengisi sisa tinggi setelah topbar & statusbar */
+.layout{
+  display:flex;
+  flex:1;
+  overflow:hidden;
+  position:relative;
+}
 
 /* ═══ SIDEBAR ═══ */
 .sidebar{width:var(--sidebar-w);flex-shrink:0;background:var(--bg1);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;transition:transform 0.25s cubic-bezier(0.4,0,0.2,1);position:relative;z-index:100;}
@@ -120,7 +147,7 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
 .conn-text{font-size:13px;font-weight:700;color:var(--text2);font-family:var(--mono);}
 
 /* ═══ MAIN ═══ */
-.main{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px;background:var(--bg0);padding-bottom:50px;position:relative;z-index:1;}
+.main{flex:1;overflow-y:auto;overflow-x:hidden;padding:16px;background:var(--bg0);padding-bottom:50px;}
 
 /* ═══ PAGE ═══ */
 .page{display:none;}
@@ -267,7 +294,7 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
 .logout-btn:hover{background:rgba(239,68,68,0.22);}
 
 /* ═══ STATUS BAR ═══ */
-.statusbar{position:fixed;bottom:0;left:0;right:0;height:36px;background:var(--bg1);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:10px;z-index:100;}
+.statusbar{height:36px;background:var(--bg1);border-top:1px solid var(--border);display:flex;align-items:center;padding:0 14px;gap:10px;flex-shrink:0;}
 .sb-label{font-size:10px;font-weight:700;letter-spacing:1px;color:var(--text3);font-family:var(--mono);}
 .sb-ticker{font-family:var(--mono);font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color 0.3s;}
 .sb-ticker.ok{color:var(--green);}
@@ -283,105 +310,65 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
 .alert-icon{color:var(--red);font-size:11px;margin-bottom:6px;display:flex;align-items:center;gap:6px;font-family:var(--mono);font-weight:700;}
 .alert-msg{font-family:var(--mono);font-size:11px;color:var(--red);line-height:1.6;}
 
-/* ═══ MOBILE OVERLAY — NO BLUR ON CONTENT ═══ */
+/* ═══ MOBILE OVERLAY ═══ */
 .sidebar-overlay{
-  display:none;
-  position:fixed;
-  inset:0;
-  z-index:149;
-  /* NO backdrop-filter here — it causes blur on content below */
+  display:none;position:fixed;inset:0;z-index:149;
   background:rgba(0,0,0,0.6);
 }
 .sidebar-overlay.active{display:block;}
 
-/* ════════════════════════
-   TABLET
-════════════════════════ */
+/* ════════════════════════ TABLET ════════════════════════ */
 @media(max-width:1024px){
   .source-summary{grid-template-columns:repeat(2,1fr);}
   .metrics-grid{grid-template-columns:repeat(2,1fr);}
   .profile-grid{grid-template-columns:1fr 1fr;}
 }
 
-/* ════════════════════════
-   MOBILE — BLUR FIX CORE
-════════════════════════ */
+/* ════════════════════════ MOBILE ════════════════════════ */
 @media(max-width:640px){
   :root{--topbar-h:54px;}
-
-  /* Topbar */
   .topbar{padding:0 12px;}
   .topbar-menu-btn{display:flex;}
   .logo-ver{display:none;}
   .top-clock{font-size:11px;padding:4px 9px;}
   .top-badge{font-size:10px;padding:4px 9px;}
 
-  /* Sidebar drawer — positioned fixed so it doesn't affect main content */
   .sidebar{
     position:fixed;
     left:0;
     top:var(--topbar-h);
-    bottom:0;
+    bottom:36px; /* above statusbar */
     width:var(--sidebar-w);
     transform:translateX(-100%);
     z-index:200;
-    /* sidebar itself has NO filter/backdrop that bleeds */
     box-shadow:6px 0 30px rgba(0,0,0,0.6);
   }
   .sidebar.open{transform:translateX(0);}
 
-  /* Main area — must NOT be affected by any filter */
-  .main{
-    padding:12px;
-    padding-bottom:48px;
-    /* Explicitly clear any potential inherited filter */
-    filter:none !important;
-    backdrop-filter:none !important;
-    -webkit-backdrop-filter:none !important;
-    /* ensure it fills full width since sidebar is now fixed */
-    width:100%;
-  }
+  .main{padding:12px;padding-bottom:48px;filter:none !important;backdrop-filter:none !important;-webkit-backdrop-filter:none !important;}
 
-  /* Layout must not have overflow issues */
-  .layout{overflow:hidden;}
-
-  /* Summary */
   .source-summary{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
   .summary-card{padding:13px;}
   .sum-value{font-size:20px;}
 
-  /* Metrics */
   .metrics-grid{grid-template-columns:1fr 1fr;gap:8px;}
   .metric-card{padding:12px 14px;}
   .metric-value{font-size:20px;}
   .metric-label{font-size:12px;}
 
-  /* Flow */
   .flow-card{padding:13px;}
-
-  /* Chart */
   .chart-card{padding:13px;}
   .chart-wrap{height:150px;}
 
-  /* Control */
   .cmd-grid{grid-template-columns:1fr;}
   .cmd-full{grid-column:span 1;}
   .cmd-card{padding:18px;}
 
-  /* Profile */
   .profile-grid{grid-template-columns:1fr;}
-
-  /* Page header */
   .page-title{font-size:16px;}
   .mode-pill{font-size:11px;padding:5px 11px;}
-
-  /* History toolbar wrap */
   .hist-toolbar{flex-direction:column;align-items:flex-start;}
   .hist-stats{gap:8px;}
-
-  /* Status bar */
-  .statusbar{padding:0 10px;}
-  .sb-ticker{font-size:10px;}
 }
 
 @media(max-width:360px){
@@ -430,403 +417,408 @@ body{font-family:var(--font);color:var(--text1);font-size:14px;}
   <div class="alert-msg" id="sysAlertMsg"></div>
 </div>
 
-<!-- TOPBAR -->
-<div class="topbar">
-  <div class="topbar-left">
-    <button class="topbar-menu-btn" id="menuBtn" onclick="toggleSidebar()">
-      <span></span><span></span><span></span>
-    </button>
-    <div class="topbar-logo">
-      <div class="logo-icon">
-        <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
-      </div>
-      <div class="logo-text">EMS</div>
-      <div class="logo-ver">SCADA v2.4</div>
-    </div>
-  </div>
-  <div class="topbar-right">
-    <div class="top-clock" id="datetime">--:--:--</div>
-    <div class="top-badge" id="mqttBadge">
-      <div class="badge-dot"></div>
-      <span id="mqttLabel">CONNECTING</span>
-    </div>
-  </div>
-</div>
+<!-- ══════════════════════════════════════
+     APP WRAPPER — seluruh dashboard ada di sini
+     FIX: pakai class .visible bukan inline style
+══════════════════════════════════════ -->
+<div id="appWrapper">
 
-<!-- LAYOUT -->
-<div class="layout">
-
-  <!-- Overlay — NO backdrop-filter -->
-  <div class="sidebar-overlay" id="sideOverlay" onclick="closeSidebar()"></div>
-
-  <!-- SIDEBAR -->
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-inner">
-      <div class="sidebar-section">
-        <div class="sidebar-label">Main</div>
-        <button class="nav-item active" onclick="showPage('monitor',this)">
-          <div class="nav-icon">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          </div>
-          <span>Monitor</span>
-        </button>
-        <button class="nav-item" onclick="showPage('control',this)">
-          <div class="nav-icon">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
-          </div>
-          <span>Control</span>
-        </button>
-      </div>
-      <div class="sidebar-divider"></div>
-      <div class="sidebar-section">
-        <div class="sidebar-label">Data</div>
-        <button class="nav-item" onclick="showPage('history',this)">
-          <div class="nav-icon">
-            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </div>
-          <span>History</span>
-        </button>
-        <button class="nav-item" onclick="showPage('profile',this)">
-          <div class="nav-icon">
-            <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </div>
-          <span>Profile</span>
-        </button>
-      </div>
-    </div>
-    <div class="sidebar-bottom">
-      <div class="conn-card">
-        <div class="conn-label">MQTT BROKER</div>
-        <div class="conn-row">
-          <div class="conn-dot" id="connDot"></div>
-          <div class="conn-text" id="connLabel">OFFLINE</div>
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <button class="topbar-menu-btn" id="menuBtn" onclick="toggleSidebar()">
+        <span></span><span></span><span></span>
+      </button>
+      <div class="topbar-logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
         </div>
+        <div class="logo-text">EMS</div>
+        <div class="logo-ver">SCADA v2.4</div>
+      </div>
+    </div>
+    <div class="topbar-right">
+      <div class="top-clock" id="datetime">--:--:--</div>
+      <div class="top-badge" id="mqttBadge">
+        <div class="badge-dot"></div>
+        <span id="mqttLabel">CONNECTING</span>
       </div>
     </div>
   </div>
 
-  <!-- MAIN -->
-  <div class="main" id="mainArea">
+  <!-- LAYOUT -->
+  <div class="layout">
+    <!-- Overlay -->
+    <div class="sidebar-overlay" id="sideOverlay" onclick="closeSidebar()"></div>
 
-    <!-- ═══ MONITOR ═══ -->
-    <div id="monitor" class="page active">
-      <div class="page-header">
-        <div class="page-header-left">
-          <div class="page-icon">
-            <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
-          </div>
-          <div>
-            <div class="page-title">System Monitor</div>
-            <div class="page-subtitle">REALTIME TELEMETRY</div>
-          </div>
-        </div>
-        <div class="mode-pill bat" id="modePill">
-          <div class="mode-pill-dot"></div>
-          <span id="modeText">STANDBY</span>
-        </div>
-      </div>
-
-      <div class="source-summary">
-        <div class="summary-card pln">
-          <div class="sum-label">PLN Voltage</div>
-          <div class="sum-value"><span id="s_pln_v">0.00</span><span class="sum-unit">V</span></div>
-          <div class="sum-sub">Grid Supply</div>
-        </div>
-        <div class="summary-card bat">
-          <div class="sum-label">Battery SoC</div>
-          <div class="sum-value"><span id="s_bat_v">0.00</span><span class="sum-unit">V</span></div>
-          <div class="batt-strip"><div class="batt-fill" id="battFill"></div></div>
-          <div class="sum-sub" id="s_bat_pct">0% SoC</div>
-        </div>
-        <div class="summary-card load">
-          <div class="sum-label">Load Power</div>
-          <div class="sum-value"><span id="s_load_w">0</span><span class="sum-unit">W</span></div>
-          <div class="sum-sub">Active Consumption</div>
-        </div>
-        <div class="summary-card energy">
-          <div class="sum-label">PLN Energy</div>
-          <div class="sum-value"><span id="s_pln_wh">0.00</span><span class="sum-unit">Wh</span></div>
-          <div class="sum-sub">Total Accumulated</div>
-        </div>
-      </div>
-
-      <div class="flow-card">
-        <div class="flow-card-header">
-          <div class="card-title"><div class="card-title-dot"></div>Energy Flow — Real Time</div>
-          <div class="live-indicator"><div class="badge-dot"></div>LIVE</div>
-        </div>
-        <div class="flow-svg-wrap">
-          <svg class="flow-svg" viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg">
-            <g id="nodeP">
-              <rect x="10" y="27" width="112" height="72" rx="11" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1" id="nodeP_rect"/>
-              <text x="66" y="48" text-anchor="middle" font-size="9" fill="#4b5e7a" font-family="'Space Mono',monospace">SRC-01</text>
-              <text x="66" y="71" text-anchor="middle" font-size="14" font-weight="700" fill="#f0f4ff" font-family="'Space Mono',monospace" id="nodeP_name">PLN</text>
-              <text x="66" y="88" text-anchor="middle" font-size="11" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_pln_v">0.00 V</text>
-            </g>
-            <line x1="124" y1="63" x2="218" y2="63" stroke="rgba(255,255,255,0.08)" stroke-width="2" id="trackPL"/>
-            <line x1="124" y1="63" x2="218" y2="63" class="flow-dash pln" id="dashPL"/>
-            <text x="171" y="55" text-anchor="middle" font-size="10" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_pln_data">—</text>
-            <g id="nodeL">
-              <rect x="220" y="19" width="120" height="88" rx="11" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.35)" stroke-width="1.5"/>
-              <text x="280" y="42" text-anchor="middle" font-size="9" fill="#92400e" font-family="'Space Mono',monospace">LOAD</text>
-              <text x="280" y="73" text-anchor="middle" font-size="20" font-weight="700" fill="#f59e0b" font-family="'Space Mono',monospace" id="nd_load_w">0 W</text>
-              <text x="280" y="92" text-anchor="middle" font-size="9" fill="#78350f" font-family="'Space Mono',monospace">Consumption</text>
-            </g>
-            <line x1="342" y1="63" x2="438" y2="63" stroke="rgba(255,255,255,0.08)" stroke-width="2" id="trackLB"/>
-            <line x1="342" y1="63" x2="438" y2="63" class="flow-dash bat" id="dashLB"/>
-            <text x="390" y="55" text-anchor="middle" font-size="10" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_bat_data">—</text>
-            <g id="nodeB">
-              <rect x="440" y="27" width="112" height="72" rx="11" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1" id="nodeB_rect"/>
-              <text x="496" y="48" text-anchor="middle" font-size="9" fill="#4b5e7a" font-family="'Space Mono',monospace">SRC-02</text>
-              <text x="496" y="71" text-anchor="middle" font-size="14" font-weight="700" fill="#f0f4ff" font-family="'Space Mono',monospace" id="nodeB_name">BAT</text>
-              <text x="496" y="88" text-anchor="middle" font-size="11" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_bat_v">0.00 V</text>
-            </g>
-          </svg>
-        </div>
-      </div>
-
-      <div class="section-header">
-        <div class="section-title">PLN — Grid Parameters</div>
-        <div class="section-line"></div>
-      </div>
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-tag">PLN</div>
-          <div class="metric-label">Voltage</div>
-          <div class="metric-value"><span id="pln_v">0.00</span><span class="unit">V</span></div>
-          <div class="metric-progress"><div class="metric-bar" id="bar_pln_v"></div></div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-tag">PLN</div>
-          <div class="metric-label">Current</div>
-          <div class="metric-value"><span id="pln_i">0.00</span><span class="unit">A</span></div>
-          <div class="metric-progress"><div class="metric-bar" id="bar_pln_i"></div></div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-tag">PLN</div>
-          <div class="metric-label">Power</div>
-          <div class="metric-value"><span id="pln_p">0.00</span><span class="unit">W</span></div>
-          <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_p"></div></div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-tag">PLN</div>
-          <div class="metric-label">Frequency</div>
-          <div class="metric-value"><span id="pln_f">0.00</span><span class="unit">Hz</span></div>
-          <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_f" style="width:60%"></div></div>
-        </div>
-      </div>
-      <div class="metrics-grid cols2">
-        <div class="metric-card">
-          <div class="metric-tag">PLN</div>
-          <div class="metric-label">Energy Accumulated</div>
-          <div class="metric-value"><span id="pln_e">0.00</span><span class="unit">Wh</span></div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-tag">PLN</div>
-          <div class="metric-label">Power Factor</div>
-          <div class="metric-value"><span id="pln_pf">0.00</span></div>
-          <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_pf"></div></div>
-        </div>
-      </div>
-
-      <div class="section-header" style="margin-top:6px;">
-        <div class="section-title">Battery — Storage Parameters</div>
-        <div class="section-line"></div>
-      </div>
-      <div class="metrics-grid">
-        <div class="metric-card">
-          <div class="metric-tag bat">BAT</div>
-          <div class="metric-label">Voltage</div>
-          <div class="metric-value"><span id="bat_v">0.00</span><span class="unit">V</span></div>
-          <div class="metric-progress"><div class="metric-bar green" id="bar_bat_v"></div></div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-tag bat">BAT</div>
-          <div class="metric-label">Current</div>
-          <div class="metric-value"><span id="bat_i">0.00</span><span class="unit">A</span></div>
-          <div class="metric-progress"><div class="metric-bar green" id="bar_bat_i"></div></div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-tag bat">BAT</div>
-          <div class="metric-label">Power</div>
-          <div class="metric-value"><span id="bat_p">0.00</span><span class="unit">W</span></div>
-          <div class="metric-progress"><div class="metric-bar green" id="bar_bat_p"></div></div>
-        </div>
-        <div class="metric-card">
-          <div class="metric-tag bat">BAT</div>
-          <div class="metric-label">Energy</div>
-          <div class="metric-value"><span id="bat_e">0.00</span><span class="unit">Wh</span></div>
-        </div>
-      </div>
-
-      <div class="section-header" style="margin-top:6px;">
-        <div class="section-title">Realtime Graph</div>
-        <div class="section-line"></div>
-      </div>
-      <div class="chart-card">
-        <div class="chart-header">
-          <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
-            <div class="chart-controls" id="srcGroup">
-              <button class="ctrl-btn ap" onclick="setCS(this,'PLN')">PLN</button>
-              <button class="ctrl-btn" onclick="setCS(this,'BAT')">BAT</button>
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-inner">
+        <div class="sidebar-section">
+          <div class="sidebar-label">Main</div>
+          <button class="nav-item active" onclick="showPage('monitor',this)">
+            <div class="nav-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
             </div>
-            <div class="chart-sep"></div>
-            <div class="chart-controls" id="paramGroup">
-              <button class="ctrl-btn aa" onclick="setCP(this,'V')">Volt</button>
-              <button class="ctrl-btn" onclick="setCP(this,'I')">Curr</button>
-              <button class="ctrl-btn" onclick="setCP(this,'P')">Pwr</button>
+            <span>Monitor</span>
+          </button>
+          <button class="nav-item" onclick="showPage('control',this)">
+            <div class="nav-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <span>Control</span>
+          </button>
+        </div>
+        <div class="sidebar-divider"></div>
+        <div class="sidebar-section">
+          <div class="sidebar-label">Data</div>
+          <button class="nav-item" onclick="showPage('history',this)">
+            <div class="nav-icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <span>History</span>
+          </button>
+          <button class="nav-item" onclick="showPage('profile',this)">
+            <div class="nav-icon">
+              <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <span>Profile</span>
+          </button>
+        </div>
+      </div>
+      <div class="sidebar-bottom">
+        <div class="conn-card">
+          <div class="conn-label">MQTT BROKER</div>
+          <div class="conn-row">
+            <div class="conn-dot" id="connDot"></div>
+            <div class="conn-text" id="connLabel">OFFLINE</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="main" id="mainArea">
+
+      <!-- ═══ MONITOR ═══ -->
+      <div id="monitor" class="page active">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+            </div>
+            <div>
+              <div class="page-title">System Monitor</div>
+              <div class="page-subtitle">REALTIME TELEMETRY</div>
             </div>
           </div>
-          <div class="chart-meta" id="chartMeta">PLN · Voltage · Live</div>
+          <div class="mode-pill bat" id="modePill">
+            <div class="mode-pill-dot"></div>
+            <span id="modeText">STANDBY</span>
+          </div>
         </div>
-        <div class="chart-wrap">
-          <canvas id="mainChart"></canvas>
-        </div>
-      </div>
-    </div><!-- /monitor -->
 
-    <!-- ═══ CONTROL ═══ -->
-    <div id="control" class="page">
-      <div class="page-header">
-        <div class="page-header-left">
-          <div class="page-icon" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);">
-            <svg viewBox="0 0 24 24" style="stroke:var(--amber)"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+        <div class="source-summary">
+          <div class="summary-card pln">
+            <div class="sum-label">PLN Voltage</div>
+            <div class="sum-value"><span id="s_pln_v">0.00</span><span class="sum-unit">V</span></div>
+            <div class="sum-sub">Grid Supply</div>
           </div>
-          <div>
-            <div class="page-title">Manual Control</div>
-            <div class="page-subtitle">OPERATOR ACCESS</div>
+          <div class="summary-card bat">
+            <div class="sum-label">Battery SoC</div>
+            <div class="sum-value"><span id="s_bat_v">0.00</span><span class="sum-unit">V</span></div>
+            <div class="batt-strip"><div class="batt-fill" id="battFill"></div></div>
+            <div class="sum-sub" id="s_bat_pct">0% SoC</div>
           </div>
-        </div>
-      </div>
-      <div class="section-header">
-        <div class="section-title">Source Command</div>
-        <div class="section-line"></div>
-      </div>
-      <div class="cmd-grid">
-        <div class="cmd-card c-bat" onclick="sendCmd('BAT')">
-          <div class="cmd-card-inner">
-            <div class="cmd-tag">CMD-01 · SOURCE</div>
-            <div class="cmd-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3M7 7V4M11 7V4"/></svg></div>
-            <div class="cmd-name">Battery</div>
-            <div class="cmd-desc">Force switch to battery backup. Load powered by storage bank.</div>
+          <div class="summary-card load">
+            <div class="sum-label">Load Power</div>
+            <div class="sum-value"><span id="s_load_w">0</span><span class="sum-unit">W</span></div>
+            <div class="sum-sub">Active Consumption</div>
+          </div>
+          <div class="summary-card energy">
+            <div class="sum-label">PLN Energy</div>
+            <div class="sum-value"><span id="s_pln_wh">0.00</span><span class="sum-unit">Wh</span></div>
+            <div class="sum-sub">Total Accumulated</div>
           </div>
         </div>
-        <div class="cmd-card c-pln" onclick="sendCmd('PLN')">
-          <div class="cmd-card-inner">
-            <div class="cmd-tag">CMD-02 · SOURCE</div>
-            <div class="cmd-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-            <div class="cmd-name">PLN Grid</div>
-            <div class="cmd-desc">Force switch to utility grid. Battery enters standby/charge mode.</div>
+
+        <div class="flow-card">
+          <div class="flow-card-header">
+            <div class="card-title"><div class="card-title-dot"></div>Energy Flow — Real Time</div>
+            <div class="live-indicator"><div class="badge-dot"></div>LIVE</div>
+          </div>
+          <div class="flow-svg-wrap">
+            <svg class="flow-svg" viewBox="0 0 560 130" xmlns="http://www.w3.org/2000/svg">
+              <g id="nodeP">
+                <rect x="10" y="27" width="112" height="72" rx="11" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1" id="nodeP_rect"/>
+                <text x="66" y="48" text-anchor="middle" font-size="9" fill="#4b5e7a" font-family="'Space Mono',monospace">SRC-01</text>
+                <text x="66" y="71" text-anchor="middle" font-size="14" font-weight="700" fill="#f0f4ff" font-family="'Space Mono',monospace" id="nodeP_name">PLN</text>
+                <text x="66" y="88" text-anchor="middle" font-size="11" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_pln_v">0.00 V</text>
+              </g>
+              <line x1="124" y1="63" x2="218" y2="63" stroke="rgba(255,255,255,0.08)" stroke-width="2" id="trackPL"/>
+              <line x1="124" y1="63" x2="218" y2="63" class="flow-dash pln" id="dashPL"/>
+              <text x="171" y="55" text-anchor="middle" font-size="10" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_pln_data">—</text>
+              <g id="nodeL">
+                <rect x="220" y="19" width="120" height="88" rx="11" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.35)" stroke-width="1.5"/>
+                <text x="280" y="42" text-anchor="middle" font-size="9" fill="#92400e" font-family="'Space Mono',monospace">LOAD</text>
+                <text x="280" y="73" text-anchor="middle" font-size="20" font-weight="700" fill="#f59e0b" font-family="'Space Mono',monospace" id="nd_load_w">0 W</text>
+                <text x="280" y="92" text-anchor="middle" font-size="9" fill="#78350f" font-family="'Space Mono',monospace">Consumption</text>
+              </g>
+              <line x1="342" y1="63" x2="438" y2="63" stroke="rgba(255,255,255,0.08)" stroke-width="2" id="trackLB"/>
+              <line x1="342" y1="63" x2="438" y2="63" class="flow-dash bat" id="dashLB"/>
+              <text x="390" y="55" text-anchor="middle" font-size="10" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_bat_data">—</text>
+              <g id="nodeB">
+                <rect x="440" y="27" width="112" height="72" rx="11" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1" id="nodeB_rect"/>
+                <text x="496" y="48" text-anchor="middle" font-size="9" fill="#4b5e7a" font-family="'Space Mono',monospace">SRC-02</text>
+                <text x="496" y="71" text-anchor="middle" font-size="14" font-weight="700" fill="#f0f4ff" font-family="'Space Mono',monospace" id="nodeB_name">BAT</text>
+                <text x="496" y="88" text-anchor="middle" font-size="11" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_bat_v">0.00 V</text>
+              </g>
+            </svg>
           </div>
         </div>
-        <div class="cmd-card c-auto cmd-full" onclick="sendCmd('AUTO')">
-          <div class="cmd-card-inner">
-            <div class="cmd-tag">CMD-03 · MODE</div>
-            <div class="cmd-icon"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg></div>
-            <div class="cmd-name">Auto Mode</div>
-            <div class="cmd-desc">System manages source automatically based on grid availability and battery SoC.</div>
+
+        <div class="section-header">
+          <div class="section-title">PLN — Grid Parameters</div>
+          <div class="section-line"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-tag">PLN</div>
+            <div class="metric-label">Voltage</div>
+            <div class="metric-value"><span id="pln_v">0.00</span><span class="unit">V</span></div>
+            <div class="metric-progress"><div class="metric-bar" id="bar_pln_v"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-tag">PLN</div>
+            <div class="metric-label">Current</div>
+            <div class="metric-value"><span id="pln_i">0.00</span><span class="unit">A</span></div>
+            <div class="metric-progress"><div class="metric-bar" id="bar_pln_i"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-tag">PLN</div>
+            <div class="metric-label">Power</div>
+            <div class="metric-value"><span id="pln_p">0.00</span><span class="unit">W</span></div>
+            <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_p"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-tag">PLN</div>
+            <div class="metric-label">Frequency</div>
+            <div class="metric-value"><span id="pln_f">0.00</span><span class="unit">Hz</span></div>
+            <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_f" style="width:60%"></div></div>
           </div>
         </div>
+        <div class="metrics-grid cols2">
+          <div class="metric-card">
+            <div class="metric-tag">PLN</div>
+            <div class="metric-label">Energy Accumulated</div>
+            <div class="metric-value"><span id="pln_e">0.00</span><span class="unit">Wh</span></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-tag">PLN</div>
+            <div class="metric-label">Power Factor</div>
+            <div class="metric-value"><span id="pln_pf">0.00</span></div>
+            <div class="metric-progress"><div class="metric-bar amber" id="bar_pln_pf"></div></div>
+          </div>
+        </div>
+
+        <div class="section-header" style="margin-top:6px;">
+          <div class="section-title">Battery — Storage Parameters</div>
+          <div class="section-line"></div>
+        </div>
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-tag bat">BAT</div>
+            <div class="metric-label">Voltage</div>
+            <div class="metric-value"><span id="bat_v">0.00</span><span class="unit">V</span></div>
+            <div class="metric-progress"><div class="metric-bar green" id="bar_bat_v"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-tag bat">BAT</div>
+            <div class="metric-label">Current</div>
+            <div class="metric-value"><span id="bat_i">0.00</span><span class="unit">A</span></div>
+            <div class="metric-progress"><div class="metric-bar green" id="bar_bat_i"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-tag bat">BAT</div>
+            <div class="metric-label">Power</div>
+            <div class="metric-value"><span id="bat_p">0.00</span><span class="unit">W</span></div>
+            <div class="metric-progress"><div class="metric-bar green" id="bar_bat_p"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-tag bat">BAT</div>
+            <div class="metric-label">Energy</div>
+            <div class="metric-value"><span id="bat_e">0.00</span><span class="unit">Wh</span></div>
+          </div>
+        </div>
+
+        <div class="section-header" style="margin-top:6px;">
+          <div class="section-title">Realtime Graph</div>
+          <div class="section-line"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-header">
+            <div style="display:flex;gap:5px;flex-wrap:wrap;align-items:center;">
+              <div class="chart-controls" id="srcGroup">
+                <button class="ctrl-btn ap" onclick="setCS(this,'PLN')">PLN</button>
+                <button class="ctrl-btn" onclick="setCS(this,'BAT')">BAT</button>
+              </div>
+              <div class="chart-sep"></div>
+              <div class="chart-controls" id="paramGroup">
+                <button class="ctrl-btn aa" onclick="setCP(this,'V')">Volt</button>
+                <button class="ctrl-btn" onclick="setCP(this,'I')">Curr</button>
+                <button class="ctrl-btn" onclick="setCP(this,'P')">Pwr</button>
+              </div>
+            </div>
+            <div class="chart-meta" id="chartMeta">PLN · Voltage · Live</div>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="mainChart"></canvas>
+          </div>
+        </div>
+      </div><!-- /monitor -->
+
+      <!-- ═══ CONTROL ═══ -->
+      <div id="control" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-icon" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);">
+              <svg viewBox="0 0 24 24" style="stroke:var(--amber)"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
+            </div>
+            <div>
+              <div class="page-title">Manual Control</div>
+              <div class="page-subtitle">OPERATOR ACCESS</div>
+            </div>
+          </div>
+        </div>
+        <div class="section-header">
+          <div class="section-title">Source Command</div>
+          <div class="section-line"></div>
+        </div>
+        <div class="cmd-grid">
+          <div class="cmd-card c-bat" onclick="sendCmd('BAT')">
+            <div class="cmd-card-inner">
+              <div class="cmd-tag">CMD-01 · SOURCE</div>
+              <div class="cmd-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3M7 7V4M11 7V4"/></svg></div>
+              <div class="cmd-name">Battery</div>
+              <div class="cmd-desc">Force switch to battery backup. Load powered by storage bank.</div>
+            </div>
+          </div>
+          <div class="cmd-card c-pln" onclick="sendCmd('PLN')">
+            <div class="cmd-card-inner">
+              <div class="cmd-tag">CMD-02 · SOURCE</div>
+              <div class="cmd-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
+              <div class="cmd-name">PLN Grid</div>
+              <div class="cmd-desc">Force switch to utility grid. Battery enters standby/charge mode.</div>
+            </div>
+          </div>
+          <div class="cmd-card c-auto cmd-full" onclick="sendCmd('AUTO')">
+            <div class="cmd-card-inner">
+              <div class="cmd-tag">CMD-03 · MODE</div>
+              <div class="cmd-icon"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg></div>
+              <div class="cmd-name">Auto Mode</div>
+              <div class="cmd-desc">System manages source automatically based on grid availability and battery SoC.</div>
+            </div>
+          </div>
+        </div>
+        <div class="status-card">
+          <div class="status-dot-el on" id="statusDot"></div>
+          <div class="status-text" id="statusText">AWAITING COMMAND</div>
+        </div>
       </div>
-      <div class="status-card">
-        <div class="status-dot-el on" id="statusDot"></div>
-        <div class="status-text" id="statusText">AWAITING COMMAND</div>
+
+      <!-- ═══ HISTORY ═══ -->
+      <div id="history" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-icon" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.2);">
+              <svg viewBox="0 0 24 24" style="stroke:var(--purple)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div>
+              <div class="page-title">Event History</div>
+              <div class="page-subtitle">PERSISTENT SWITCHING LOG</div>
+            </div>
+          </div>
+        </div>
+        <div class="hist-toolbar">
+          <div class="hist-date-nav">
+            <button class="date-nav-btn" onclick="histNavDay(-1)">&#8249;</button>
+            <div class="date-label" id="histDateLabel">—</div>
+            <button class="date-nav-btn" onclick="histNavDay(+1)">&#8250;</button>
+          </div>
+          <div class="hist-stats">
+            <div class="hist-stat-chip">Events: <span id="histCountEl">0</span></div>
+            <div class="hist-stat-chip">PLN: <span id="histPlnWh">0.00</span> Wh</div>
+            <div class="hist-stat-chip">BAT: <span id="histBatWh">0.00</span> Wh</div>
+          </div>
+          <button class="hist-clear-btn" onclick="histClearDay()">Hapus Hari Ini</button>
+        </div>
+        <div class="section-header">
+          <div class="section-title" id="histSectionTitle">Switching Events</div>
+          <div class="section-line"></div>
+        </div>
+        <div class="table-card">
+          <table class="hist-table">
+            <thead>
+              <tr>
+                <th>Waktu</th>
+                <th>Source</th>
+                <th>Energy (Wh)</th>
+                <th>Keterangan</th>
+              </tr>
+            </thead>
+            <tbody id="histTable"></tbody>
+          </table>
+          <div class="hist-empty" id="histEmpty" style="display:none;">Tidak ada data untuk tanggal ini.</div>
+        </div>
       </div>
+
+      <!-- ═══ PROFILE ═══ -->
+      <div id="profile" class="page">
+        <div class="page-header">
+          <div class="page-header-left">
+            <div class="page-icon" style="background:rgba(34,211,160,0.1);border-color:rgba(34,211,160,0.2);">
+              <svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            </div>
+            <div>
+              <div class="page-title">User Profile</div>
+              <div class="page-subtitle">SESSION ACTIVE</div>
+            </div>
+          </div>
+        </div>
+        <div class="section-header">
+          <div class="section-title">Session Info</div>
+          <div class="section-line"></div>
+        </div>
+        <div class="profile-grid">
+          <div class="profile-card">
+            <div class="profile-label">User ID</div>
+            <div class="profile-value" id="userId">—</div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-label">Role</div>
+            <div class="profile-value">OPERATOR</div>
+          </div>
+          <div class="profile-card">
+            <div class="profile-label">System</div>
+            <div class="profile-value">EMS v2.4</div>
+          </div>
+        </div>
+        <button class="logout-btn" onclick="confirmLogout()">Terminate Session</button>
+      </div>
+
+    </div><!-- /main -->
+  </div><!-- /layout -->
+
+  <!-- STATUS BAR -->
+  <div class="statusbar">
+    <div class="sb-label">LOG</div>
+    <div class="sb-ticker" id="sbTicker">SYSTEM ONLINE — AWAITING DATA STREAM</div>
+    <div class="sb-right">
+      <div class="sb-chip" id="sbSource">—</div>
     </div>
-
-    <!-- ═══ HISTORY ═══ -->
-    <div id="history" class="page">
-      <div class="page-header">
-        <div class="page-header-left">
-          <div class="page-icon" style="background:rgba(139,92,246,0.1);border-color:rgba(139,92,246,0.2);">
-            <svg viewBox="0 0 24 24" style="stroke:var(--purple)"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </div>
-          <div>
-            <div class="page-title">Event History</div>
-            <div class="page-subtitle">PERSISTENT SWITCHING LOG</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Toolbar: date navigation + stats + clear -->
-      <div class="hist-toolbar">
-        <div class="hist-date-nav">
-          <button class="date-nav-btn" onclick="histNavDay(-1)">&#8249;</button>
-          <div class="date-label" id="histDateLabel">—</div>
-          <button class="date-nav-btn" onclick="histNavDay(+1)">&#8250;</button>
-        </div>
-        <div class="hist-stats">
-          <div class="hist-stat-chip">Events: <span id="histCountEl">0</span></div>
-          <div class="hist-stat-chip">PLN: <span id="histPlnWh">0.00</span> Wh</div>
-          <div class="hist-stat-chip">BAT: <span id="histBatWh">0.00</span> Wh</div>
-        </div>
-        <button class="hist-clear-btn" onclick="histClearDay()">Hapus Hari Ini</button>
-      </div>
-
-      <div class="section-header">
-        <div class="section-title" id="histSectionTitle">Switching Events</div>
-        <div class="section-line"></div>
-      </div>
-      <div class="table-card">
-        <table class="hist-table">
-          <thead>
-            <tr>
-              <th>Waktu</th>
-              <th>Source</th>
-              <th>Energy (Wh)</th>
-              <th>Keterangan</th>
-            </tr>
-          </thead>
-          <tbody id="histTable"></tbody>
-        </table>
-        <div class="hist-empty" id="histEmpty" style="display:none;">Tidak ada data untuk tanggal ini.</div>
-      </div>
-    </div>
-
-    <!-- ═══ PROFILE ═══ -->
-    <div id="profile" class="page">
-      <div class="page-header">
-        <div class="page-header-left">
-          <div class="page-icon" style="background:rgba(34,211,160,0.1);border-color:rgba(34,211,160,0.2);">
-            <svg viewBox="0 0 24 24" style="stroke:var(--green)"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-          </div>
-          <div>
-            <div class="page-title">User Profile</div>
-            <div class="page-subtitle">SESSION ACTIVE</div>
-          </div>
-        </div>
-      </div>
-      <div class="section-header">
-        <div class="section-title">Session Info</div>
-        <div class="section-line"></div>
-      </div>
-      <div class="profile-grid">
-        <div class="profile-card">
-          <div class="profile-label">User ID</div>
-          <div class="profile-value" id="userId">—</div>
-        </div>
-        <div class="profile-card">
-          <div class="profile-label">Role</div>
-          <div class="profile-value">OPERATOR</div>
-        </div>
-        <div class="profile-card">
-          <div class="profile-label">System</div>
-          <div class="profile-value">EMS v2.4</div>
-        </div>
-      </div>
-      <button class="logout-btn" onclick="confirmLogout()">Terminate Session</button>
-    </div>
-
-  </div><!-- /main -->
-</div><!-- /layout -->
-
-<div class="statusbar">
-  <div class="sb-label">LOG</div>
-  <div class="sb-ticker" id="sbTicker">SYSTEM ONLINE — AWAITING DATA STREAM</div>
-  <div class="sb-right">
-    <div class="sb-chip" id="sbSource">—</div>
   </div>
-</div>
+
+</div><!-- /appWrapper -->
 
 <script>
 /* ══════════════════════════════════════════════════
@@ -836,9 +828,22 @@ function updateClock(){
   const now=new Date();
   const d=now.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
   const t=now.toLocaleTimeString('id-ID');
-  document.getElementById('datetime').innerText=d+' | '+t;
+  const el=document.getElementById('datetime');
+  if(el) el.innerText=d+' | '+t;
 }
 setInterval(updateClock,1000);updateClock();
+
+/* ══════════════════════════════════════════════════
+   SHOW / HIDE APP
+══════════════════════════════════════════════════ */
+function showApp(){
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('appWrapper').classList.add('visible');
+}
+function hideApp(){
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('appWrapper').classList.remove('visible');
+}
 
 /* ══════════════════════════════════════════════════
    IDLE LOGOUT
@@ -846,7 +851,12 @@ setInterval(updateClock,1000);updateClock();
 let idleTimer;
 function resetTimer(){clearTimeout(idleTimer);idleTimer=setTimeout(logout,10*60*1000);}
 ['click','mousemove','keydown','touchstart'].forEach(e=>document.addEventListener(e,resetTimer));
-function logout(){clearTimeout(idleTimer);localStorage.removeItem('login');localStorage.removeItem('user');document.getElementById('loginScreen').style.display='flex';}
+function logout(){
+  clearTimeout(idleTimer);
+  localStorage.removeItem('login');
+  localStorage.removeItem('user');
+  hideApp();
+}
 function confirmLogout(){if(confirm('Terminate current session?'))logout();}
 
 /* ══════════════════════════════════════════════════
@@ -856,20 +866,28 @@ function login(){
   const u=document.getElementById('user').value.trim();
   const p=document.getElementById('pass').value;
   if(u==='admin'&&p==='1234'){
-    localStorage.setItem('login','true');localStorage.setItem('user',u);
+    localStorage.setItem('login','true');
+    localStorage.setItem('user',u);
     document.getElementById('userId').innerText=u;
-    document.getElementById('loginScreen').style.display='none';
-    resetTimer();pushTicker('SESSION AUTHENTICATED — USER: '+u.toUpperCase(),'ok');
+    showApp();
+    resetTimer();
+    pushTicker('SESSION AUTHENTICATED — USER: '+u.toUpperCase(),'ok');
+    // init chart setelah app visible agar canvas sudah ada
+    initChart();
   } else {
     document.getElementById('loginError').innerText='Access denied — invalid credentials';
   }
 }
+
+// Auto-login jika sudah login sebelumnya
 if(localStorage.getItem('login')==='true'){
   const u=localStorage.getItem('user')||'admin';
   document.getElementById('userId').innerText=u;
-  document.getElementById('loginScreen').style.display='none';
+  showApp();
   resetTimer();
+  setTimeout(initChart,100); // delay kecil agar DOM ready
 }
+
 window.addEventListener('keydown',e=>{if(e.key==='Enter')login();});
 
 /* ══════════════════════════════════════════════════
@@ -885,7 +903,7 @@ function showPage(page,btn){
 }
 
 /* ══════════════════════════════════════════════════
-   SIDEBAR — NO BLUR LEAK
+   SIDEBAR
 ══════════════════════════════════════════════════ */
 function toggleSidebar(){
   document.getElementById('sidebar').classList.toggle('open');
@@ -901,6 +919,7 @@ function closeSidebar(){
 ══════════════════════════════════════════════════ */
 function pushTicker(msg,type=''){
   const el=document.getElementById('sbTicker');
+  if(!el)return;
   el.className='sb-ticker '+(type||'');
   el.innerText=new Date().toLocaleTimeString('id-ID')+' — '+msg;
 }
@@ -917,11 +936,13 @@ function showAlert(msg){
 }
 
 /* ══════════════════════════════════════════════════
-   CHART
+   CHART — diinisialisasi setelah login
 ══════════════════════════════════════════════════ */
 const chartLabels=[];
 const chartData={PLN:{V:[],I:[],P:[]},BAT:{V:[],I:[],P:[]}};
 let cSrc='PLN',cPar='V';
+let mainChart=null;
+
 const chartCfg={
   PLN:{V:{label:'PLN · Voltage · Live',color:'#3b82f6',min:200,max:240},
        I:{label:'PLN · Current · Live',color:'#67e8f9',min:0,max:10},
@@ -930,24 +951,31 @@ const chartCfg={
        I:{label:'BAT · Current · Live',color:'#6ee7b7',min:0,max:20},
        P:{label:'BAT · Power · Live',color:'#8b5cf6',min:0,max:300}}
 };
-Chart.defaults.color='#4b5e7a';
-Chart.defaults.borderColor='rgba(255,255,255,0.05)';
-const mainChart=new Chart(document.getElementById('mainChart'),{
-  type:'line',
-  data:{labels:chartLabels,datasets:[{data:[],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.07)',fill:true,tension:0.4,pointRadius:0,pointHoverRadius:5,borderWidth:2}]},
-  options:{
-    maintainAspectRatio:false,responsive:true,
-    animation:{duration:300,easing:'easeOutQuart'},
-    plugins:{legend:{display:false},tooltip:{backgroundColor:'#111827',borderColor:'rgba(255,255,255,0.12)',borderWidth:1,titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Space Mono',size:12},titleColor:'#94a3c0',bodyColor:'#f0f4ff',padding:10,cornerRadius:8}},
-    scales:{
-      y:{min:200,max:240,grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{family:'Space Mono',size:10},color:'#4b5e7a'},border:{color:'transparent'}},
-      x:{grid:{display:false},ticks:{font:{family:'Space Mono',size:10},color:'#4b5e7a',maxTicksLimit:6},border:{color:'transparent'}}
+
+function initChart(){
+  const canvas=document.getElementById('mainChart');
+  if(!canvas||mainChart)return;
+  Chart.defaults.color='#4b5e7a';
+  Chart.defaults.borderColor='rgba(255,255,255,0.05)';
+  mainChart=new Chart(canvas,{
+    type:'line',
+    data:{labels:chartLabels,datasets:[{data:[],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.07)',fill:true,tension:0.4,pointRadius:0,pointHoverRadius:5,borderWidth:2}]},
+    options:{
+      maintainAspectRatio:false,responsive:true,
+      animation:{duration:300,easing:'easeOutQuart'},
+      plugins:{legend:{display:false},tooltip:{backgroundColor:'#111827',borderColor:'rgba(255,255,255,0.12)',borderWidth:1,titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Space Mono',size:12},titleColor:'#94a3c0',bodyColor:'#f0f4ff',padding:10,cornerRadius:8}},
+      scales:{
+        y:{min:200,max:240,grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{family:'Space Mono',size:10},color:'#4b5e7a'},border:{color:'transparent'}},
+        x:{grid:{display:false},ticks:{font:{family:'Space Mono',size:10},color:'#4b5e7a',maxTicksLimit:6},border:{color:'transparent'}}
+      }
     }
-  }
-});
+  });
+}
+
 function setCS(btn,src){document.querySelectorAll('#srcGroup .ctrl-btn').forEach(b=>{b.className='ctrl-btn';});btn.className='ctrl-btn '+(src==='PLN'?'ap':'ag');cSrc=src;refreshChart();}
 function setCP(btn,par){document.querySelectorAll('#paramGroup .ctrl-btn').forEach(b=>{b.className='ctrl-btn';});btn.className='ctrl-btn aa';cPar=par;refreshChart();}
 function refreshChart(){
+  if(!mainChart)return;
   const cfg=chartCfg[cSrc][cPar];
   document.getElementById('chartMeta').innerText=cfg.label;
   mainChart.data.datasets[0].data=[...chartData[cSrc][cPar]];
@@ -984,6 +1012,7 @@ function setFlowState(src){
   const dLB=document.getElementById('dashLB');
   const tPL=document.getElementById('trackPL');
   const tLB=document.getElementById('trackLB');
+  if(!pR)return;
   pR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.1);stroke-width:1';
   bR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.1);stroke-width:1';
   pN.style.fill='#f0f4ff';bN.style.fill='#f0f4ff';
@@ -1002,116 +1031,78 @@ function setFlowState(src){
 }
 
 /* ══════════════════════════════════════════════════
-   PERSISTENT HISTORY — localStorage per day
-   Storage key: ems_hist_YYYY-MM-DD
-   Each entry: {ts, source, energy, note, seq}
+   PERSISTENT HISTORY
 ══════════════════════════════════════════════════ */
-let histViewDate=todayKey(); // currently viewed date
-let histSeq=0;               // sequence counter for today
+let histViewDate=todayKey();
+let histSeq=0;
+let lastSource='';
 
 function todayKey(){
   const n=new Date();
   return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
 }
 function dateLabel(key){
-  // key = YYYY-MM-DD
   const [y,m,d]=key.split('-');
   const dt=new Date(+y,+m-1,+d);
   return dt.toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
 }
 function histKey(dateStr){return 'ems_hist_'+dateStr;}
-
-function histLoad(dateStr){
-  try{return JSON.parse(localStorage.getItem(histKey(dateStr))||'[]');}catch(e){return [];}
-}
-function histSave(dateStr,arr){
-  try{localStorage.setItem(histKey(dateStr),JSON.stringify(arr));}catch(e){console.warn('Storage full');}
-}
-
-function histAddEntry(source, energyWh, note){
+function histLoad(dateStr){try{return JSON.parse(localStorage.getItem(histKey(dateStr))||'[]');}catch(e){return [];}}
+function histSave(dateStr,arr){try{localStorage.setItem(histKey(dateStr),JSON.stringify(arr));}catch(e){console.warn('Storage full');}}
+function histAddEntry(source,energyWh,note){
   const dk=todayKey();
   const arr=histLoad(dk);
   histSeq++;
-  arr.unshift({
-    ts: new Date().toLocaleTimeString('id-ID'),
-    source: source,
-    energy: parseFloat(energyWh||0).toFixed(3),
-    note: note||'',
-    seq: histSeq,
-    date: dk
-  });
-  histSave(dk, arr);
-  // if currently viewing today, re-render
-  if(histViewDate===dk && document.getElementById('history').classList.contains('active')){
-    renderHistory();
-  }
+  arr.unshift({ts:new Date().toLocaleTimeString('id-ID'),source,energy:parseFloat(energyWh||0).toFixed(3),note:note||'',seq:histSeq,date:dk});
+  histSave(dk,arr);
+  if(histViewDate===dk&&document.getElementById('history').classList.contains('active'))renderHistory();
 }
-
 function histNavDay(delta){
   const [y,m,d]=histViewDate.split('-').map(Number);
   const dt=new Date(y,m-1,d);
   dt.setDate(dt.getDate()+delta);
-  // Don't navigate to future
-  if(dt>new Date()) return;
+  if(dt>new Date())return;
   histViewDate=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
   renderHistory();
 }
-
 function histClearDay(){
-  if(!confirm('Hapus semua data history untuk '+dateLabel(histViewDate)+'?')) return;
+  if(!confirm('Hapus semua data history untuk '+dateLabel(histViewDate)+'?'))return;
   localStorage.removeItem(histKey(histViewDate));
   renderHistory();
   pushTicker('HISTORY CLEARED: '+histViewDate,'warn');
 }
-
 function renderHistory(){
   const arr=histLoad(histViewDate);
   document.getElementById('histDateLabel').innerText=dateLabel(histViewDate);
   document.getElementById('histSectionTitle').innerText='Events — '+histViewDate;
-
   const tbody=document.getElementById('histTable');
   const empty=document.getElementById('histEmpty');
-
-  // stats
   let plnWh=0,batWh=0;
-  arr.forEach(r=>{
-    if(r.source==='PLN') plnWh+=parseFloat(r.energy||0);
-    else if(r.source==='BAT') batWh+=parseFloat(r.energy||0);
-  });
+  arr.forEach(r=>{if(r.source==='PLN')plnWh+=parseFloat(r.energy||0);else if(r.source==='BAT')batWh+=parseFloat(r.energy||0);});
   document.getElementById('histCountEl').innerText=arr.length;
   document.getElementById('histPlnWh').innerText=plnWh.toFixed(3);
   document.getElementById('histBatWh').innerText=batWh.toFixed(3);
-
-  // nav: hide next button if today
   const isToday=histViewDate===todayKey();
-  // forward nav button — hide if at today
-  document.querySelectorAll('.date-nav-btn')[1].style.opacity=isToday?'0.3':'1';
-  document.querySelectorAll('.date-nav-btn')[1].style.pointerEvents=isToday?'none':'auto';
-
-  if(arr.length===0){
-    tbody.innerHTML='';
-    empty.style.display='block';
-  } else {
+  const fwdBtn=document.querySelectorAll('.date-nav-btn')[1];
+  if(fwdBtn){fwdBtn.style.opacity=isToday?'0.3':'1';fwdBtn.style.pointerEvents=isToday?'none':'auto';}
+  if(arr.length===0){tbody.innerHTML='';empty.style.display='block';}
+  else{
     empty.style.display='none';
-    tbody.innerHTML=arr.map((r,i)=>`
+    tbody.innerHTML=arr.map(r=>`
       <tr>
         <td style="font-family:var(--mono);color:var(--text1)">${r.ts}</td>
         <td><span class="badge ${(r.source||'').toLowerCase()}">${r.source||'—'}</span></td>
         <td style="font-family:var(--mono)">${r.energy} Wh</td>
         <td style="font-size:11px;color:var(--text3)">${r.note||'—'}</td>
-      </tr>
-    `).join('');
+      </tr>`).join('');
   }
 }
-
-// init history view to today
 histViewDate=todayKey();
 
 /* ══════════════════════════════════════════════════
    MQTT
 ══════════════════════════════════════════════════ */
 let plnAlarm=false,batAlarm=false;
-let lastSource='';
 
 const client=mqtt.connect('wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt',{username:'esp32',password:'123456'});
 
@@ -1135,65 +1126,55 @@ client.on('message',(topic,message)=>{
   resetTimer();
   let d;try{d=JSON.parse(message.toString());}catch(e){return;}
 
-  // ── ALARMS ──
   if(d.pln_v!==undefined&&d.pln_v<50&&!plnAlarm){
     showAlert('PLN GRID VOLTAGE DROPOUT — CHECK SUPPLY');
     pushTicker('ALARM: PLN VOLTAGE BELOW THRESHOLD ('+d.pln_v.toFixed(1)+'V)','alarm');
-    plnAlarm=true;
-    histAddEntry('PLN', d.pln_Wh||0, 'ALARM: PLN voltage dropout');
+    plnAlarm=true;histAddEntry('PLN',d.pln_Wh||0,'ALARM: PLN voltage dropout');
   }
-  if(d.pln_v>=50) plnAlarm=false;
+  if(d.pln_v>=50)plnAlarm=false;
   if(d.bat_v!==undefined&&d.bat_v<11&&!batAlarm){
     showAlert('BATTERY CRITICAL LOW — IMMEDIATE ATTENTION');
     pushTicker('ALARM: BATTERY VOLTAGE CRITICAL ('+d.bat_v.toFixed(2)+'V)','alarm');
-    batAlarm=true;
-    histAddEntry('BAT', d.bat_Wh||0, 'ALARM: Battery critical low');
+    batAlarm=true;histAddEntry('BAT',d.bat_Wh||0,'ALARM: Battery critical low');
   }
-  if(d.bat_v>=11) batAlarm=false;
+  if(d.bat_v>=11)batAlarm=false;
 
-  // ── BATTERY ──
   let pct=((d.bat_v-11.8)/(13-11.8))*100;pct=Math.max(0,Math.min(100,pct));
   const fill=document.getElementById('battFill');
   if(fill){fill.style.width=pct+'%';fill.style.background=pct>60?'var(--green)':pct>30?'var(--amber)':'var(--red)';}
   const pctEl=document.getElementById('s_bat_pct');
   if(pctEl){pctEl.innerText=pct.toFixed(0)+'% SoC';pctEl.style.color=pct>60?'var(--green)':pct>30?'var(--amber)':'var(--red)';}
 
-  // ── SUMMARY ──
   document.getElementById('s_pln_v').innerText=d.pln_v.toFixed(2);
   document.getElementById('s_bat_v').innerText=d.bat_v.toFixed(2);
   const totalW=d.source==='PLN'?d.pln_p:d.bat_p;
   document.getElementById('s_load_w').innerText=totalW.toFixed(0);
-  if(d.pln_Wh!==undefined) document.getElementById('s_pln_wh').innerText=d.pln_Wh.toFixed(2);
+  if(d.pln_Wh!==undefined)document.getElementById('s_pln_wh').innerText=d.pln_Wh.toFixed(2);
 
-  // ── FLOW ──
   document.getElementById('nd_pln_v').textContent=d.pln_v.toFixed(2)+' V';
   document.getElementById('nd_bat_v').textContent=d.bat_v.toFixed(2)+' V';
   document.getElementById('nd_load_w').textContent=totalW.toFixed(0)+' W';
 
-  // ── PLN METRICS ──
   document.getElementById('pln_v').innerText=d.pln_v.toFixed(2);
   document.getElementById('pln_i').innerText=d.pln_i.toFixed(2);
   document.getElementById('pln_p').innerText=d.pln_p.toFixed(2);
-  if(d.pln_f!==undefined) document.getElementById('pln_f').innerText=d.pln_f.toFixed(2);
-  if(d.pln_Wh!==undefined) document.getElementById('pln_e').innerText=d.pln_Wh.toFixed(2);
+  if(d.pln_f!==undefined)document.getElementById('pln_f').innerText=d.pln_f.toFixed(2);
+  if(d.pln_Wh!==undefined)document.getElementById('pln_e').innerText=d.pln_Wh.toFixed(2);
   if(d.pln_pf!==undefined){document.getElementById('pln_pf').innerText=d.pln_pf.toFixed(2);setBar('bar_pln_pf',d.pln_pf*100);}
   setBar('bar_pln_v',((d.pln_v-200)/40)*100);
   setBar('bar_pln_i',(d.pln_i/10)*100);
   setBar('bar_pln_p',(d.pln_p/2000)*100);
 
-  // ── BAT METRICS ──
   document.getElementById('bat_v').innerText=d.bat_v.toFixed(2);
   document.getElementById('bat_i').innerText=d.bat_i.toFixed(2);
   document.getElementById('bat_p').innerText=d.bat_p.toFixed(2);
-  if(d.bat_Wh!==undefined) document.getElementById('bat_e').innerText=d.bat_Wh.toFixed(2);
+  if(d.bat_Wh!==undefined)document.getElementById('bat_e').innerText=d.bat_Wh.toFixed(2);
   setBar('bar_bat_v',((d.bat_v-10)/4)*100);
   setBar('bar_bat_i',(d.bat_i/20)*100);
   setBar('bar_bat_p',(d.bat_p/300)*100);
 
-  // ── SOURCE / MODE + switching history ──
   const pill=document.getElementById('modePill');
   const sbSource=document.getElementById('sbSource');
-
   if(d.source==='PLN'){
     pill.className='mode-pill pln';
     document.getElementById('modeText').innerText='PLN ACTIVE';
@@ -1212,21 +1193,14 @@ client.on('message',(topic,message)=>{
     pushTicker('SOURCE: BATTERY — '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC','warn');
   }
 
-  // ── HISTORY: record on source switch ──
-  if(d.source && d.source!==lastSource){
+  if(d.source&&d.source!==lastSource){
     const wh=d.source==='PLN'?(d.pln_Wh||0):(d.bat_Wh||0);
     const note='Switch ke '+d.source+(d.source==='PLN'?' ('+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W)':' ('+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC)');
-    histAddEntry(d.source, wh, note);
+    histAddEntry(d.source,wh,note);
     lastSource=d.source;
   }
-
-  // ── HISTORY: record on cycle data ──
-  if(d.pln_cycle!==undefined&&d.pln_cycle>0){
-    histAddEntry('PLN', d.pln_cycle, 'PLN cycle energy');
-  }
-  if(d.bat_cycle!==undefined&&d.bat_cycle>0){
-    histAddEntry('BAT', d.bat_cycle, 'BAT cycle energy');
-  }
+  if(d.pln_cycle!==undefined&&d.pln_cycle>0)histAddEntry('PLN',d.pln_cycle,'PLN cycle energy');
+  if(d.bat_cycle!==undefined&&d.bat_cycle>0)histAddEntry('BAT',d.bat_cycle,'BAT cycle energy');
 
   pushChart(d);
 });
@@ -1242,7 +1216,7 @@ function sendCmd(cmd){
   st.style.color='var(--amber)';
   sd.className='status-dot-el';
   pushTicker('MANUAL CMD: '+cmd,'warn');
-  histAddEntry(cmd, 0, 'Manual command: '+cmd);
+  histAddEntry(cmd,0,'Manual command: '+cmd);
   setTimeout(()=>{
     st.innerText='CMD CONFIRMED: '+cmd+' ACTIVE';
     st.style.color='var(--green)';
