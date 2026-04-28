@@ -118,6 +118,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 .page-title{font-size:19px;font-weight:700;color:var(--text1);}
 .page-subtitle{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
 
+/* mode pill */
 .mode-pill{display:flex;align-items:center;gap:7px;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;font-family:var(--mono);}
 .mode-pill.bat{border:1px solid rgba(34,211,160,0.3);background:var(--green-dim);color:var(--green);}
 .mode-pill.pln{border:1px solid rgba(59,130,246,0.3);background:var(--accent-dim);color:var(--accent);}
@@ -125,7 +126,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 .mode-pill.manual{border:1px solid rgba(245,158,11,0.3);background:var(--amber-dim);color:var(--amber);}
 .mode-pill-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:dot-pulse 2s infinite;}
 
-/* ══ NOTIFY BANNER ══ */
+/* ══ NOTIFY BANNER ← test/notify ══ */
 #notifyBanner{display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:var(--radius-sm);margin-bottom:12px;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid;}
 #notifyBanner.show{display:flex;}
 #notifyBanner.ok{background:var(--green-dim);border-color:rgba(34,211,160,0.3);color:var(--green);}
@@ -207,6 +208,12 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 .metric-bar.amber{background:var(--amber);}
 .metric-bar.red{background:var(--red);}
 
+/* ══ FLAG CARDS ══ */
+.flag-ok{color:var(--green)!important;}
+.flag-warn{color:var(--amber)!important;}
+.flag-err{color:var(--red)!important;}
+.flag-dim{color:var(--text3)!important;}
+
 /* ══ CHART ══ */
 .chart-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:16px;margin-bottom:14px;}
 .chart-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
@@ -221,6 +228,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 .chart-wrap{height:180px;position:relative;}
 
 /* ══ CONTROL PAGE ══ */
+/* Mode row */
 .mode-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
 .mode-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
 .mode-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
@@ -245,6 +253,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 .mode-card.m-manual .mc-name{color:var(--amber);}
 .mc-desc{font-size:13px;color:var(--text2);line-height:1.6;}
 
+/* CMD cards */
 .cmd-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
 .cmd-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:22px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
 .cmd-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
@@ -327,16 +336,13 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 .sb-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .sb-chip{font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);padding:2px 8px;border-radius:4px;font-weight:700;}
 
-/* ══ NO DATA ══ */
-#noDataBanner{display:none;align-items:center;gap:10px;padding:10px 16px;border-radius:var(--radius-sm);margin-bottom:12px;background:var(--bg2);border:1px solid rgba(245,158,11,0.3);font-family:var(--mono);font-size:11px;color:var(--amber);}
-#noDataBanner.show{display:flex;}
-
-/* ══ RESPONSIVE ══ */
+/* ══ TABLET ══ */
 @media(max-width:1024px){
   .source-summary{grid-template-columns:repeat(2,1fr);}
   .metrics-grid{grid-template-columns:repeat(2,1fr);}
   .profile-grid{grid-template-columns:1fr 1fr;}
 }
+/* ══ MOBILE ══ */
 @media(max-width:640px){
   :root{--topbar-h:54px;}
   .topbar{padding:0 12px;}
@@ -346,7 +352,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
   .top-badge{font-size:10px;padding:4px 9px;}
   .sidebar{position:fixed;left:0;top:var(--topbar-h);bottom:36px;width:var(--sidebar-w);transform:translateX(-100%);z-index:200;box-shadow:6px 0 30px rgba(0,0,0,0.6);}
   .sidebar.open{transform:translateX(0);}
-  .main{padding:12px;padding-bottom:48px;}
+  .main{padding:12px;padding-bottom:48px;filter:none!important;backdrop-filter:none!important;-webkit-backdrop-filter:none!important;}
   .source-summary{grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;}
   .summary-card{padding:13px;}
   .sum-value{font-size:20px;}
@@ -382,7 +388,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
   <div class="login-card">
     <div class="login-logo">
       <div class="login-logo-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
-      <div><div class="login-title">EMS SCADA</div><div class="login-sub">v4.0 — SECURE ACCESS</div></div>
+      <div><div class="login-title">EMS SCADA</div><div class="login-sub">v3.0 — SECURE ACCESS</div></div>
     </div>
     <div class="login-heading">Sign In</div>
     <div class="login-desc">Masukkan kredensial untuk mengakses Energy Management System.</div>
@@ -421,15 +427,17 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
       <div class="topbar-logo">
         <div class="logo-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
         <div class="logo-text">EMS</div>
-        <div class="logo-ver">SCADA v4.0</div>
+        <div class="logo-ver">SCADA v3.0</div>
       </div>
     </div>
     <div class="topbar-right">
       <div class="top-clock" id="datetime">--:--:--</div>
+      <!-- Mode badge dari ESP32 -->
       <div class="top-badge warn" id="modeBadge">
         <div class="badge-dot"></div>
         <span id="modeLabel">AUTO</span>
       </div>
+      <!-- MQTT status -->
       <div class="top-badge err" id="mqttBadge">
         <div class="badge-dot"></div>
         <span id="mqttLabel">OFFLINE</span>
@@ -485,16 +493,14 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
       <!-- ══ MONITOR ══ -->
       <div id="monitor" class="page active">
 
-        <div id="noDataBanner" class="show">
-          ⏳ &nbsp;Menunggu data dari ESP32...
-        </div>
-
+        <!-- Notify banner -->
         <div id="notifyBanner">
           <div class="notify-dot"></div>
           <span id="notifyText">—</span>
           <span class="notify-close" onclick="closeNotify()">✕</span>
         </div>
 
+        <!-- Alarm strip -->
         <div id="alarmStrip">
           <span class="alarm-blink">⚠</span>
           <span id="alarmText">—</span>
@@ -503,7 +509,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
         <div class="page-header">
           <div class="page-header-left">
             <div class="page-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg></div>
-            <div><div class="page-title">System Monitor</div><div class="page-subtitle">REALTIME TELEMETRY — ESP32 v4.0</div></div>
+            <div><div class="page-title">System Monitor</div><div class="page-subtitle">REALTIME TELEMETRY</div></div>
           </div>
           <div class="mode-pill bat" id="srcPill">
             <div class="mode-pill-dot"></div>
@@ -515,24 +521,24 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
         <div class="source-summary">
           <div class="summary-card pln">
             <div class="sum-label">PLN Voltage</div>
-            <div class="sum-value"><span id="s_pln_v">—</span><span class="sum-unit">V</span></div>
+            <div class="sum-value"><span id="s_pln_v">0.00</span><span class="sum-unit">V</span></div>
             <div class="sum-sub" id="s_pln_sub">Grid supply</div>
           </div>
           <div class="summary-card bat">
             <div class="sum-label">Battery SoC</div>
-            <div class="sum-value"><span id="s_bat_v">—</span><span class="sum-unit">V</span></div>
+            <div class="sum-value"><span id="s_bat_v">0.00</span><span class="sum-unit">V</span></div>
             <div class="batt-strip"><div class="batt-fill" id="battFill"></div></div>
-            <div class="sum-sub" id="s_bat_pct">— SoC</div>
+            <div class="sum-sub" id="s_bat_pct">0% SoC</div>
           </div>
           <div class="summary-card load">
             <div class="sum-label">Load Power</div>
-            <div class="sum-value"><span id="s_load_w">—</span><span class="sum-unit">W</span></div>
+            <div class="sum-value"><span id="s_load_w">0</span><span class="sum-unit">W</span></div>
             <div class="sum-sub" id="s_load_sub">Active consumption</div>
           </div>
           <div class="summary-card mode">
             <div class="sum-label">Mode Operasi</div>
-            <div class="sum-value" id="s_mode" style="font-size:18px">—</div>
-            <div class="sum-sub" id="s_mode_sub">Menunggu data</div>
+            <div class="sum-value" id="s_mode" style="font-size:18px">AUTO</div>
+            <div class="sum-sub" id="s_mode_sub">Sistem otomatis</div>
           </div>
         </div>
 
@@ -548,7 +554,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
                 <rect x="10" y="27" width="112" height="72" rx="11" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1" id="nodeP_rect"/>
                 <text x="66" y="48" text-anchor="middle" font-size="9" fill="#4b5e7a" font-family="'Space Mono',monospace">SRC-01</text>
                 <text x="66" y="71" text-anchor="middle" font-size="14" font-weight="700" fill="#f0f4ff" font-family="'Space Mono',monospace" id="nodeP_name">PLN</text>
-                <text x="66" y="88" text-anchor="middle" font-size="11" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_pln_v">— V</text>
+                <text x="66" y="88" text-anchor="middle" font-size="11" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_pln_v">0.00 V</text>
               </g>
               <line x1="124" y1="63" x2="218" y2="63" stroke="rgba(255,255,255,0.08)" stroke-width="2" id="trackPL"/>
               <line x1="124" y1="63" x2="218" y2="63" class="flow-dash pln" id="dashPL"/>
@@ -556,8 +562,8 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
               <g id="nodeL">
                 <rect x="220" y="19" width="120" height="88" rx="11" fill="rgba(245,158,11,0.07)" stroke="rgba(245,158,11,0.35)" stroke-width="1.5" id="nodeL_rect"/>
                 <text x="280" y="40" text-anchor="middle" font-size="9" fill="#92400e" font-family="'Space Mono',monospace">LOAD</text>
-                <text x="280" y="66" text-anchor="middle" font-size="18" font-weight="700" fill="#f59e0b" font-family="'Space Mono',monospace" id="nd_load_w">— W</text>
-                <text x="280" y="87" text-anchor="middle" font-size="9" fill="#78350f" font-family="'Space Mono',monospace" id="nd_load_stat">Standby</text>
+                <text x="280" y="66" text-anchor="middle" font-size="18" font-weight="700" fill="#f59e0b" font-family="'Space Mono',monospace" id="nd_load_w">0 W</text>
+                <text x="280" y="87" text-anchor="middle" font-size="9" fill="#78350f" font-family="'Space Mono',monospace" id="nd_load_stat">Active</text>
               </g>
               <line x1="342" y1="63" x2="438" y2="63" stroke="rgba(255,255,255,0.08)" stroke-width="2" id="trackLB"/>
               <line x1="342" y1="63" x2="438" y2="63" class="flow-dash bat" id="dashLB"/>
@@ -566,7 +572,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
                 <rect x="440" y="27" width="112" height="72" rx="11" fill="rgba(255,255,255,0.03)" stroke="rgba(255,255,255,0.1)" stroke-width="1" id="nodeB_rect"/>
                 <text x="496" y="48" text-anchor="middle" font-size="9" fill="#4b5e7a" font-family="'Space Mono',monospace">SRC-02</text>
                 <text x="496" y="71" text-anchor="middle" font-size="14" font-weight="700" fill="#f0f4ff" font-family="'Space Mono',monospace" id="nodeB_name">BAT</text>
-                <text x="496" y="88" text-anchor="middle" font-size="11" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_bat_v">— V</text>
+                <text x="496" y="88" text-anchor="middle" font-size="11" fill="#4b5e7a" font-family="'Space Mono',monospace" id="nd_bat_v">0.00 V</text>
               </g>
             </svg>
           </div>
@@ -575,32 +581,32 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
         <!-- PLN metrics -->
         <div class="section-header"><div class="section-title">PLN — Grid Parameters</div><div class="section-line"></div></div>
         <div class="metrics-grid">
-          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Voltage</div><div class="metric-value"><span id="pln_v">—</span><span class="unit">V</span></div><div class="metric-progress"><div class="metric-bar" id="bar_pln_v"></div></div></div>
-          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Current</div><div class="metric-value"><span id="pln_i">—</span><span class="unit">A</span></div><div class="metric-progress"><div class="metric-bar" id="bar_pln_i"></div></div></div>
-          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Power</div><div class="metric-value"><span id="pln_p">—</span><span class="unit">W</span></div><div class="metric-progress"><div class="metric-bar amber" id="bar_pln_p"></div></div></div>
-          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Frequency</div><div class="metric-value"><span id="pln_f">—</span><span class="unit">Hz</span></div><div class="metric-progress"><div class="metric-bar amber" style="width:60%"></div></div></div>
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Voltage</div><div class="metric-value"><span id="pln_v">0.00</span><span class="unit">V</span></div><div class="metric-progress"><div class="metric-bar" id="bar_pln_v"></div></div></div>
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Current</div><div class="metric-value"><span id="pln_i">0.00</span><span class="unit">A</span></div><div class="metric-progress"><div class="metric-bar" id="bar_pln_i"></div></div></div>
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Power</div><div class="metric-value"><span id="pln_p">0.00</span><span class="unit">W</span></div><div class="metric-progress"><div class="metric-bar amber" id="bar_pln_p"></div></div></div>
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Frequency</div><div class="metric-value"><span id="pln_f">0.00</span><span class="unit">Hz</span></div><div class="metric-progress"><div class="metric-bar amber" style="width:60%"></div></div></div>
         </div>
         <div class="metrics-grid cols2">
-          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Energy Accumulated</div><div class="metric-value"><span id="pln_e">—</span><span class="unit">Wh</span></div></div>
-          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Power Factor</div><div class="metric-value"><span id="pln_pf">—</span></div><div class="metric-progress"><div class="metric-bar amber" id="bar_pln_pf"></div></div></div>
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Energy Accumulated</div><div class="metric-value"><span id="pln_e">0.00</span><span class="unit">Wh</span></div></div>
+          <div class="metric-card"><div class="metric-tag">PLN</div><div class="metric-label">Power Factor</div><div class="metric-value"><span id="pln_pf">0.00</span></div><div class="metric-progress"><div class="metric-bar amber" id="bar_pln_pf"></div></div></div>
         </div>
 
         <!-- BAT metrics -->
         <div class="section-header" style="margin-top:6px;"><div class="section-title">Battery — Storage Parameters</div><div class="section-line"></div></div>
         <div class="metrics-grid">
-          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Voltage</div><div class="metric-value"><span id="bat_v">—</span><span class="unit">V</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_v"></div></div></div>
-          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Current</div><div class="metric-value"><span id="bat_i">—</span><span class="unit">A</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_i"></div></div></div>
-          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Power</div><div class="metric-value"><span id="bat_p">—</span><span class="unit">W</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_p"></div></div></div>
-          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Energy</div><div class="metric-value"><span id="bat_e">—</span><span class="unit">Wh</span></div></div>
+          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Voltage</div><div class="metric-value"><span id="bat_v">0.00</span><span class="unit">V</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_v"></div></div></div>
+          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Current</div><div class="metric-value"><span id="bat_i">0.00</span><span class="unit">A</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_i"></div></div></div>
+          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Power</div><div class="metric-value"><span id="bat_p">0.00</span><span class="unit">W</span></div><div class="metric-progress"><div class="metric-bar green" id="bar_bat_p"></div></div></div>
+          <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Energy</div><div class="metric-value"><span id="bat_e">0.00</span><span class="unit">Wh</span></div></div>
         </div>
 
-        <!-- Status Flags -->
-        <div class="section-header" style="margin-top:6px;"><div class="section-title">System Flags — ESP32</div><div class="section-line"></div></div>
+        <!-- Status Flags dari ESP32 -->
+        <div class="section-header" style="margin-top:6px;"><div class="section-title">System Flags</div><div class="section-line"></div></div>
         <div class="metrics-grid">
-          <div class="metric-card"><div class="metric-tag">FLAG</div><div class="metric-label">Status PLN</div><div class="metric-value sm" id="flag_pln" style="color:var(--text3)">—</div></div>
-          <div class="metric-card"><div class="metric-tag bat">FLAG</div><div class="metric-label">Status Baterai</div><div class="metric-value sm" id="flag_bat" style="color:var(--text3)">—</div></div>
-          <div class="metric-card"><div class="metric-tag load">FLAG</div><div class="metric-label">Status Beban</div><div class="metric-value sm" id="flag_beban" style="color:var(--text3)">—</div></div>
-          <div class="metric-card"><div class="metric-tag sys">FLAG</div><div class="metric-label">Validasi Manual</div><div class="metric-value sm" id="flag_pref" style="color:var(--text3)">—</div></div>
+          <div class="metric-card"><div class="metric-tag">FLAG</div><div class="metric-label">Status PLN</div><div class="metric-value sm" id="flag_pln" style="color:var(--green)">NORMAL</div></div>
+          <div class="metric-card"><div class="metric-tag bat">FLAG</div><div class="metric-label">Status Baterai</div><div class="metric-value sm" id="flag_bat" style="color:var(--green)">NORMAL</div></div>
+          <div class="metric-card"><div class="metric-tag load">FLAG</div><div class="metric-label">Status Beban</div><div class="metric-value sm" id="flag_beban" style="color:var(--green)">TERSAMBUNG</div></div>
+          <div class="metric-card"><div class="metric-tag sys">FLAG</div><div class="metric-label">Validasi Manual</div><div class="metric-value sm" id="flag_manual" style="color:var(--text3)">—</div></div>
         </div>
 
         <!-- Chart -->
@@ -632,16 +638,18 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
             <div class="page-icon" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);">
               <svg viewBox="0 0 24 24" style="stroke:var(--amber)"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
             </div>
-            <div><div class="page-title">Control Panel</div><div class="page-subtitle">ESP32 AUTO-VALIDATED</div></div>
+            <div><div class="page-title">Control Panel</div><div class="page-subtitle">SESUAI FLOWCHART</div></div>
           </div>
         </div>
 
+        <!-- Notify di control page -->
         <div id="notifyBanner2" style="display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:9px;margin-bottom:12px;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid;">
           <div style="width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;"></div>
           <span id="notifyText2" style="flex:1;">—</span>
           <span onclick="closeNotify2()" style="cursor:pointer;opacity:.6;font-size:14px;padding:0 4px;">✕</span>
         </div>
 
+        <!-- MODE SWITCH -->
         <div class="section-header"><div class="section-title">Mode Operasi</div><div class="section-line"></div></div>
         <div class="mode-row">
           <div class="mode-card m-auto selected" id="mc_auto" onclick="sendMode('AUTO')">
@@ -662,6 +670,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
           </div>
         </div>
 
+        <!-- SOURCE COMMANDS — aktif hanya saat MANUAL -->
         <div class="section-header"><div class="section-title">Perintah Sumber (Manual Only)</div><div class="section-line"></div></div>
         <div id="manualDisabledMsg" class="manual-disabled-msg">Mode AUTO aktif — pilih Mode MANUAL terlebih dahulu untuk memberi perintah sumber.</div>
         <div class="cmd-grid" id="cmdCards" style="display:none;">
@@ -686,7 +695,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
               <div class="cmd-tag">CMD-SRC-03</div>
               <div class="cmd-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
               <div class="cmd-name">Beban OFF</div>
-              <div class="cmd-desc">Putuskan semua relay. Selalu diizinkan oleh AUTO.</div>
+              <div class="cmd-desc">Putuskan semua relay. Selalu diizinkan oleh AUTO. Untuk mengaktifkan kembali, kirim perintah PLN atau BAT.</div>
             </div>
           </div>
         </div>
@@ -745,13 +754,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
         <div class="profile-grid">
           <div class="profile-card"><div class="profile-label">User ID</div><div class="profile-value" id="userId">—</div></div>
           <div class="profile-card"><div class="profile-label">Role</div><div class="profile-value">OPERATOR</div></div>
-          <div class="profile-card"><div class="profile-label">System</div><div class="profile-value">EMS v4.0</div></div>
-        </div>
-        <div class="section-header"><div class="section-title">MQTT Info</div><div class="section-line"></div></div>
-        <div class="profile-grid">
-          <div class="profile-card"><div class="profile-label">Broker</div><div class="profile-value" style="font-size:12px;font-family:var(--mono)">EMQX Cloud</div></div>
-          <div class="profile-card"><div class="profile-label">Protocol</div><div class="profile-value" style="font-size:14px;font-family:var(--mono)">WSS:8084</div></div>
-          <div class="profile-card"><div class="profile-label">Pesan Diterima</div><div class="profile-value" id="msgCount">0</div></div>
+          <div class="profile-card"><div class="profile-label">System</div><div class="profile-value">EMS v3.0</div></div>
         </div>
         <button class="logout-btn" onclick="confirmLogout()">Terminate Session</button>
       </div><!-- /profile -->
@@ -814,7 +817,7 @@ function doLogin(){
     localStorage.setItem('ems_login','1');localStorage.setItem('ems_user',u);
     document.getElementById('userId').innerText=u;
     showApp();resetTimer();
-    requestAnimationFrame(()=>requestAnimationFrame(initChart));
+    setTimeout(initChart,80);
     pushTicker('SESSION AUTHENTICATED — USER: '+u.toUpperCase(),'ok');
   } else {
     document.getElementById('loginError').innerText='Access denied — invalid credentials';
@@ -824,8 +827,7 @@ function doLogin(){
   if(localStorage.getItem('ems_login')==='1'){
     const u=localStorage.getItem('ems_user')||'admin';
     document.getElementById('userId').innerText=u;
-    showApp();resetTimer();
-    requestAnimationFrame(()=>requestAnimationFrame(initChart));
+    showApp();resetTimer();setTimeout(initChart,80);
   }
 })();
 window.addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
@@ -853,7 +855,7 @@ function closeSidebar(){
 /* ════════════════════════════════════════
    TICKER
 ════════════════════════════════════════ */
-function pushTicker(msg,type){
+function pushTicker(msg,type=''){
   const el=document.getElementById('sbTicker');
   if(!el)return;
   el.className='sb-ticker '+(type||'');
@@ -861,22 +863,19 @@ function pushTicker(msg,type){
 }
 
 /* ════════════════════════════════════════
-   NOTIFY BANNER
+   NOTIFY BANNER (test/notify)
 ════════════════════════════════════════ */
 let notifyTimer,notifyTimer2;
 function showNotify(msg,type){
+  // monitor page
   const b=document.getElementById('notifyBanner');
   b.className='show '+type;
   document.getElementById('notifyText').innerText=msg;
   clearTimeout(notifyTimer);
   notifyTimer=setTimeout(()=>b.className='',9000);
+  // control page
   const b2=document.getElementById('notifyBanner2');
-  const colorMap={
-    ok:'var(--green-dim),rgba(34,211,160,0.3),var(--green)',
-    warn:'var(--amber-dim),rgba(245,158,11,0.3),var(--amber)',
-    err:'var(--red-dim),rgba(239,68,68,0.3),var(--red)',
-    info:'var(--accent-dim),rgba(59,130,246,0.3),var(--accent)'
-  };
+  const colorMap={ok:'var(--green-dim),rgba(34,211,160,0.3),var(--green)',warn:'var(--amber-dim),rgba(245,158,11,0.3),var(--amber)',err:'var(--red-dim),rgba(239,68,68,0.3),var(--red)',info:'var(--accent-dim),rgba(59,130,246,0.3),var(--accent)'};
   const [bg,bc,fc]=(colorMap[type]||colorMap.info).split(',');
   b2.style.cssText=`display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:9px;margin-bottom:12px;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid;background:${bg};border-color:${bc};color:${fc};`;
   b2.querySelector('div').style.background='currentColor';
@@ -898,18 +897,26 @@ function setAlarm(show,msg){
 
 /* ════════════════════════════════════════
    MODE UI — sinkron dari ESP32 (field mode)
+   currentMode hanya diupdate dari data ESP32
+   BUKAN dari UI sendiri
 ════════════════════════════════════════ */
 let currentMode='AUTO';
+
 function updateModeUI(mode){
   currentMode=mode;
+  // topbar badge
   const mb=document.getElementById('modeBadge');
   mb.className='top-badge '+(mode==='AUTO'?'warn':'ok');
   document.getElementById('modeLabel').innerText=mode;
+  // statusbar
   document.getElementById('sbMode').innerText=mode;
+  // summary card
   document.getElementById('s_mode').innerText=mode;
   document.getElementById('s_mode_sub').innerText=mode==='AUTO'?'Sistem otomatis':'Operator kontrol';
+  // control page highlight
   document.getElementById('mc_auto').classList.toggle('selected',mode==='AUTO');
   document.getElementById('mc_manual').classList.toggle('selected',mode==='MANUAL');
+  // show/hide cmd cards
   document.getElementById('manualDisabledMsg').style.display=mode==='AUTO'?'block':'none';
   document.getElementById('cmdCards').style.display=mode==='MANUAL'?'grid':'none';
 }
@@ -921,62 +928,21 @@ const chartLabels=[];
 const chartData={PLN:{V:[],I:[],P:[]},BAT:{V:[],I:[],P:[]}};
 let cSrc='PLN',cPar='V',mainChart=null;
 const chartCfg={
-  PLN:{V:{label:'PLN · Voltage · Live',color:'#3b82f6',min:0,max:260},
-       I:{label:'PLN · Current · Live',color:'#67e8f9',min:0,max:15},
-       P:{label:'PLN · Power · Live',color:'#f59e0b',min:0,max:2500}},
-  BAT:{V:{label:'BAT · Voltage · Live',color:'#22d3a0',min:8,max:15},
-       I:{label:'BAT · Current · Live',color:'#6ee7b7',min:0,max:25},
-       P:{label:'BAT · Power · Live',color:'#8b5cf6',min:0,max:400}}
+  PLN:{V:{label:'PLN · Voltage · Live',color:'#3b82f6',min:180,max:245},
+       I:{label:'PLN · Current · Live',color:'#67e8f9',min:0,max:12},
+       P:{label:'PLN · Power · Live',color:'#f59e0b',min:0,max:2200}},
+  BAT:{V:{label:'BAT · Voltage · Live',color:'#22d3a0',min:9,max:15},
+       I:{label:'BAT · Current · Live',color:'#6ee7b7',min:0,max:22},
+       P:{label:'BAT · Power · Live',color:'#8b5cf6',min:0,max:320}}
 };
-
 function initChart(){
-  if(mainChart)return;
   const c=document.getElementById('mainChart');
-  if(!c)return;
-  if(typeof Chart==='undefined'){setTimeout(initChart,200);return;}
-  Chart.defaults.color='#4b5e7a';
-  Chart.defaults.borderColor='rgba(255,255,255,0.05)';
-  mainChart=new Chart(c,{
-    type:'line',
-    data:{
-      labels:chartLabels,
-      datasets:[{
-        data:[],
-        borderColor:'#3b82f6',
-        backgroundColor:'rgba(59,130,246,0.07)',
-        fill:true,tension:0.4,
-        pointRadius:0,pointHoverRadius:5,borderWidth:2
-      }]
-    },
-    options:{
-      maintainAspectRatio:false,responsive:true,
-      animation:{duration:300,easing:'easeOutQuart'},
-      plugins:{
-        legend:{display:false},
-        tooltip:{
-          backgroundColor:'#111827',borderColor:'rgba(255,255,255,0.12)',
-          borderWidth:1,titleFont:{family:'Space Mono',size:10},
-          bodyFont:{family:'Space Mono',size:12},
-          titleColor:'#94a3c0',bodyColor:'#f0f4ff',padding:10,cornerRadius:8
-        }
-      },
-      scales:{
-        y:{min:0,max:260,grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{family:'Space Mono',size:10},color:'#4b5e7a'},border:{color:'transparent'}},
-        x:{grid:{display:false},ticks:{font:{family:'Space Mono',size:10},color:'#4b5e7a',maxTicksLimit:6},border:{color:'transparent'}}
-      }
-    }
-  });
+  if(!c||mainChart)return;
+  Chart.defaults.color='#4b5e7a';Chart.defaults.borderColor='rgba(255,255,255,0.05)';
+  mainChart=new Chart(c,{type:'line',data:{labels:chartLabels,datasets:[{data:[],borderColor:'#3b82f6',backgroundColor:'rgba(59,130,246,0.07)',fill:true,tension:0.4,pointRadius:0,pointHoverRadius:5,borderWidth:2}]},options:{maintainAspectRatio:false,responsive:true,animation:{duration:300,easing:'easeOutQuart'},plugins:{legend:{display:false},tooltip:{backgroundColor:'#111827',borderColor:'rgba(255,255,255,0.12)',borderWidth:1,titleFont:{family:'Space Mono',size:10},bodyFont:{family:'Space Mono',size:12},titleColor:'#94a3c0',bodyColor:'#f0f4ff',padding:10,cornerRadius:8}},scales:{y:{min:180,max:245,grid:{color:'rgba(255,255,255,0.04)'},ticks:{font:{family:'Space Mono',size:10},color:'#4b5e7a'},border:{color:'transparent'}},x:{grid:{display:false},ticks:{font:{family:'Space Mono',size:10},color:'#4b5e7a',maxTicksLimit:6},border:{color:'transparent'}}}}});
 }
-
-function setCS(btn,src){
-  document.querySelectorAll('#srcGroup .ctrl-btn').forEach(b=>b.className='ctrl-btn');
-  btn.className='ctrl-btn '+(src==='PLN'?'ap':'ag');
-  cSrc=src;refreshChart();
-}
-function setCP(btn,par){
-  document.querySelectorAll('#paramGroup .ctrl-btn').forEach(b=>b.className='ctrl-btn');
-  btn.className='ctrl-btn aa';cPar=par;refreshChart();
-}
+function setCS(btn,src){document.querySelectorAll('#srcGroup .ctrl-btn').forEach(b=>b.className='ctrl-btn');btn.className='ctrl-btn '+(src==='PLN'?'ap':'ag');cSrc=src;refreshChart();}
+function setCP(btn,par){document.querySelectorAll('#paramGroup .ctrl-btn').forEach(b=>b.className='ctrl-btn');btn.className='ctrl-btn aa';cPar=par;refreshChart();}
 function refreshChart(){
   if(!mainChart)return;
   const cfg=chartCfg[cSrc][cPar];
@@ -984,64 +950,48 @@ function refreshChart(){
   mainChart.data.datasets[0].data=[...chartData[cSrc][cPar]];
   mainChart.data.datasets[0].borderColor=cfg.color;
   mainChart.data.datasets[0].backgroundColor=cfg.color+'18';
-  mainChart.options.scales.y.min=cfg.min;
-  mainChart.options.scales.y.max=cfg.max;
+  mainChart.options.scales.y.min=cfg.min;mainChart.options.scales.y.max=cfg.max;
   mainChart.update('none');
 }
-
 function pushChart(d){
-  if(!mainChart){initChart();if(!mainChart)return;}
   const t=new Date().toLocaleTimeString('id-ID');
   chartLabels.push(t);
-  chartData.PLN.V.push(+(d.pln_v||0));
-  chartData.PLN.I.push(+(d.pln_i||0));
-  chartData.PLN.P.push(+(d.pln_p||0));
-  chartData.BAT.V.push(+(d.bat_v||0));
-  chartData.BAT.I.push(+(d.bat_i||0));
-  chartData.BAT.P.push(+(d.bat_p||0));
-  if(chartLabels.length>60){
-    chartLabels.shift();
-    ['V','I','P'].forEach(k=>{chartData.PLN[k].shift();chartData.BAT[k].shift();});
-  }
+  chartData.PLN.V.push(d.pln_v);chartData.PLN.I.push(d.pln_i);chartData.PLN.P.push(d.pln_p);
+  chartData.BAT.V.push(d.bat_v);chartData.BAT.I.push(d.bat_i);chartData.BAT.P.push(d.bat_p);
+  if(chartLabels.length>40){chartLabels.shift();['V','I','P'].forEach(k=>{chartData.PLN[k].shift();chartData.BAT[k].shift();});}
   refreshChart();
 }
-
-function setBar(id,pct){
-  const e=document.getElementById(id);
-  if(e)e.style.width=Math.min(100,Math.max(0,isNaN(pct)?0:pct))+'%';
-}
+function setBar(id,pct){const e=document.getElementById(id);if(e)e.style.width=Math.min(100,Math.max(0,pct))+'%';}
 
 /* ════════════════════════════════════════
    FLOW SVG
 ════════════════════════════════════════ */
 function setFlowState(src){
-  const pR=document.getElementById('nodeP_rect');
-  const bR=document.getElementById('nodeB_rect');
-  const pN=document.getElementById('nodeP_name');
-  const bN=document.getElementById('nodeB_name');
-  const dPL=document.getElementById('dashPL');
-  const dLB=document.getElementById('dashLB');
-  const tPL=document.getElementById('trackPL');
-  const tLB=document.getElementById('trackLB');
+  const pR=document.getElementById('nodeP_rect');const bR=document.getElementById('nodeB_rect');
+  const pN=document.getElementById('nodeP_name');const bN=document.getElementById('nodeB_name');
+  const pV=document.getElementById('nd_pln_v');const bV=document.getElementById('nd_bat_v');
+  const dPL=document.getElementById('dashPL');const dLB=document.getElementById('dashLB');
+  const tPL=document.getElementById('trackPL');const tLB=document.getElementById('trackLB');
   const lR=document.getElementById('nodeL_rect');
   if(!pR)return;
+  // reset
   pR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.1);stroke-width:1';
   bR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.1);stroke-width:1';
   lR.style.cssText='fill:rgba(245,158,11,0.07);stroke:rgba(245,158,11,0.35);stroke-width:1.5';
   pN.style.fill='#f0f4ff';bN.style.fill='#f0f4ff';
+  pV.style.fill='#4b5e7a';bV.style.fill='#4b5e7a';
   dPL.className='flow-dash pln';dLB.className='flow-dash bat';
   tPL.style.stroke='rgba(255,255,255,0.08)';tLB.style.stroke='rgba(255,255,255,0.08)';
   document.getElementById('nd_load_stat').textContent='Active';
+
   if(src==='PLN'){
     pR.style.cssText='fill:rgba(59,130,246,0.1);stroke:rgba(59,130,246,0.5);stroke-width:2';
-    pN.style.fill='#93c5fd';
-    dPL.className='flow-dash pln flowing';
-    tPL.style.stroke='rgba(59,130,246,0.3)';
+    pN.style.fill='#93c5fd';pV.style.fill='#3b82f6';
+    dPL.className='flow-dash pln flowing';tPL.style.stroke='rgba(59,130,246,0.3)';
   } else if(src==='BAT'){
     bR.style.cssText='fill:rgba(34,211,160,0.1);stroke:rgba(34,211,160,0.5);stroke-width:2';
-    bN.style.fill='#6ee7b7';
-    dLB.className='flow-dash bat flowing';
-    tLB.style.stroke='rgba(34,211,160,0.3)';
+    bN.style.fill='#6ee7b7';bV.style.fill='#22d3a0';
+    dLB.className='flow-dash bat flowing';tLB.style.stroke='rgba(34,211,160,0.3)';
   } else if(src==='OFF'){
     lR.style.cssText='fill:rgba(239,68,68,0.07);stroke:rgba(239,68,68,0.35);stroke-width:1.5';
     document.getElementById('nd_load_stat').textContent='BEBAN OFF';
@@ -1049,38 +999,23 @@ function setFlowState(src){
 }
 
 /* ════════════════════════════════════════
-   HELPER: safe number format
-════════════════════════════════════════ */
-function fmt(v,dec=2){
-  const n=parseFloat(v);
-  return isNaN(n)?'—':n.toFixed(dec);
-}
-
-/* ════════════════════════════════════════
    HISTORY
 ════════════════════════════════════════ */
 let histViewDate=todayKey(),histSeq=0,lastSource='';
-function todayKey(){
-  const n=new Date();
-  return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');
-}
-function dateLabel(k){
-  const[y,m,d]=k.split('-');
-  return new Date(+y,+m-1,+d).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});
-}
+function todayKey(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
+function dateLabel(k){const[y,m,d]=k.split('-');return new Date(+y,+m-1,+d).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function histKey(d){return 'ems_hist_'+d;}
 function histLoad(d){try{return JSON.parse(localStorage.getItem(histKey(d))||'[]');}catch{return [];}}
 function histSave(d,a){try{localStorage.setItem(histKey(d),JSON.stringify(a));}catch(e){}}
 function histAdd(type,source,energyWh,note){
   const dk=todayKey(),a=histLoad(dk);
   histSeq++;
-  a.unshift({ts:new Date().toLocaleTimeString('id-ID'),type,source:source||'—',energy:parseFloat(energyWh||0).toFixed(3),note:note||'',seq:histSeq,date:dk});
+  a.unshift({ts:new Date().toLocaleTimeString('id-ID'),type:type,source:source||'—',energy:parseFloat(energyWh||0).toFixed(3),note:note||'',seq:histSeq,date:dk});
   histSave(dk,a);
   if(histViewDate===dk&&document.getElementById('history').classList.contains('active'))renderHistory();
 }
 function histNavDay(delta){
-  const[y,m,d]=histViewDate.split('-').map(Number);
-  const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()+delta);
+  const[y,m,d]=histViewDate.split('-').map(Number);const dt=new Date(y,m-1,d);dt.setDate(dt.getDate()+delta);
   if(dt>new Date())return;
   histViewDate=dt.getFullYear()+'-'+String(dt.getMonth()+1).padStart(2,'0')+'-'+String(dt.getDate()).padStart(2,'0');
   renderHistory();
@@ -1114,6 +1049,7 @@ function renderHistory(){
     empty.style.display='none';
     tbody.innerHTML=arr.map(r=>{
       const sl=(r.source||'').toLowerCase();
+      const tl=(r.type||'switch').toLowerCase();
       const tbadge=r.type==='REJECT'?'rej':r.type==='ALARM'?'alarm':r.type==='CMD'?'auto':sl;
       return `<tr>
         <td style="font-family:var(--mono)">${r.ts}</td>
@@ -1130,23 +1066,27 @@ histViewDate=todayKey();
 /* ════════════════════════════════════════
    SEND MODE & CMD ke ESP32
    Topic: test/control
+   Payload: AUTO | MANUAL | PLN | BAT | BEBAN_OFF
 ════════════════════════════════════════ */
 function sendMode(mode){
-  if(!emsClient||!emsClient.connected){showNotify('MQTT tidak terhubung!','err');return;}
-  emsClient.publish('test/control',mode);
+  if(!client||!client.connected){showNotify('MQTT tidak terhubung!','err');return;}
+  client.publish('test/control',mode);
   pushTicker('CMD MODE: '+mode,'warn');
   histAdd('CMD',mode,0,'Kirim mode: '+mode);
   setStatus('CMD DIKIRIM: '+mode+' — menunggu konfirmasi ESP32...','warn');
 }
+
 function sendCmd(cmd){
-  if(!emsClient||!emsClient.connected){showNotify('MQTT tidak terhubung!','err');return;}
+  if(!client||!client.connected){showNotify('MQTT tidak terhubung!','err');return;}
+  // Proteksi UI: hanya bisa kirim sumber jika mode MANUAL
   if(currentMode!=='MANUAL'){showNotify('Aktifkan Mode MANUAL terlebih dahulu!','warn');return;}
-  emsClient.publish('test/control',cmd);
+  client.publish('test/control',cmd);
   pushTicker('CMD: '+cmd,'warn');
   histAdd('CMD',cmd,0,'Kirim perintah: '+cmd);
   setStatus('CMD DIKIRIM: '+cmd+' — menunggu validasi AUTO...','warn');
   showNotify('Perintah '+cmd+' dikirim ke ESP32 — menunggu validasi...','info');
 }
+
 function setStatus(msg,type){
   const st=document.getElementById('statusText');
   const sd=document.getElementById('statusDot');
@@ -1156,409 +1096,203 @@ function setStatus(msg,type){
 
 /* ════════════════════════════════════════
    MQTT
-   ─────────────────────────────────────
-   PERUBAHAN KUNCI vs kode lama:
-
-   1. Variabel klien MQTT diganti dari 'mqttClient' → 'emsClient'
-      untuk menghindari konflik dengan namespace global 'mqtt'
-      dari library mqtt.min.js (mqtt.connect, mqtt.MqttClient, dll)
-
-   2. Flag 'pln_ok' TIDAK dikirim ESP32. Status PLN diderivasi dari:
-      d.alarm_pln === 0  → PLN normal
-      d.alarm_pln === 1  → PLN dropout
-
-   3. Flag 'bat_layak' TIDAK dikirim ESP32. Diderivasi dari:
-      d.bat_v >= VBAT_LOW (11.8V) → baterai layak
-      d.bat_v < VBAT_LOW          → baterai lemah
-      d.alarm_bat === 1            → baterai kritis
-
-   4. Flag 'pref' TIDAK dikirim ESP32. Sebagai gantinya ESP32 kirim
-      'manual_ok' (boolean 0/1). Field flag_pref ditampilkan sebagai
-      status validasi manual: DIIJINKAN / DITOLAK / —
-
-   5. beban_off=1 berarti kedua relay OFF. Source tetap diisi ESP32
-      (PLN atau BAT dari sumberAktif terakhir), tapi kita harus
-      override display ke 'OFF' saat beban_off=1.
-
-   6. Semua field diakses dengan fallback number cast + isNaN guard.
+   Subscribe: test/monitor, test/notify
+   Publish:   test/control
 ════════════════════════════════════════ */
-let emsClient=null;
-let msgCounter=0;
-
-// Threshold baterai (harus sama dengan ESP32)
-const VBAT_LOW   = 11.8;
-const VBAT_ALARM = 11.0;
-const PLN_MIN_V  = 180.0;
-
-const MQTT_URL='wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt';
-const MQTT_OPTS={
-  clientId:'ems_web_'+Math.floor(Math.random()*9999),
-  username:'esp32',
-  password:'123456',
-  reconnectPeriod:3000,
-  connectTimeout:10000
-};
-
-function setMqttStatus(status){
-  const dot=document.getElementById('connDot');
-  const label=document.getElementById('connLabel');
-  const badge=document.getElementById('mqttBadge');
-  const blabel=document.getElementById('mqttLabel');
-  if(status==='online'){
-    if(dot)dot.className='conn-dot online';
-    if(label)label.innerText='ONLINE';
-    if(badge)badge.className='top-badge ok';
-    if(blabel)blabel.innerText='ONLINE';
-  } else {
-    if(dot)dot.className='conn-dot';
-    if(label)label.innerText='OFFLINE';
-    if(badge)badge.className='top-badge err';
-    if(blabel)blabel.innerText='OFFLINE';
-  }
-}
+let client;
+const mqttUrl='wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt';
 
 function initMQTT(){
-  // Pastikan library mqtt sudah load
-  if(typeof mqtt==='undefined'){
-    setTimeout(initMQTT,500);
-    pushTicker('Menunggu library MQTT...','warn');
-    return;
-  }
+  client=mqtt.connect(mqttUrl,{username:'esp32',password:'123456'});
 
-  // Hindari double-init
-  if(emsClient)return;
-
-  emsClient=mqtt.connect(MQTT_URL,MQTT_OPTS);
-
-  emsClient.on('connect',()=>{
-    emsClient.subscribe(['test/monitor','test/notify'],{qos:0},(err)=>{
-      if(err){pushTicker('Subscribe gagal: '+err.message,'alarm');return;}
-      pushTicker('MQTT CONNECTED — subscribe OK','ok');
-    });
-    setMqttStatus('online');
+  client.on('connect',()=>{
+    client.subscribe('test/monitor');
+    client.subscribe('test/notify'); // ← notifikasi validasi dari ESP32
+    document.getElementById('connDot').className='conn-dot online';
+    document.getElementById('connLabel').innerText='ONLINE';
+    document.getElementById('mqttBadge').className='top-badge ok';
+    document.getElementById('mqttLabel').innerText='ONLINE';
+    pushTicker('MQTT BROKER CONNECTED','ok');
+  });
+  client.on('disconnect',()=>{
+    document.getElementById('connDot').className='conn-dot';
+    document.getElementById('connLabel').innerText='OFFLINE';
+    document.getElementById('mqttBadge').className='top-badge err';
+    document.getElementById('mqttLabel').innerText='OFFLINE';
+    pushTicker('MQTT CONNECTION LOST','alarm');
+  });
+  client.on('error',()=>{
+    document.getElementById('mqttBadge').className='top-badge err';
+    document.getElementById('mqttLabel').innerText='ERROR';
   });
 
-  emsClient.on('reconnect',()=>{
-    pushTicker('MQTT reconnecting...','warn');
-    setMqttStatus('offline');
-  });
-
-  emsClient.on('close',()=>{
-    setMqttStatus('offline');
-    pushTicker('MQTT CONNECTION CLOSED','alarm');
-  });
-
-  emsClient.on('error',(err)=>{
-    setMqttStatus('offline');
-    pushTicker('MQTT ERROR: '+(err.message||err),'alarm');
-  });
-
-  emsClient.on('offline',()=>{
-    setMqttStatus('offline');
-  });
-
-  emsClient.on('message',(topic,payload)=>{
+  client.on('message',(topic,payload)=>{
     resetTimer();
-    let msg='';
-    try{msg=payload.toString();}catch{return;}
+    const msg=payload.toString();
 
-    /* ─── test/notify ─── */
+    /* ─── test/notify: hasil validasi dari ESP32 ─── */
     if(topic==='test/notify'){
-      let n;
-      try{n=JSON.parse(msg);}catch{return;}
+      let n;try{n=JSON.parse(msg);}catch{return;}
       const txt=n.msg||n.reason||'—';
 
-      if(n.alarm==='KRITIS'){
-        // KRITIS dari ESP32: {"alarm":"KRITIS","msg":"..."}
+      if(n.alarm==='KRITIS'||n.status==='KRITIS'){
         document.getElementById('critMsg').innerText=txt;
         document.getElementById('critOverlay').classList.add('show');
         setAlarm(true,'🔴 KRITIS: '+txt);
-        pushTicker('KRITIS: '+txt,'alarm');
+        pushTicker('⚡ KRITIS: '+txt,'alarm');
         histAdd('ALARM','—',0,'KRITIS: '+txt);
-        setStatus('KRITIS: '+txt,'err');
-
-      } else if(n.status==='ALARM'){
-        document.getElementById('critMsg').innerText=txt;
-        document.getElementById('critOverlay').classList.add('show');
-        setAlarm(true,'🔴 ALARM: '+txt);
-        pushTicker('ALARM: '+txt,'alarm');
-        histAdd('ALARM','—',0,'ALARM: '+txt);
-        setStatus('ALARM: '+txt,'err');
+        setStatus('⚡ KRITIS: '+txt,'err');
 
       } else if(n.status==='ACCEPTED'){
-        showNotify('✅ DIIJINKAN: '+txt,'ok');
-        pushTicker('CMD DITERIMA','ok');
+        showNotify('✅ DIIZINKAN: '+txt,'ok');
+        pushTicker('CMD DIIJINKAN','ok');
         histAdd('NOTIFY','—',0,'ACCEPTED: '+txt);
-        setStatus('CMD DITERIMA & DIEKSEKUSI','ok');
+        setStatus('✅ CMD DITERIMA & DIEKSEKUSI','ok');
 
       } else if(n.status==='REJECTED'){
         showNotify('❌ DITOLAK: '+txt,'err');
         pushTicker('CMD DITOLAK: '+txt,'alarm');
         histAdd('REJECT','—',0,'REJECTED: '+txt);
-        setStatus('CMD DITOLAK: '+txt,'err');
+        setStatus('❌ CMD DITOLAK: '+txt,'err');
 
       } else if(n.status==='MODE_AUTO'){
         showNotify('Mode AUTO aktif','info');
         pushTicker('MODE: AUTO','ok');
         histAdd('CMD','AUTO',0,txt);
         setStatus('Mode AUTO aktif','ok');
-        updateModeUI('AUTO');
 
       } else if(n.status==='MODE_MANUAL'){
-        showNotify('Mode MANUAL aktif','warn');
+        showNotify('Mode MANUAL aktif — kirim perintah sumber','warn');
         pushTicker('MODE: MANUAL','warn');
         histAdd('CMD','MANUAL',0,txt);
         setStatus('Mode MANUAL aktif — tunggu perintah sumber','warn');
-        updateModeUI('MANUAL');
-
-      } else if(n.status==='WARN'){
-        showNotify('⚠ '+txt,'warn');
-        pushTicker('WARN: '+txt,'warn');
-        histAdd('NOTIFY','—',0,'WARN: '+txt);
-
-      } else if(n.status==='OK'){
-        showNotify('✅ '+txt,'ok');
-        pushTicker('OK: '+txt,'ok');
-        histAdd('NOTIFY','—',0,'OK: '+txt);
 
       } else if(n.status==='IGNORED'){
-        showNotify('⚠ Diabaikan: '+txt,'warn');
-        pushTicker('DIABAIKAN','warn');
+        showNotify('⚠ Perintah diabaikan: '+txt,'warn');
+        pushTicker('CMD DIABAIKAN','warn');
         histAdd('NOTIFY','—',0,'IGNORED: '+txt);
-        setStatus('Perintah diabaikan — aktifkan MODE MANUAL dulu','warn');
-
-      } else if(n.status==='AUTO_OVERRIDE'){
-        showNotify('⚡ AUTO: '+txt,'warn');
-        pushTicker('AUTO OVERRIDE: '+txt,'warn');
-        histAdd('NOTIFY','—',0,'AUTO_OVERRIDE: '+txt);
+        setStatus('⚠ Perintah diabaikan — aktifkan MODE MANUAL dulu','warn');
       }
       return;
     }
 
-    /* ─── test/monitor ─── */
+    /* ─── test/monitor: data sensor dari ESP32 ─── */
     if(topic!=='test/monitor')return;
+    let d;try{d=JSON.parse(msg);}catch{return;}
 
-    let d;
-    try{d=JSON.parse(msg);}catch(e){
-      pushTicker('JSON parse error: '+e.message,'alarm');
-      return;
-    }
+    // ── Update mode dari ESP32 ──
+    if(d.mode)updateModeUI(d.mode);
 
-    // Sembunyikan banner "menunggu data" saat data pertama tiba
-    const nb=document.getElementById('noDataBanner');
-    if(nb)nb.classList.remove('show');
-
-    msgCounter++;
-    const mc=document.getElementById('msgCount');
-    if(mc)mc.innerText=msgCounter;
-
-    // ── Nilai numerik dengan safe parsing ──
-    const plnV   = parseFloat(d.pln_v)   || 0;
-    const plnI   = parseFloat(d.pln_i)   || 0;
-    const plnP   = parseFloat(d.pln_p)   || 0;
-    const plnF   = parseFloat(d.pln_f)   || 0;
-    const plnPf  = parseFloat(d.pln_pf)  || 0;
-    const plnWh  = parseFloat(d.pln_Wh)  || 0; // kapital W sesuai ESP32
-    const batV   = parseFloat(d.bat_v)   || 0;
-    const batI   = parseFloat(d.bat_i)   || 0;
-    const batP   = parseFloat(d.bat_p)   || 0;
-    const batWh  = parseFloat(d.bat_Wh)  || 0; // kapital W sesuai ESP32
-
-    // ── Flag dari ESP32 ──
-    // ESP32 kirim: alarm_pln (0/1), alarm_bat (0/1), beban_off (0/1), manual_ok (0/1)
-    // TIDAK kirim: pln_ok, bat_layak, pref
-    const alarmPln  = d.alarm_pln  === 1 || d.alarm_pln  === true;
-    const alarmBat  = d.alarm_bat  === 1 || d.alarm_bat  === true;
-    const bebanOff  = d.beban_off  === 1 || d.beban_off  === true;
-    const manualOk  = d.manual_ok  === 1 || d.manual_ok  === true;
-
-    // Derivasi tambahan (tidak dari ESP32, dihitung di HTML)
-    const plnNormal = !alarmPln && plnV >= PLN_MIN_V;
-    const batLayak  = batV >= VBAT_LOW;   // >= 11.8V
-    const batKritis = alarmBat || batV <= VBAT_ALARM;
-
-    // ── Mode dari ESP32 ──
-    if(d.mode) updateModeUI(d.mode);
-
-    // ── FLAG PLN ──
+    // ── Alarm flags dari ESP32 ──
+    // PLN alarm
     const fp=document.getElementById('flag_pln');
-    if(fp){
-      fp.innerText = plnNormal ? 'NORMAL' : 'DROPOUT';
-      fp.style.color = plnNormal ? 'var(--green)' : 'var(--red)';
-    }
-
-    // ── FLAG BAT ──
+    if(fp){fp.innerText=d.alarm_pln?'MATI / DROPOUT':'NORMAL';fp.style.color=d.alarm_pln?'var(--red)':'var(--green)';}
+    // BAT alarm
     const fb=document.getElementById('flag_bat');
-    if(fb){
-      if(batKritis){
-        fb.innerText='KRITIS';
-        fb.style.color='var(--red)';
-      } else if(batLayak){
-        fb.innerText='LAYAK';
-        fb.style.color='var(--green)';
-      } else {
-        fb.innerText='LEMAH';
-        fb.style.color='var(--amber)';
-      }
-    }
-
-    // ── FLAG BEBAN ──
+    if(fb){fb.innerText=d.alarm_bat?'KRITIS':'NORMAL';fb.style.color=d.alarm_bat?'var(--red)':'var(--green)';}
+    // Beban off
     const fl=document.getElementById('flag_beban');
-    if(fl){
-      fl.innerText = bebanOff ? 'TERPUTUS' : 'TERSAMBUNG';
-      fl.style.color = bebanOff ? 'var(--red)' : 'var(--green)';
+    if(fl){fl.innerText=d.beban_off?'TERPUTUS':'TERSAMBUNG';fl.style.color=d.beban_off?'var(--red)':'var(--green)';}
+    // Manual ok
+    const fm=document.getElementById('flag_manual');
+    if(fm){
+      if(d.manual_ok===undefined||d.manual_ok===null){fm.innerText='—';fm.style.color='var(--text3)';}
+      else if(d.manual_ok){fm.innerText='DIIJINKAN';fm.style.color='var(--green)';}
+      else{fm.innerText='DITOLAK';fm.style.color='var(--red)';}
     }
 
-    // ── FLAG MANUAL (manual_ok dari ESP32) ──
-    const fpref=document.getElementById('flag_pref');
-    if(fpref){
-      fpref.innerText = manualOk ? 'DIIJINKAN' : '—';
-      fpref.style.color = manualOk ? 'var(--green)' : 'var(--text3)';
-    }
-
-    // ── Alarm strip ──
+    // Alarm strip
+    const alarmAktif=d.alarm_pln||d.alarm_bat||d.beban_off;
     let alarmMsg='';
-    if(alarmPln) alarmMsg += 'PLN DROPOUT ';
-    if(alarmBat) alarmMsg += 'BAT KRITIS ';
-    if(bebanOff) alarmMsg += 'BEBAN TERPUTUS';
-    setAlarm(!!(alarmPln||alarmBat||bebanOff), alarmMsg.trim());
+    if(d.alarm_pln)alarmMsg+='PLN DROPOUT ';
+    if(d.alarm_bat)alarmMsg+='BAT KRITIS ';
+    if(d.beban_off)alarmMsg+='BEBAN TERPUTUS';
+    setAlarm(!!alarmAktif,alarmMsg.trim());
 
-    // ── Battery SoC (range 11.0–13.2V) ──
-    let pct = ((batV - 11.0) / (13.2 - 11.0)) * 100;
-    pct = Math.max(0, Math.min(100, pct));
-    const fill = document.getElementById('battFill');
-    if(fill){
-      fill.style.width = pct + '%';
-      fill.style.background = pct>60 ? 'var(--green)' : pct>25 ? 'var(--amber)' : 'var(--red)';
-    }
+    // ── Battery SoC (range 11.8V–13V sesuai ESP32) ──
+    let pct=((d.bat_v-11.8)/(13-11.8))*100;pct=Math.max(0,Math.min(100,pct));
+    const fill=document.getElementById('battFill');
+    if(fill){fill.style.width=pct+'%';fill.style.background=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';}
     const pctEl=document.getElementById('s_bat_pct');
-    if(pctEl){
-      pctEl.innerText = pct.toFixed(0)+'% SoC';
-      pctEl.style.color = pct>60 ? 'var(--green)' : pct>25 ? 'var(--amber)' : 'var(--red)';
-    }
+    if(pctEl){pctEl.innerText=pct.toFixed(0)+'% SoC';pctEl.style.color=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';}
 
     // ── Summary cards ──
-    const el_spln=document.getElementById('s_pln_v');
-    if(el_spln) el_spln.innerText = fmt(plnV);
+    document.getElementById('s_pln_v').innerText=d.pln_v.toFixed(2);
+    document.getElementById('s_bat_v').innerText=d.bat_v.toFixed(2);
+    const totalW=d.beban_off?0:(d.source==='PLN'?d.pln_p:d.bat_p);
+    document.getElementById('s_load_w').innerText=totalW.toFixed(0);
+    document.getElementById('s_load_sub').innerText=d.beban_off?'BEBAN TERPUTUS':'Dari: '+(d.source||'—');
+    if(d.pln_Wh!==undefined){}// handled in pln_e below
 
-    const el_sbat=document.getElementById('s_bat_v');
-    if(el_sbat) el_sbat.innerText = fmt(batV);
-
-    // Load power: tampilkan 0 saat beban off, sesuai source aktif saat menyala
-    const totalW = bebanOff ? 0 : (d.source==='PLN' ? plnP : batP);
-    const el_sload=document.getElementById('s_load_w');
-    if(el_sload) el_sload.innerText = totalW.toFixed(0);
-
-    const el_sloadsub=document.getElementById('s_load_sub');
-    if(el_sloadsub){
-      el_sloadsub.innerText = bebanOff ? 'BEBAN TERPUTUS' : 'Dari: '+(d.source||'—');
-    }
-
-    // PLN sub status
-    const el_splnsub=document.getElementById('s_pln_sub');
-    if(el_splnsub){
-      el_splnsub.innerText = plnNormal ? 'Grid normal (≥180V)' : 'Grid tidak tersedia';
-      el_splnsub.style.color = plnNormal ? 'var(--green)' : 'var(--red)';
-    }
-
-    // ── Flow SVG values ──
-    const ndPlnV=document.getElementById('nd_pln_v');
-    if(ndPlnV) ndPlnV.textContent = fmt(plnV)+' V';
-
-    const ndBatV=document.getElementById('nd_bat_v');
-    if(ndBatV) ndBatV.textContent = fmt(batV)+' V';
-
-    const ndLoadW=document.getElementById('nd_load_w');
-    if(ndLoadW) ndLoadW.textContent = totalW.toFixed(0)+' W';
+    // ── Flow SVG ──
+    document.getElementById('nd_pln_v').textContent=d.pln_v.toFixed(2)+' V';
+    document.getElementById('nd_bat_v').textContent=d.bat_v.toFixed(2)+' V';
+    document.getElementById('nd_load_w').textContent=totalW.toFixed(0)+' W';
 
     // ── PLN metrics ──
-    const el_plnv=document.getElementById('pln_v');  if(el_plnv) el_plnv.innerText=fmt(plnV);
-    const el_plni=document.getElementById('pln_i');  if(el_plni) el_plni.innerText=fmt(plnI);
-    const el_plnp=document.getElementById('pln_p');  if(el_plnp) el_plnp.innerText=fmt(plnP);
-    const el_plnf=document.getElementById('pln_f');  if(el_plnf) el_plnf.innerText=fmt(plnF);
-    const el_plne=document.getElementById('pln_e');  if(el_plne) el_plne.innerText=fmt(plnWh,3);
-    const el_plnpf=document.getElementById('pln_pf');if(el_plnpf)el_plnpf.innerText=fmt(plnPf);
-
-    setBar('bar_pln_v', ((plnV-180)/65)*100);
-    setBar('bar_pln_i', (plnI/15)*100);
-    setBar('bar_pln_p', (plnP/2500)*100);
-    setBar('bar_pln_pf', plnPf*100);
+    document.getElementById('pln_v').innerText=d.pln_v.toFixed(2);
+    document.getElementById('pln_i').innerText=d.pln_i.toFixed(2);
+    document.getElementById('pln_p').innerText=d.pln_p.toFixed(2);
+    if(d.pln_f!==undefined)document.getElementById('pln_f').innerText=d.pln_f.toFixed(2);
+    if(d.pln_Wh!==undefined)document.getElementById('pln_e').innerText=d.pln_Wh.toFixed(2);
+    if(d.pln_pf!==undefined){document.getElementById('pln_pf').innerText=d.pln_pf.toFixed(2);setBar('bar_pln_pf',d.pln_pf*100);}
+    setBar('bar_pln_v',((d.pln_v-180)/65)*100);
+    setBar('bar_pln_i',(d.pln_i/12)*100);
+    setBar('bar_pln_p',(d.pln_p/2200)*100);
 
     // ── BAT metrics ──
-    const el_batv=document.getElementById('bat_v');  if(el_batv) el_batv.innerText=fmt(batV);
-    const el_bati=document.getElementById('bat_i');  if(el_bati) el_bati.innerText=fmt(batI);
-    const el_batp=document.getElementById('bat_p');  if(el_batp) el_batp.innerText=fmt(batP);
-    const el_bate=document.getElementById('bat_e');  if(el_bate) el_bate.innerText=fmt(batWh,3);
-
-    setBar('bar_bat_v', ((batV-8.5)/6.5)*100);
-    setBar('bar_bat_i', (batI/25)*100);
-    setBar('bar_bat_p', (batP/400)*100);
+    document.getElementById('bat_v').innerText=d.bat_v.toFixed(2);
+    document.getElementById('bat_i').innerText=d.bat_i.toFixed(2);
+    document.getElementById('bat_p').innerText=d.bat_p.toFixed(2);
+    if(d.bat_Wh!==undefined)document.getElementById('bat_e').innerText=d.bat_Wh.toFixed(2);
+    setBar('bar_bat_v',((d.bat_v-8.5)/6.5)*100);
+    setBar('bar_bat_i',(d.bat_i/22)*100);
+    setBar('bar_bat_p',(d.bat_p/320)*100);
 
     // ── Source pill & flow ──
-    const pill    = document.getElementById('srcPill');
-    const pillTxt = document.getElementById('srcPillText');
-    const sbSrc   = document.getElementById('sbSource');
+    const pill=document.getElementById('srcPill');
+    const pillTxt=document.getElementById('srcPillText');
+    const sbSrc=document.getElementById('sbSource');
 
-    if(bebanOff){
-      // beban_off=1: kedua relay OFF
-      if(pill)    pill.className='mode-pill off';
-      if(pillTxt) pillTxt.innerText='BEBAN OFF';
-      if(sbSrc)   sbSrc.innerText='OFF';
+    if(d.beban_off){
+      pill.className='mode-pill off';pillTxt.innerText='BEBAN OFF';
+      if(sbSrc)sbSrc.innerText='OFF';
       setFlowState('OFF');
       pushTicker('BEBAN TERPUTUS — kondisi kritis','alarm');
 
     } else if(d.source==='PLN'){
-      if(pill)    pill.className='mode-pill pln';
-      if(pillTxt) pillTxt.innerText='PLN AKTIF';
-      if(sbSrc)   sbSrc.innerText='PLN';
-      const ndPD=document.getElementById('nd_pln_data');
-      if(ndPD) ndPD.textContent=fmt(plnV,1)+'V / '+fmt(plnP,0)+'W';
-      const ndBD=document.getElementById('nd_bat_data');
-      if(ndBD) ndBD.textContent='—';
+      pill.className='mode-pill pln';pillTxt.innerText='PLN AKTIF';
+      if(sbSrc)sbSrc.innerText='PLN';
+      document.getElementById('nd_pln_data').textContent=d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W';
+      document.getElementById('nd_bat_data').textContent='—';
       setFlowState('PLN');
-      pushTicker('SRC: PLN '+fmt(plnV,1)+'V / '+fmt(plnP,0)+'W | PF:'+fmt(plnPf));
+      pushTicker('SRC: PLN '+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W | PF:'+((d.pln_pf||0).toFixed(2)));
 
     } else if(d.source==='BAT'){
-      if(pill)    pill.className='mode-pill bat';
-      if(pillTxt) pillTxt.innerText='BAT AKTIF';
-      if(sbSrc)   sbSrc.innerText='BAT';
-      const ndBD=document.getElementById('nd_bat_data');
-      if(ndBD) ndBD.textContent=fmt(batV)+'V / '+fmt(batP,0)+'W';
-      const ndPD=document.getElementById('nd_pln_data');
-      if(ndPD) ndPD.textContent='—';
+      pill.className='mode-pill bat';pillTxt.innerText='BAT AKTIF';
+      if(sbSrc)sbSrc.innerText='BAT';
+      document.getElementById('nd_bat_data').textContent=d.bat_v.toFixed(2)+'V / '+d.bat_p.toFixed(0)+'W';
+      document.getElementById('nd_pln_data').textContent='—';
       setFlowState('BAT');
-      pushTicker('SRC: BAT '+fmt(batV)+'V / '+pct.toFixed(0)+'% SoC','warn');
+      pushTicker('SRC: BAT '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC','warn');
     }
 
     // ── History: catat saat source berganti ──
-    if(d.source && d.source!==lastSource){
-      const wh = d.source==='PLN' ? plnWh : batWh;
-      const note = 'Switch ke '+d.source+
-        ' | Mode: '+(d.mode||'—')+
-        (d.source==='PLN' ? ' | '+fmt(plnV,1)+'V' : ' | '+fmt(batV)+'V / '+pct.toFixed(0)+'% SoC');
-      histAdd('SWITCH', d.source, wh, note);
-      lastSource = d.source;
+    if(d.source&&d.source!==lastSource){
+      const wh=d.source==='PLN'?(d.pln_Wh||0):(d.bat_Wh||0);
+      const note='Switch ke '+d.source+' | Mode: '+(d.mode||'—')+
+        (d.source==='PLN'?' | '+d.pln_v.toFixed(1)+'V':' | '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC');
+      histAdd('SWITCH',d.source,wh,note);
+      lastSource=d.source;
     }
+    if(d.pln_cycle!==undefined&&d.pln_cycle>0)histAdd('SWITCH','PLN',d.pln_cycle,'PLN cycle energy');
+    if(d.bat_cycle!==undefined&&d.bat_cycle>0)histAdd('SWITCH','BAT',d.bat_cycle,'BAT cycle energy');
 
-    // cycle energy dari ESP32
-    if(d.pln_cycle !== undefined && parseFloat(d.pln_cycle) > 0)
-      histAdd('SWITCH','PLN', d.pln_cycle, 'PLN cycle energy: '+fmt(d.pln_cycle,3)+' Wh');
-    if(d.bat_cycle !== undefined && parseFloat(d.bat_cycle) > 0)
-      histAdd('SWITCH','BAT', d.bat_cycle, 'BAT cycle energy: '+fmt(d.bat_cycle,3)+' Wh');
-
-    // push ke chart
     pushChart(d);
   });
 }
 
-/* ════════════════════════════════════════
-   INIT
-════════════════════════════════════════ */
-if(document.readyState==='loading'){
-  document.addEventListener('DOMContentLoaded',initMQTT);
-} else {
-  initMQTT();
-}
+document.addEventListener('DOMContentLoaded',()=>{initMQTT();});
 </script>
 </body>
 </html>
