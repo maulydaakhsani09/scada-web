@@ -327,7 +327,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 .sb-right{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0;}
 .sb-chip{font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);padding:2px 8px;border-radius:4px;font-weight:700;}
 
-/* ══ NO DATA INDICATOR ══ */
+/* ══ NO DATA ══ */
 #noDataBanner{display:none;align-items:center;gap:10px;padding:10px 16px;border-radius:var(--radius-sm);margin-bottom:12px;background:var(--bg2);border:1px solid rgba(245,158,11,0.3);font-family:var(--mono);font-size:11px;color:var(--amber);}
 #noDataBanner.show{display:flex;}
 
@@ -485,19 +485,16 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
       <!-- ══ MONITOR ══ -->
       <div id="monitor" class="page active">
 
-        <!-- No-data banner (FIX: ditampilkan saat belum ada data dari ESP32) -->
         <div id="noDataBanner" class="show">
           ⏳ &nbsp;Menunggu data dari ESP32...
         </div>
 
-        <!-- Notify banner -->
         <div id="notifyBanner">
           <div class="notify-dot"></div>
           <span id="notifyText">—</span>
           <span class="notify-close" onclick="closeNotify()">✕</span>
         </div>
 
-        <!-- Alarm strip -->
         <div id="alarmStrip">
           <span class="alarm-blink">⚠</span>
           <span id="alarmText">—</span>
@@ -603,7 +600,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
           <div class="metric-card"><div class="metric-tag">FLAG</div><div class="metric-label">Status PLN</div><div class="metric-value sm" id="flag_pln" style="color:var(--text3)">—</div></div>
           <div class="metric-card"><div class="metric-tag bat">FLAG</div><div class="metric-label">Status Baterai</div><div class="metric-value sm" id="flag_bat" style="color:var(--text3)">—</div></div>
           <div class="metric-card"><div class="metric-tag load">FLAG</div><div class="metric-label">Status Beban</div><div class="metric-value sm" id="flag_beban" style="color:var(--text3)">—</div></div>
-          <div class="metric-card"><div class="metric-tag sys">FLAG</div><div class="metric-label">Preferensi Manual</div><div class="metric-value sm" id="flag_pref" style="color:var(--text3)">—</div></div>
+          <div class="metric-card"><div class="metric-tag sys">FLAG</div><div class="metric-label">Validasi Manual</div><div class="metric-value sm" id="flag_pref" style="color:var(--text3)">—</div></div>
         </div>
 
         <!-- Chart -->
@@ -809,7 +806,6 @@ function confirmLogout(){if(confirm('Terminate current session?'))logout();}
 
 /* ════════════════════════════════════════
    LOGIN
-   FIX: chart diinit segera, tidak pakai setTimeout
 ════════════════════════════════════════ */
 function doLogin(){
   const u=document.getElementById('uname').value.trim();
@@ -818,7 +814,6 @@ function doLogin(){
     localStorage.setItem('ems_login','1');localStorage.setItem('ems_user',u);
     document.getElementById('userId').innerText=u;
     showApp();resetTimer();
-    // FIX: pastikan chart diinit setelah DOM canvas visible
     requestAnimationFrame(()=>requestAnimationFrame(initChart));
     pushTicker('SESSION AUTHENTICATED — USER: '+u.toUpperCase(),'ok');
   } else {
@@ -876,7 +871,12 @@ function showNotify(msg,type){
   clearTimeout(notifyTimer);
   notifyTimer=setTimeout(()=>b.className='',9000);
   const b2=document.getElementById('notifyBanner2');
-  const colorMap={ok:'var(--green-dim),rgba(34,211,160,0.3),var(--green)',warn:'var(--amber-dim),rgba(245,158,11,0.3),var(--amber)',err:'var(--red-dim),rgba(239,68,68,0.3),var(--red)',info:'var(--accent-dim),rgba(59,130,246,0.3),var(--accent)'};
+  const colorMap={
+    ok:'var(--green-dim),rgba(34,211,160,0.3),var(--green)',
+    warn:'var(--amber-dim),rgba(245,158,11,0.3),var(--amber)',
+    err:'var(--red-dim),rgba(239,68,68,0.3),var(--red)',
+    info:'var(--accent-dim),rgba(59,130,246,0.3),var(--accent)'
+  };
   const [bg,bc,fc]=(colorMap[type]||colorMap.info).split(',');
   b2.style.cssText=`display:flex;align-items:center;gap:10px;padding:11px 16px;border-radius:9px;margin-bottom:12px;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid;background:${bg};border-color:${bc};color:${fc};`;
   b2.querySelector('div').style.background='currentColor';
@@ -916,7 +916,6 @@ function updateModeUI(mode){
 
 /* ════════════════════════════════════════
    CHART
-   FIX: initChart idempoten, null-safe pushChart
 ════════════════════════════════════════ */
 const chartLabels=[];
 const chartData={PLN:{V:[],I:[],P:[]},BAT:{V:[],I:[],P:[]}};
@@ -931,11 +930,9 @@ const chartCfg={
 };
 
 function initChart(){
-  // FIX: guard agar tidak diinit dua kali
   if(mainChart)return;
   const c=document.getElementById('mainChart');
   if(!c)return;
-  // FIX: cek chart.js sudah load
   if(typeof Chart==='undefined'){setTimeout(initChart,200);return;}
   Chart.defaults.color='#4b5e7a';
   Chart.defaults.borderColor='rgba(255,255,255,0.05)';
@@ -993,11 +990,9 @@ function refreshChart(){
 }
 
 function pushChart(d){
-  // FIX: pastikan chart sudah init sebelum push
   if(!mainChart){initChart();if(!mainChart)return;}
   const t=new Date().toLocaleTimeString('id-ID');
   chartLabels.push(t);
-  // FIX: safe fallback ke 0 kalau undefined
   chartData.PLN.V.push(+(d.pln_v||0));
   chartData.PLN.I.push(+(d.pln_i||0));
   chartData.PLN.P.push(+(d.pln_p||0));
@@ -1055,7 +1050,6 @@ function setFlowState(src){
 
 /* ════════════════════════════════════════
    HELPER: safe number format
-   FIX: tidak crash kalau nilai undefined/null/NaN
 ════════════════════════════════════════ */
 function fmt(v,dec=2){
   const n=parseFloat(v);
@@ -1138,16 +1132,16 @@ histViewDate=todayKey();
    Topic: test/control
 ════════════════════════════════════════ */
 function sendMode(mode){
-  if(!mqttClient||!mqttClient.connected){showNotify('MQTT tidak terhubung!','err');return;}
-  mqttClient.publish('test/control',mode);
+  if(!emsClient||!emsClient.connected){showNotify('MQTT tidak terhubung!','err');return;}
+  emsClient.publish('test/control',mode);
   pushTicker('CMD MODE: '+mode,'warn');
   histAdd('CMD',mode,0,'Kirim mode: '+mode);
   setStatus('CMD DIKIRIM: '+mode+' — menunggu konfirmasi ESP32...','warn');
 }
 function sendCmd(cmd){
-  if(!mqttClient||!mqttClient.connected){showNotify('MQTT tidak terhubung!','err');return;}
+  if(!emsClient||!emsClient.connected){showNotify('MQTT tidak terhubung!','err');return;}
   if(currentMode!=='MANUAL'){showNotify('Aktifkan Mode MANUAL terlebih dahulu!','warn');return;}
-  mqttClient.publish('test/control',cmd);
+  emsClient.publish('test/control',cmd);
   pushTicker('CMD: '+cmd,'warn');
   histAdd('CMD',cmd,0,'Kirim perintah: '+cmd);
   setStatus('CMD DIKIRIM: '+cmd+' — menunggu validasi AUTO...','warn');
@@ -1162,18 +1156,43 @@ function setStatus(msg,type){
 
 /* ════════════════════════════════════════
    MQTT
-   FIX UTAMA:
-   1. Variabel diganti ke mqttClient (tidak bentrok dengan mqtt library)
-   2. Semua field akses pakai null-check / fallback
-   3. Angka pakai Number() cast sebelum .toFixed()
-   4. pln_Wh dan bat_Wh diakses dengan nama yg benar sesuai ESP32
-   5. field 'pref' dari ESP32 ditampilkan (bukan manual_ok)
-   6. noDataBanner disembunyikan saat data pertama tiba
+   ─────────────────────────────────────
+   PERUBAHAN KUNCI vs kode lama:
+
+   1. Variabel klien MQTT diganti dari 'mqttClient' → 'emsClient'
+      untuk menghindari konflik dengan namespace global 'mqtt'
+      dari library mqtt.min.js (mqtt.connect, mqtt.MqttClient, dll)
+
+   2. Flag 'pln_ok' TIDAK dikirim ESP32. Status PLN diderivasi dari:
+      d.alarm_pln === 0  → PLN normal
+      d.alarm_pln === 1  → PLN dropout
+
+   3. Flag 'bat_layak' TIDAK dikirim ESP32. Diderivasi dari:
+      d.bat_v >= VBAT_LOW (11.8V) → baterai layak
+      d.bat_v < VBAT_LOW          → baterai lemah
+      d.alarm_bat === 1            → baterai kritis
+
+   4. Flag 'pref' TIDAK dikirim ESP32. Sebagai gantinya ESP32 kirim
+      'manual_ok' (boolean 0/1). Field flag_pref ditampilkan sebagai
+      status validasi manual: DIIJINKAN / DITOLAK / —
+
+   5. beban_off=1 berarti kedua relay OFF. Source tetap diisi ESP32
+      (PLN atau BAT dari sumberAktif terakhir), tapi kita harus
+      override display ke 'OFF' saat beban_off=1.
+
+   6. Semua field diakses dengan fallback number cast + isNaN guard.
 ════════════════════════════════════════ */
-let mqttClient=null;
+let emsClient=null;
 let msgCounter=0;
+
+// Threshold baterai (harus sama dengan ESP32)
+const VBAT_LOW   = 11.8;
+const VBAT_ALARM = 11.0;
+const PLN_MIN_V  = 180.0;
+
 const MQTT_URL='wss://le27e62e.ala.asia-southeast1.emqxsl.com:8084/mqtt';
 const MQTT_OPTS={
+  clientId:'ems_web_'+Math.floor(Math.random()*9999),
   username:'esp32',
   password:'123456',
   reconnectPeriod:3000,
@@ -1199,44 +1218,46 @@ function setMqttStatus(status){
 }
 
 function initMQTT(){
-  // FIX: pastikan library mqtt sudah load
+  // Pastikan library mqtt sudah load
   if(typeof mqtt==='undefined'){
     setTimeout(initMQTT,500);
     pushTicker('Menunggu library MQTT...','warn');
     return;
   }
 
-  mqttClient=mqtt.connect(MQTT_URL,MQTT_OPTS);
+  // Hindari double-init
+  if(emsClient)return;
 
-  mqttClient.on('connect',()=>{
-    // FIX: subscribe kedua topik sekaligus
-    mqttClient.subscribe(['test/monitor','test/notify'],{qos:0},(err)=>{
+  emsClient=mqtt.connect(MQTT_URL,MQTT_OPTS);
+
+  emsClient.on('connect',()=>{
+    emsClient.subscribe(['test/monitor','test/notify'],{qos:0},(err)=>{
       if(err){pushTicker('Subscribe gagal: '+err.message,'alarm');return;}
       pushTicker('MQTT CONNECTED — subscribe OK','ok');
     });
     setMqttStatus('online');
   });
 
-  mqttClient.on('reconnect',()=>{
+  emsClient.on('reconnect',()=>{
     pushTicker('MQTT reconnecting...','warn');
     setMqttStatus('offline');
   });
 
-  mqttClient.on('close',()=>{
+  emsClient.on('close',()=>{
     setMqttStatus('offline');
     pushTicker('MQTT CONNECTION CLOSED','alarm');
   });
 
-  mqttClient.on('error',(err)=>{
+  emsClient.on('error',(err)=>{
     setMqttStatus('offline');
     pushTicker('MQTT ERROR: '+(err.message||err),'alarm');
   });
 
-  mqttClient.on('offline',()=>{
+  emsClient.on('offline',()=>{
     setMqttStatus('offline');
   });
 
-  mqttClient.on('message',(topic,payload)=>{
+  emsClient.on('message',(topic,payload)=>{
     resetTimer();
     let msg='';
     try{msg=payload.toString();}catch{return;}
@@ -1247,46 +1268,69 @@ function initMQTT(){
       try{n=JSON.parse(msg);}catch{return;}
       const txt=n.msg||n.reason||'—';
 
-      if(n.status==='ALARM'||n.alarm==='KRITIS'){
+      if(n.alarm==='KRITIS'){
+        // KRITIS dari ESP32: {"alarm":"KRITIS","msg":"..."}
         document.getElementById('critMsg').innerText=txt;
         document.getElementById('critOverlay').classList.add('show');
         setAlarm(true,'🔴 KRITIS: '+txt);
         pushTicker('KRITIS: '+txt,'alarm');
         histAdd('ALARM','—',0,'KRITIS: '+txt);
         setStatus('KRITIS: '+txt,'err');
+
+      } else if(n.status==='ALARM'){
+        document.getElementById('critMsg').innerText=txt;
+        document.getElementById('critOverlay').classList.add('show');
+        setAlarm(true,'🔴 ALARM: '+txt);
+        pushTicker('ALARM: '+txt,'alarm');
+        histAdd('ALARM','—',0,'ALARM: '+txt);
+        setStatus('ALARM: '+txt,'err');
+
       } else if(n.status==='ACCEPTED'){
-        showNotify('✅ DIIZINKAN: '+txt,'ok');
+        showNotify('✅ DIIJINKAN: '+txt,'ok');
         pushTicker('CMD DITERIMA','ok');
         histAdd('NOTIFY','—',0,'ACCEPTED: '+txt);
         setStatus('CMD DITERIMA & DIEKSEKUSI','ok');
+
       } else if(n.status==='REJECTED'){
         showNotify('❌ DITOLAK: '+txt,'err');
         pushTicker('CMD DITOLAK: '+txt,'alarm');
         histAdd('REJECT','—',0,'REJECTED: '+txt);
         setStatus('CMD DITOLAK: '+txt,'err');
+
       } else if(n.status==='MODE_AUTO'){
         showNotify('Mode AUTO aktif','info');
         pushTicker('MODE: AUTO','ok');
         histAdd('CMD','AUTO',0,txt);
         setStatus('Mode AUTO aktif','ok');
+        updateModeUI('AUTO');
+
       } else if(n.status==='MODE_MANUAL'){
         showNotify('Mode MANUAL aktif','warn');
         pushTicker('MODE: MANUAL','warn');
         histAdd('CMD','MANUAL',0,txt);
         setStatus('Mode MANUAL aktif — tunggu perintah sumber','warn');
+        updateModeUI('MANUAL');
+
       } else if(n.status==='WARN'){
         showNotify('⚠ '+txt,'warn');
         pushTicker('WARN: '+txt,'warn');
         histAdd('NOTIFY','—',0,'WARN: '+txt);
+
       } else if(n.status==='OK'){
         showNotify('✅ '+txt,'ok');
         pushTicker('OK: '+txt,'ok');
         histAdd('NOTIFY','—',0,'OK: '+txt);
+
       } else if(n.status==='IGNORED'){
         showNotify('⚠ Diabaikan: '+txt,'warn');
         pushTicker('DIABAIKAN','warn');
         histAdd('NOTIFY','—',0,'IGNORED: '+txt);
         setStatus('Perintah diabaikan — aktifkan MODE MANUAL dulu','warn');
+
+      } else if(n.status==='AUTO_OVERRIDE'){
+        showNotify('⚡ AUTO: '+txt,'warn');
+        pushTicker('AUTO OVERRIDE: '+txt,'warn');
+        histAdd('NOTIFY','—',0,'AUTO_OVERRIDE: '+txt);
       }
       return;
     }
@@ -1300,198 +1344,215 @@ function initMQTT(){
       return;
     }
 
-    // FIX: sembunyikan "menunggu data" saat data pertama tiba
+    // Sembunyikan banner "menunggu data" saat data pertama tiba
     const nb=document.getElementById('noDataBanner');
     if(nb)nb.classList.remove('show');
 
-    // FIX: counter pesan
     msgCounter++;
     const mc=document.getElementById('msgCount');
     if(mc)mc.innerText=msgCounter;
 
-    // ── Mode dari ESP32 ──
-    // FIX: field 'mode' ada di payload ESP32
-    if(d.mode)updateModeUI(d.mode);
+    // ── Nilai numerik dengan safe parsing ──
+    const plnV   = parseFloat(d.pln_v)   || 0;
+    const plnI   = parseFloat(d.pln_i)   || 0;
+    const plnP   = parseFloat(d.pln_p)   || 0;
+    const plnF   = parseFloat(d.pln_f)   || 0;
+    const plnPf  = parseFloat(d.pln_pf)  || 0;
+    const plnWh  = parseFloat(d.pln_Wh)  || 0; // kapital W sesuai ESP32
+    const batV   = parseFloat(d.bat_v)   || 0;
+    const batI   = parseFloat(d.bat_i)   || 0;
+    const batP   = parseFloat(d.bat_p)   || 0;
+    const batWh  = parseFloat(d.bat_Wh)  || 0; // kapital W sesuai ESP32
 
-    // ── Flags dari ESP32 ──
-    // FIX: field sesuai ESP32: alarm_pln, alarm_bat, beban_off, pref
+    // ── Flag dari ESP32 ──
+    // ESP32 kirim: alarm_pln (0/1), alarm_bat (0/1), beban_off (0/1), manual_ok (0/1)
+    // TIDAK kirim: pln_ok, bat_layak, pref
+    const alarmPln  = d.alarm_pln  === 1 || d.alarm_pln  === true;
+    const alarmBat  = d.alarm_bat  === 1 || d.alarm_bat  === true;
+    const bebanOff  = d.beban_off  === 1 || d.beban_off  === true;
+    const manualOk  = d.manual_ok  === 1 || d.manual_ok  === true;
+
+    // Derivasi tambahan (tidak dari ESP32, dihitung di HTML)
+    const plnNormal = !alarmPln && plnV >= PLN_MIN_V;
+    const batLayak  = batV >= VBAT_LOW;   // >= 11.8V
+    const batKritis = alarmBat || batV <= VBAT_ALARM;
+
+    // ── Mode dari ESP32 ──
+    if(d.mode) updateModeUI(d.mode);
+
+    // ── FLAG PLN ──
     const fp=document.getElementById('flag_pln');
     if(fp){
-      const plnOk=!!d.pln_ok;
-      fp.innerText=plnOk?'NORMAL':'DROPOUT';
-      fp.style.color=plnOk?'var(--green)':'var(--red)';
+      fp.innerText = plnNormal ? 'NORMAL' : 'DROPOUT';
+      fp.style.color = plnNormal ? 'var(--green)' : 'var(--red)';
     }
+
+    // ── FLAG BAT ──
     const fb=document.getElementById('flag_bat');
     if(fb){
-      const batAlarm=!!d.alarm_bat;
-      const batLayak=!!d.bat_layak;
-      fb.innerText=batAlarm?'KRITIS':batLayak?'LAYAK':'LEMAH';
-      fb.style.color=batAlarm?'var(--red)':batLayak?'var(--green)':'var(--amber)';
+      if(batKritis){
+        fb.innerText='KRITIS';
+        fb.style.color='var(--red)';
+      } else if(batLayak){
+        fb.innerText='LAYAK';
+        fb.style.color='var(--green)';
+      } else {
+        fb.innerText='LEMAH';
+        fb.style.color='var(--amber)';
+      }
     }
+
+    // ── FLAG BEBAN ──
     const fl=document.getElementById('flag_beban');
     if(fl){
-      const bebanOff=!!d.beban_off;
-      fl.innerText=bebanOff?'TERPUTUS':'TERSAMBUNG';
-      fl.style.color=bebanOff?'var(--red)':'var(--green)';
+      fl.innerText = bebanOff ? 'TERPUTUS' : 'TERSAMBUNG';
+      fl.style.color = bebanOff ? 'var(--red)' : 'var(--green)';
     }
-    // FIX: ESP32 kirim field 'pref' (NONE/PLN/BAT/BEBAN_OFF)
+
+    // ── FLAG MANUAL (manual_ok dari ESP32) ──
     const fpref=document.getElementById('flag_pref');
     if(fpref){
-      const pref=d.pref||'NONE';
-      fpref.innerText=pref;
-      fpref.style.color=pref==='NONE'?'var(--text3)':pref==='BAT'?'var(--green)':pref==='PLN'?'var(--accent)':'var(--red)';
+      fpref.innerText = manualOk ? 'DIIJINKAN' : '—';
+      fpref.style.color = manualOk ? 'var(--green)' : 'var(--text3)';
     }
 
     // ── Alarm strip ──
-    const alarmAktif=d.alarm_pln||d.alarm_bat||d.beban_off;
     let alarmMsg='';
-    if(d.alarm_pln)alarmMsg+='PLN DROPOUT ';
-    if(d.alarm_bat)alarmMsg+='BAT KRITIS ';
-    if(d.beban_off)alarmMsg+='BEBAN TERPUTUS';
-    setAlarm(!!alarmAktif,alarmMsg.trim());
+    if(alarmPln) alarmMsg += 'PLN DROPOUT ';
+    if(alarmBat) alarmMsg += 'BAT KRITIS ';
+    if(bebanOff) alarmMsg += 'BEBAN TERPUTUS';
+    setAlarm(!!(alarmPln||alarmBat||bebanOff), alarmMsg.trim());
 
     // ── Battery SoC (range 11.0–13.2V) ──
-    const vbat=parseFloat(d.bat_v)||0;
-    let pct=((vbat-11.0)/(13.2-11.0))*100;
-    pct=Math.max(0,Math.min(100,pct));
-    const fill=document.getElementById('battFill');
+    let pct = ((batV - 11.0) / (13.2 - 11.0)) * 100;
+    pct = Math.max(0, Math.min(100, pct));
+    const fill = document.getElementById('battFill');
     if(fill){
-      fill.style.width=pct+'%';
-      fill.style.background=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';
+      fill.style.width = pct + '%';
+      fill.style.background = pct>60 ? 'var(--green)' : pct>25 ? 'var(--amber)' : 'var(--red)';
     }
     const pctEl=document.getElementById('s_bat_pct');
     if(pctEl){
-      pctEl.innerText=pct.toFixed(0)+'% SoC';
-      pctEl.style.color=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';
+      pctEl.innerText = pct.toFixed(0)+'% SoC';
+      pctEl.style.color = pct>60 ? 'var(--green)' : pct>25 ? 'var(--amber)' : 'var(--red)';
     }
 
     // ── Summary cards ──
-    // FIX: semua akses pakai fmt() helper, tidak crash kalau undefined
     const el_spln=document.getElementById('s_pln_v');
-    if(el_spln)el_spln.innerText=fmt(d.pln_v);
+    if(el_spln) el_spln.innerText = fmt(plnV);
+
     const el_sbat=document.getElementById('s_bat_v');
-    if(el_sbat)el_sbat.innerText=fmt(d.bat_v);
+    if(el_sbat) el_sbat.innerText = fmt(batV);
 
-    const totalW=d.beban_off?0:(d.source==='PLN'?parseFloat(d.pln_p||0):parseFloat(d.bat_p||0));
+    // Load power: tampilkan 0 saat beban off, sesuai source aktif saat menyala
+    const totalW = bebanOff ? 0 : (d.source==='PLN' ? plnP : batP);
     const el_sload=document.getElementById('s_load_w');
-    if(el_sload)el_sload.innerText=totalW.toFixed(0);
-    const el_sloadsub=document.getElementById('s_load_sub');
-    if(el_sloadsub)el_sloadsub.innerText=d.beban_off?'BEBAN TERPUTUS':'Dari: '+(d.source||'—');
+    if(el_sload) el_sload.innerText = totalW.toFixed(0);
 
-    // PLN status sub
-    const el_splnsub=document.getElementById('s_pln_sub');
-    if(el_splnsub){
-      const plnOk=!!d.pln_ok;
-      el_splnsub.innerText=plnOk?'Grid normal (≥180V)':'Grid tidak tersedia';
-      el_splnsub.style.color=plnOk?'var(--green)':'var(--red)';
+    const el_sloadsub=document.getElementById('s_load_sub');
+    if(el_sloadsub){
+      el_sloadsub.innerText = bebanOff ? 'BEBAN TERPUTUS' : 'Dari: '+(d.source||'—');
     }
 
-    // ── Flow SVG ──
+    // PLN sub status
+    const el_splnsub=document.getElementById('s_pln_sub');
+    if(el_splnsub){
+      el_splnsub.innerText = plnNormal ? 'Grid normal (≥180V)' : 'Grid tidak tersedia';
+      el_splnsub.style.color = plnNormal ? 'var(--green)' : 'var(--red)';
+    }
+
+    // ── Flow SVG values ──
     const ndPlnV=document.getElementById('nd_pln_v');
-    if(ndPlnV)ndPlnV.textContent=fmt(d.pln_v)+' V';
+    if(ndPlnV) ndPlnV.textContent = fmt(plnV)+' V';
+
     const ndBatV=document.getElementById('nd_bat_v');
-    if(ndBatV)ndBatV.textContent=fmt(d.bat_v)+' V';
+    if(ndBatV) ndBatV.textContent = fmt(batV)+' V';
+
     const ndLoadW=document.getElementById('nd_load_w');
-    if(ndLoadW)ndLoadW.textContent=totalW.toFixed(0)+' W';
+    if(ndLoadW) ndLoadW.textContent = totalW.toFixed(0)+' W';
 
     // ── PLN metrics ──
-    const el_plnv=document.getElementById('pln_v');if(el_plnv)el_plnv.innerText=fmt(d.pln_v);
-    const el_plni=document.getElementById('pln_i');if(el_plni)el_plni.innerText=fmt(d.pln_i);
-    const el_plnp=document.getElementById('pln_p');if(el_plnp)el_plnp.innerText=fmt(d.pln_p);
-    // FIX: pln_f dan pln_pf pakai fmt() agar tidak crash kalau undefined
-    const el_plnf=document.getElementById('pln_f');
-    if(el_plnf)el_plnf.innerText=fmt(d.pln_f);
-    // FIX: field dari ESP32 adalah 'pln_Wh' (kapital W)
-    const el_plne=document.getElementById('pln_e');
-    if(el_plne)el_plne.innerText=fmt(d.pln_Wh,3);
-    const el_plnpf=document.getElementById('pln_pf');
-    if(el_plnpf)el_plnpf.innerText=fmt(d.pln_pf);
+    const el_plnv=document.getElementById('pln_v');  if(el_plnv) el_plnv.innerText=fmt(plnV);
+    const el_plni=document.getElementById('pln_i');  if(el_plni) el_plni.innerText=fmt(plnI);
+    const el_plnp=document.getElementById('pln_p');  if(el_plnp) el_plnp.innerText=fmt(plnP);
+    const el_plnf=document.getElementById('pln_f');  if(el_plnf) el_plnf.innerText=fmt(plnF);
+    const el_plne=document.getElementById('pln_e');  if(el_plne) el_plne.innerText=fmt(plnWh,3);
+    const el_plnpf=document.getElementById('pln_pf');if(el_plnpf)el_plnpf.innerText=fmt(plnPf);
 
-    const plnV=parseFloat(d.pln_v)||0;
-    const plnI=parseFloat(d.pln_i)||0;
-    const plnP=parseFloat(d.pln_p)||0;
-    const plnPf=parseFloat(d.pln_pf)||0;
-    setBar('bar_pln_v',((plnV-180)/65)*100);
-    setBar('bar_pln_i',(plnI/15)*100);
-    setBar('bar_pln_p',(plnP/2500)*100);
-    setBar('bar_pln_pf',plnPf*100);
+    setBar('bar_pln_v', ((plnV-180)/65)*100);
+    setBar('bar_pln_i', (plnI/15)*100);
+    setBar('bar_pln_p', (plnP/2500)*100);
+    setBar('bar_pln_pf', plnPf*100);
 
     // ── BAT metrics ──
-    const el_batv=document.getElementById('bat_v');if(el_batv)el_batv.innerText=fmt(d.bat_v);
-    const el_bati=document.getElementById('bat_i');if(el_bati)el_bati.innerText=fmt(d.bat_i);
-    const el_batp=document.getElementById('bat_p');if(el_batp)el_batp.innerText=fmt(d.bat_p);
-    // FIX: field dari ESP32 adalah 'bat_Wh' (kapital W)
-    const el_bate=document.getElementById('bat_e');
-    if(el_bate)el_bate.innerText=fmt(d.bat_Wh,3);
+    const el_batv=document.getElementById('bat_v');  if(el_batv) el_batv.innerText=fmt(batV);
+    const el_bati=document.getElementById('bat_i');  if(el_bati) el_bati.innerText=fmt(batI);
+    const el_batp=document.getElementById('bat_p');  if(el_batp) el_batp.innerText=fmt(batP);
+    const el_bate=document.getElementById('bat_e');  if(el_bate) el_bate.innerText=fmt(batWh,3);
 
-    const batV=parseFloat(d.bat_v)||0;
-    const batI=parseFloat(d.bat_i)||0;
-    const batP=parseFloat(d.bat_p)||0;
-    setBar('bar_bat_v',((batV-8.5)/6.5)*100);
-    setBar('bar_bat_i',(batI/25)*100);
-    setBar('bar_bat_p',(batP/400)*100);
+    setBar('bar_bat_v', ((batV-8.5)/6.5)*100);
+    setBar('bar_bat_i', (batI/25)*100);
+    setBar('bar_bat_p', (batP/400)*100);
 
     // ── Source pill & flow ──
-    const pill=document.getElementById('srcPill');
-    const pillTxt=document.getElementById('srcPillText');
-    const sbSrc=document.getElementById('sbSource');
+    const pill    = document.getElementById('srcPill');
+    const pillTxt = document.getElementById('srcPillText');
+    const sbSrc   = document.getElementById('sbSource');
 
-    if(d.beban_off){
-      if(pill)pill.className='mode-pill off';
-      if(pillTxt)pillTxt.innerText='BEBAN OFF';
-      if(sbSrc)sbSrc.innerText='OFF';
-      const ndStat=document.getElementById('nd_load_stat');
-      if(ndStat)ndStat.textContent='BEBAN OFF';
+    if(bebanOff){
+      // beban_off=1: kedua relay OFF
+      if(pill)    pill.className='mode-pill off';
+      if(pillTxt) pillTxt.innerText='BEBAN OFF';
+      if(sbSrc)   sbSrc.innerText='OFF';
       setFlowState('OFF');
       pushTicker('BEBAN TERPUTUS — kondisi kritis','alarm');
 
     } else if(d.source==='PLN'){
-      if(pill)pill.className='mode-pill pln';
-      if(pillTxt)pillTxt.innerText='PLN AKTIF';
-      if(sbSrc)sbSrc.innerText='PLN';
+      if(pill)    pill.className='mode-pill pln';
+      if(pillTxt) pillTxt.innerText='PLN AKTIF';
+      if(sbSrc)   sbSrc.innerText='PLN';
       const ndPD=document.getElementById('nd_pln_data');
-      if(ndPD)ndPD.textContent=fmt(d.pln_v,1)+'V / '+fmt(d.pln_p,0)+'W';
+      if(ndPD) ndPD.textContent=fmt(plnV,1)+'V / '+fmt(plnP,0)+'W';
       const ndBD=document.getElementById('nd_bat_data');
-      if(ndBD)ndBD.textContent='—';
+      if(ndBD) ndBD.textContent='—';
       setFlowState('PLN');
-      pushTicker('SRC: PLN '+fmt(d.pln_v,1)+'V / '+fmt(d.pln_p,0)+'W | PF:'+fmt(d.pln_pf));
+      pushTicker('SRC: PLN '+fmt(plnV,1)+'V / '+fmt(plnP,0)+'W | PF:'+fmt(plnPf));
 
     } else if(d.source==='BAT'){
-      if(pill)pill.className='mode-pill bat';
-      if(pillTxt)pillTxt.innerText='BAT AKTIF';
-      if(sbSrc)sbSrc.innerText='BAT';
+      if(pill)    pill.className='mode-pill bat';
+      if(pillTxt) pillTxt.innerText='BAT AKTIF';
+      if(sbSrc)   sbSrc.innerText='BAT';
       const ndBD=document.getElementById('nd_bat_data');
-      if(ndBD)ndBD.textContent=fmt(d.bat_v)+'V / '+fmt(d.bat_p,0)+'W';
+      if(ndBD) ndBD.textContent=fmt(batV)+'V / '+fmt(batP,0)+'W';
       const ndPD=document.getElementById('nd_pln_data');
-      if(ndPD)ndPD.textContent='—';
+      if(ndPD) ndPD.textContent='—';
       setFlowState('BAT');
-      pushTicker('SRC: BAT '+fmt(d.bat_v)+'V / '+pct.toFixed(0)+'% SoC','warn');
+      pushTicker('SRC: BAT '+fmt(batV)+'V / '+pct.toFixed(0)+'% SoC','warn');
     }
 
     // ── History: catat saat source berganti ──
-    if(d.source&&d.source!==lastSource){
-      const wh=d.source==='PLN'?parseFloat(d.pln_Wh||0):parseFloat(d.bat_Wh||0);
-      const note='Switch ke '+d.source+
+    if(d.source && d.source!==lastSource){
+      const wh = d.source==='PLN' ? plnWh : batWh;
+      const note = 'Switch ke '+d.source+
         ' | Mode: '+(d.mode||'—')+
-        (d.source==='PLN'?' | '+fmt(d.pln_v,1)+'V':' | '+fmt(d.bat_v)+'V / '+pct.toFixed(0)+'% SoC');
-      histAdd('SWITCH',d.source,wh,note);
-      lastSource=d.source;
+        (d.source==='PLN' ? ' | '+fmt(plnV,1)+'V' : ' | '+fmt(batV)+'V / '+pct.toFixed(0)+'% SoC');
+      histAdd('SWITCH', d.source, wh, note);
+      lastSource = d.source;
     }
-    // FIX: field pln_cycle & bat_cycle ada di payload ESP32
-    if(d.pln_cycle!==undefined&&parseFloat(d.pln_cycle)>0)
-      histAdd('SWITCH','PLN',d.pln_cycle,'PLN cycle energy: '+fmt(d.pln_cycle,3)+' Wh');
-    if(d.bat_cycle!==undefined&&parseFloat(d.bat_cycle)>0)
-      histAdd('SWITCH','BAT',d.bat_cycle,'BAT cycle energy: '+fmt(d.bat_cycle,3)+' Wh');
 
-    // FIX: pushChart setelah semua data diproses, dengan null safety
+    // cycle energy dari ESP32
+    if(d.pln_cycle !== undefined && parseFloat(d.pln_cycle) > 0)
+      histAdd('SWITCH','PLN', d.pln_cycle, 'PLN cycle energy: '+fmt(d.pln_cycle,3)+' Wh');
+    if(d.bat_cycle !== undefined && parseFloat(d.bat_cycle) > 0)
+      histAdd('SWITCH','BAT', d.bat_cycle, 'BAT cycle energy: '+fmt(d.bat_cycle,3)+' Wh');
+
+    // push ke chart
     pushChart(d);
   });
 }
 
 /* ════════════════════════════════════════
-   INIT — panggil MQTT setelah DOM ready
-   FIX: tidak bergantung pada DOMContentLoaded saja
-        karena script mungkin dieksekusi setelah DOM ready
+   INIT
 ════════════════════════════════════════ */
 if(document.readyState==='loading'){
   document.addEventListener('DOMContentLoaded',initMQTT);
