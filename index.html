@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -126,7 +126,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 .mode-pill.manual{border:1px solid rgba(245,158,11,0.3);background:var(--amber-dim);color:var(--amber);}
 .mode-pill-dot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:dot-pulse 2s infinite;}
 
-/* ══ NOTIFY BANNER ← test/notify ══ */
+/* ══ NOTIFY BANNER ══ */
 #notifyBanner{display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:var(--radius-sm);margin-bottom:12px;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid;}
 #notifyBanner.show{display:flex;}
 #notifyBanner.ok{background:var(--green-dim);border-color:rgba(34,211,160,0.3);color:var(--green);}
@@ -228,29 +228,23 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 .chart-wrap{height:180px;position:relative;}
 
 /* ══ CONTROL PAGE ══ */
-/* Mode row */
-.mode-row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:14px;}
+/* Mode row — single card full width */
+.mode-row{display:grid;grid-template-columns:1fr;gap:12px;margin-bottom:14px;}
 .mode-card{background:var(--bg1);border:1px solid var(--border);border-radius:var(--radius);padding:20px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
 .mode-card::before{content:'';position:absolute;inset:0;opacity:0;transition:opacity .2s;}
 .mode-card.m-auto::before{background:var(--accent-dim);}
-.mode-card.m-manual::before{background:var(--amber-dim);}
 .mode-card:hover::before{opacity:1;}
 .mode-card.m-auto:hover{border-color:rgba(59,130,246,0.4);}
-.mode-card.m-manual:hover{border-color:rgba(245,158,11,0.4);}
 .mode-card.m-auto.selected{border-color:rgba(59,130,246,0.5);background:rgba(59,130,246,0.08);}
-.mode-card.m-manual.selected{border-color:rgba(245,158,11,0.5);background:rgba(245,158,11,0.06);}
 .mode-card:active{transform:scale(.98);}
 .mc-inner{position:relative;z-index:1;}
 .mc-tag{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:12px;font-weight:700;}
 .mc-icon{width:44px;height:44px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:14px;border:1px solid transparent;}
 .mode-card.m-auto .mc-icon{background:var(--accent-dim);border-color:rgba(59,130,246,0.3);}
-.mode-card.m-manual .mc-icon{background:var(--amber-dim);border-color:rgba(245,158,11,0.3);}
 .mc-icon svg{width:20px;height:20px;fill:none;stroke-width:2;}
 .mode-card.m-auto .mc-icon svg{stroke:var(--accent);}
-.mode-card.m-manual .mc-icon svg{stroke:var(--amber);}
 .mc-name{font-size:16px;font-weight:700;margin-bottom:6px;}
 .mode-card.m-auto .mc-name{color:var(--accent);}
-.mode-card.m-manual .mc-name{color:var(--amber);}
 .mc-desc{font-size:13px;color:var(--text2);line-height:1.6;}
 
 /* CMD cards */
@@ -391,7 +385,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
       <div><div class="login-title">EMS SCADA</div><div class="login-sub">v3.0 — SECURE ACCESS</div></div>
     </div>
     <div class="login-heading">Sign In</div>
-    <div class="login-desc">Masukkan kredensial untuk mengakses Energy Management System.</div>
+    <div class="login-desc">Enter your credentials to access the Energy Management System.</div>
     <div class="field-group">
       <label class="field-label">User ID</label>
       <input class="field-input" id="uname" placeholder="Username" autocomplete="off">
@@ -409,9 +403,9 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 <div id="critOverlay">
   <div class="crit-box">
     <span class="crit-icon">⚡</span>
-    <div class="crit-title">KONDISI KRITIS</div>
-    <div class="crit-msg" id="critMsg">PLN mati + Baterai lemah. Beban diputus otomatis.</div>
-    <button class="crit-ack" onclick="document.getElementById('critOverlay').classList.remove('show')">SAYA MENGERTI</button>
+    <div class="crit-title">CRITICAL CONDITION</div>
+    <div class="crit-msg" id="critMsg">Grid down + Battery critical. Load disconnected automatically.</div>
+    <button class="crit-ack" onclick="document.getElementById('critOverlay').classList.remove('show')">ACKNOWLEDGED</button>
   </div>
 </div>
 
@@ -432,7 +426,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
     </div>
     <div class="topbar-right">
       <div class="top-clock" id="datetime">--:--:--</div>
-      <!-- Mode badge dari ESP32 -->
+      <!-- Mode badge from ESP32 -->
       <div class="top-badge warn" id="modeBadge">
         <div class="badge-dot"></div>
         <span id="modeLabel">AUTO</span>
@@ -536,9 +530,9 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
             <div class="sum-sub" id="s_load_sub">Active consumption</div>
           </div>
           <div class="summary-card mode">
-            <div class="sum-label">Mode Operasi</div>
+            <div class="sum-label">Operation Mode</div>
             <div class="sum-value" id="s_mode" style="font-size:18px">AUTO</div>
-            <div class="sum-sub" id="s_mode_sub">Sistem otomatis</div>
+            <div class="sum-sub" id="s_mode_sub">Automatic system</div>
           </div>
         </div>
 
@@ -600,13 +594,13 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
           <div class="metric-card"><div class="metric-tag bat">BAT</div><div class="metric-label">Energy</div><div class="metric-value"><span id="bat_e">0.00</span><span class="unit">Wh</span></div></div>
         </div>
 
-        <!-- Status Flags dari ESP32 -->
+        <!-- Status Flags from ESP32 -->
         <div class="section-header" style="margin-top:6px;"><div class="section-title">System Flags</div><div class="section-line"></div></div>
         <div class="metrics-grid">
-          <div class="metric-card"><div class="metric-tag">FLAG</div><div class="metric-label">Status PLN</div><div class="metric-value sm" id="flag_pln" style="color:var(--green)">NORMAL</div></div>
-          <div class="metric-card"><div class="metric-tag bat">FLAG</div><div class="metric-label">Status Baterai</div><div class="metric-value sm" id="flag_bat" style="color:var(--green)">NORMAL</div></div>
-          <div class="metric-card"><div class="metric-tag load">FLAG</div><div class="metric-label">Status Beban</div><div class="metric-value sm" id="flag_beban" style="color:var(--green)">TERSAMBUNG</div></div>
-          <div class="metric-card"><div class="metric-tag sys">FLAG</div><div class="metric-label">Validasi Manual</div><div class="metric-value sm" id="flag_manual" style="color:var(--text3)">—</div></div>
+          <div class="metric-card"><div class="metric-tag">FLAG</div><div class="metric-label">Grid Status</div><div class="metric-value sm" id="flag_pln" style="color:var(--green)">NORMAL</div></div>
+          <div class="metric-card"><div class="metric-tag bat">FLAG</div><div class="metric-label">Battery Status</div><div class="metric-value sm" id="flag_bat" style="color:var(--green)">NORMAL</div></div>
+          <div class="metric-card"><div class="metric-tag load">FLAG</div><div class="metric-label">Load Status</div><div class="metric-value sm" id="flag_beban" style="color:var(--green)">CONNECTED</div></div>
+          <div class="metric-card"><div class="metric-tag sys">FLAG</div><div class="metric-label">Manual Validation</div><div class="metric-value sm" id="flag_manual" style="color:var(--text3)">—</div></div>
         </div>
 
         <!-- Chart -->
@@ -638,48 +632,40 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
             <div class="page-icon" style="background:rgba(245,158,11,0.1);border-color:rgba(245,158,11,0.2);">
               <svg viewBox="0 0 24 24" style="stroke:var(--amber)"><circle cx="12" cy="12" r="3"/><path d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83"/></svg>
             </div>
-            <div><div class="page-title">Control Panel</div><div class="page-subtitle">SESUAI FLOWCHART</div></div>
+            <div><div class="page-title">Control Panel</div><div class="page-subtitle">FLOWCHART BASED</div></div>
           </div>
         </div>
 
-        <!-- Notify di control page -->
+        <!-- Notify in control page -->
         <div id="notifyBanner2" style="display:none;align-items:center;gap:10px;padding:11px 16px;border-radius:9px;margin-bottom:12px;font-family:var(--mono);font-size:12px;font-weight:600;border:1px solid;">
           <div style="width:7px;height:7px;border-radius:50%;background:currentColor;flex-shrink:0;"></div>
           <span id="notifyText2" style="flex:1;">—</span>
           <span onclick="closeNotify2()" style="cursor:pointer;opacity:.6;font-size:14px;padding:0 4px;">✕</span>
         </div>
 
-        <!-- MODE SWITCH -->
-        <div class="section-header"><div class="section-title">Mode Operasi</div><div class="section-line"></div></div>
+        <!-- OPERATION MODE — AUTO only -->
+        <div class="section-header"><div class="section-title">Operation Mode</div><div class="section-line"></div></div>
         <div class="mode-row">
-          <div class="mode-card m-auto selected" id="mc_auto" onclick="sendMode('AUTO')">
+          <div class="mode-card m-auto selected" id="mc_auto">
             <div class="mc-inner">
               <div class="mc-tag">CMD-MODE-01</div>
               <div class="mc-icon"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 18 0 9 9 0 0 0-18 0"/><path d="M12 8v4l3 3"/></svg></div>
-              <div class="mc-name">Mode AUTO</div>
-              <div class="mc-desc">Sistem mengatur sumber otomatis. AUTO selalu jadi prioritas keamanan dan dapat override MANUAL.</div>
-            </div>
-          </div>
-          <div class="mode-card m-manual" id="mc_manual" onclick="sendMode('MANUAL')">
-            <div class="mc-inner">
-              <div class="mc-tag">CMD-MODE-02</div>
-              <div class="mc-icon"><svg viewBox="0 0 24 24"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg></div>
-              <div class="mc-name">Mode MANUAL</div>
-              <div class="mc-desc">Operator kontrol sumber secara manual. Perintah tetap divalidasi AUTO sebelum dieksekusi.</div>
+              <div class="mc-name">AUTO Mode</div>
+              <div class="mc-desc">System automatically manages power source switching. AUTO is always the safety priority and overrides all manual commands.</div>
             </div>
           </div>
         </div>
 
-        <!-- SOURCE COMMANDS — aktif hanya saat MANUAL -->
-        <div class="section-header"><div class="section-title">Perintah Sumber (Manual Only)</div><div class="section-line"></div></div>
-        <div id="manualDisabledMsg" class="manual-disabled-msg">Mode AUTO aktif — pilih Mode MANUAL terlebih dahulu untuk memberi perintah sumber.</div>
+        <!-- SOURCE COMMANDS — active only in MANUAL -->
+        <div class="section-header"><div class="section-title">Source Commands (Manual Only)</div><div class="section-line"></div></div>
+        <div id="manualDisabledMsg" class="manual-disabled-msg">AUTO Mode is active — switch to MANUAL Mode first to send source commands.</div>
         <div class="cmd-grid" id="cmdCards" style="display:none;">
           <div class="cmd-card c-bat" id="cmdBat" onclick="sendCmd('BAT')">
             <div class="cmd-card-inner">
               <div class="cmd-tag">CMD-SRC-01</div>
               <div class="cmd-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3M7 7V4M11 7V4"/></svg></div>
               <div class="cmd-name">Battery</div>
-              <div class="cmd-desc">Pindah ke baterai/inverter. Divalidasi AUTO: Vbat harus ≥ 10.5V.</div>
+              <div class="cmd-desc">Switch to battery/inverter. AUTO validated: Vbat must be ≥ 10.5V.</div>
             </div>
           </div>
           <div class="cmd-card c-pln" id="cmdPln" onclick="sendCmd('PLN')">
@@ -687,22 +673,22 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
               <div class="cmd-tag">CMD-SRC-02</div>
               <div class="cmd-icon"><svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg></div>
               <div class="cmd-name">PLN Grid</div>
-              <div class="cmd-desc">Pindah ke jaringan PLN. Divalidasi AUTO: PLN harus tersedia ≥ 180V.</div>
+              <div class="cmd-desc">Switch to PLN grid. AUTO validated: PLN must be available ≥ 180V.</div>
             </div>
           </div>
           <div class="cmd-card c-off cmd-full" id="cmdOff" onclick="sendCmd('BEBAN_OFF')">
             <div class="cmd-card-inner">
               <div class="cmd-tag">CMD-SRC-03</div>
               <div class="cmd-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg></div>
-              <div class="cmd-name">Beban OFF</div>
-              <div class="cmd-desc">Putuskan semua relay. Selalu diizinkan oleh AUTO. Untuk mengaktifkan kembali, kirim perintah PLN atau BAT.</div>
+              <div class="cmd-name">Load OFF</div>
+              <div class="cmd-desc">Disconnect all relays. Always permitted by AUTO. To re-enable, send PLN or BAT command.</div>
             </div>
           </div>
         </div>
 
         <div class="status-card">
           <div class="status-dot-el on" id="statusDot"></div>
-          <div class="status-text" id="statusText">MENUNGGU PERINTAH</div>
+          <div class="status-text" id="statusText">AWAITING COMMAND</div>
         </div>
       </div><!-- /control -->
 
@@ -726,17 +712,17 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
             <div class="hist-stat-chip">Events: <span id="histCountEl">0</span></div>
             <div class="hist-stat-chip">PLN: <span id="histPlnWh">0.000</span> Wh</div>
             <div class="hist-stat-chip">BAT: <span id="histBatWh">0.000</span> Wh</div>
-            <div class="hist-stat-chip">Tolak: <span id="histRejCount">0</span></div>
+            <div class="hist-stat-chip">Rejected: <span id="histRejCount">0</span></div>
           </div>
-          <button class="hist-clear-btn" onclick="histClearDay()">Hapus Hari Ini</button>
+          <button class="hist-clear-btn" onclick="histClearDay()">Clear Today</button>
         </div>
         <div class="section-header"><div class="section-title" id="histSectionTitle">Switching Events</div><div class="section-line"></div></div>
         <div class="table-card">
           <table class="hist-table">
-            <thead><tr><th>Waktu</th><th>Tipe</th><th>Source</th><th>Energy (Wh)</th><th>Keterangan</th></tr></thead>
+            <thead><tr><th>Time</th><th>Type</th><th>Source</th><th>Energy (Wh)</th><th>Description</th></tr></thead>
             <tbody id="histTable"></tbody>
           </table>
-          <div class="hist-empty" id="histEmpty" style="display:none;">Tidak ada data untuk tanggal ini.</div>
+          <div class="hist-empty" id="histEmpty" style="display:none;">No data available for this date.</div>
         </div>
       </div><!-- /history -->
 
@@ -781,8 +767,8 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
 function updateClock(){
   const n=new Date();
   document.getElementById('datetime').innerText=
-    n.toLocaleDateString('id-ID',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+' | '+
-    n.toLocaleTimeString('id-ID');
+    n.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short',year:'numeric'})+' | '+
+    n.toLocaleTimeString('en-GB');
 }
 setInterval(updateClock,1000);updateClock();
 
@@ -799,7 +785,7 @@ function hideApp(){
 }
 
 /* ════════════════════════════════════════
-   IDLE LOGOUT (10 menit)
+   IDLE LOGOUT (10 minutes)
 ════════════════════════════════════════ */
 let idleTimer;
 function resetTimer(){clearTimeout(idleTimer);idleTimer=setTimeout(logout,10*60*1000);}
@@ -859,21 +845,19 @@ function pushTicker(msg,type=''){
   const el=document.getElementById('sbTicker');
   if(!el)return;
   el.className='sb-ticker '+(type||'');
-  el.innerText=new Date().toLocaleTimeString('id-ID')+' — '+msg;
+  el.innerText=new Date().toLocaleTimeString('en-GB')+' — '+msg;
 }
 
 /* ════════════════════════════════════════
-   NOTIFY BANNER (test/notify)
+   NOTIFY BANNER
 ════════════════════════════════════════ */
 let notifyTimer,notifyTimer2;
 function showNotify(msg,type){
-  // monitor page
   const b=document.getElementById('notifyBanner');
   b.className='show '+type;
   document.getElementById('notifyText').innerText=msg;
   clearTimeout(notifyTimer);
   notifyTimer=setTimeout(()=>b.className='',9000);
-  // control page
   const b2=document.getElementById('notifyBanner2');
   const colorMap={ok:'var(--green-dim),rgba(34,211,160,0.3),var(--green)',warn:'var(--amber-dim),rgba(245,158,11,0.3),var(--amber)',err:'var(--red-dim),rgba(239,68,68,0.3),var(--red)',info:'var(--accent-dim),rgba(59,130,246,0.3),var(--accent)'};
   const [bg,bc,fc]=(colorMap[type]||colorMap.info).split(',');
@@ -896,27 +880,20 @@ function setAlarm(show,msg){
 }
 
 /* ════════════════════════════════════════
-   MODE UI — sinkron dari ESP32 (field mode)
-   currentMode hanya diupdate dari data ESP32
-   BUKAN dari UI sendiri
+   MODE UI — synced from ESP32 (field: mode)
+   currentMode updated only from ESP32 data
 ════════════════════════════════════════ */
 let currentMode='AUTO';
 
 function updateModeUI(mode){
   currentMode=mode;
-  // topbar badge
   const mb=document.getElementById('modeBadge');
   mb.className='top-badge '+(mode==='AUTO'?'warn':'ok');
   document.getElementById('modeLabel').innerText=mode;
-  // statusbar
   document.getElementById('sbMode').innerText=mode;
-  // summary card
   document.getElementById('s_mode').innerText=mode;
-  document.getElementById('s_mode_sub').innerText=mode==='AUTO'?'Sistem otomatis':'Operator kontrol';
-  // control page highlight
+  document.getElementById('s_mode_sub').innerText=mode==='AUTO'?'Automatic system':'Operator control';
   document.getElementById('mc_auto').classList.toggle('selected',mode==='AUTO');
-  document.getElementById('mc_manual').classList.toggle('selected',mode==='MANUAL');
-  // show/hide cmd cards
   document.getElementById('manualDisabledMsg').style.display=mode==='AUTO'?'block':'none';
   document.getElementById('cmdCards').style.display=mode==='MANUAL'?'grid':'none';
 }
@@ -954,7 +931,7 @@ function refreshChart(){
   mainChart.update('none');
 }
 function pushChart(d){
-  const t=new Date().toLocaleTimeString('id-ID');
+  const t=new Date().toLocaleTimeString('en-GB');
   chartLabels.push(t);
   chartData.PLN.V.push(d.pln_v);chartData.PLN.I.push(d.pln_i);chartData.PLN.P.push(d.pln_p);
   chartData.BAT.V.push(d.bat_v);chartData.BAT.I.push(d.bat_i);chartData.BAT.P.push(d.bat_p);
@@ -974,7 +951,6 @@ function setFlowState(src){
   const tPL=document.getElementById('trackPL');const tLB=document.getElementById('trackLB');
   const lR=document.getElementById('nodeL_rect');
   if(!pR)return;
-  // reset
   pR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.1);stroke-width:1';
   bR.style.cssText='fill:rgba(255,255,255,0.03);stroke:rgba(255,255,255,0.1);stroke-width:1';
   lR.style.cssText='fill:rgba(245,158,11,0.07);stroke:rgba(245,158,11,0.35);stroke-width:1.5';
@@ -994,7 +970,7 @@ function setFlowState(src){
     dLB.className='flow-dash bat flowing';tLB.style.stroke='rgba(34,211,160,0.3)';
   } else if(src==='OFF'){
     lR.style.cssText='fill:rgba(239,68,68,0.07);stroke:rgba(239,68,68,0.35);stroke-width:1.5';
-    document.getElementById('nd_load_stat').textContent='BEBAN OFF';
+    document.getElementById('nd_load_stat').textContent='LOAD OFF';
   }
 }
 
@@ -1003,14 +979,14 @@ function setFlowState(src){
 ════════════════════════════════════════ */
 let histViewDate=todayKey(),histSeq=0,lastSource='';
 function todayKey(){const n=new Date();return n.getFullYear()+'-'+String(n.getMonth()+1).padStart(2,'0')+'-'+String(n.getDate()).padStart(2,'0');}
-function dateLabel(k){const[y,m,d]=k.split('-');return new Date(+y,+m-1,+d).toLocaleDateString('id-ID',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
+function dateLabel(k){const[y,m,d]=k.split('-');return new Date(+y,+m-1,+d).toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',year:'numeric'});}
 function histKey(d){return 'ems_hist_'+d;}
 function histLoad(d){try{return JSON.parse(localStorage.getItem(histKey(d))||'[]');}catch{return [];}}
 function histSave(d,a){try{localStorage.setItem(histKey(d),JSON.stringify(a));}catch(e){}}
 function histAdd(type,source,energyWh,note){
   const dk=todayKey(),a=histLoad(dk);
   histSeq++;
-  a.unshift({ts:new Date().toLocaleTimeString('id-ID'),type:type,source:source||'—',energy:parseFloat(energyWh||0).toFixed(3),note:note||'',seq:histSeq,date:dk});
+  a.unshift({ts:new Date().toLocaleTimeString('en-GB'),type:type,source:source||'—',energy:parseFloat(energyWh||0).toFixed(3),note:note||'',seq:histSeq,date:dk});
   histSave(dk,a);
   if(histViewDate===dk&&document.getElementById('history').classList.contains('active'))renderHistory();
 }
@@ -1021,7 +997,7 @@ function histNavDay(delta){
   renderHistory();
 }
 function histClearDay(){
-  if(!confirm('Hapus semua history untuk '+dateLabel(histViewDate)+'?'))return;
+  if(!confirm('Clear all history for '+dateLabel(histViewDate)+'?'))return;
   localStorage.removeItem(histKey(histViewDate));renderHistory();
   pushTicker('HISTORY CLEARED: '+histViewDate,'warn');
 }
@@ -1064,27 +1040,26 @@ function renderHistory(){
 histViewDate=todayKey();
 
 /* ════════════════════════════════════════
-   SEND MODE & CMD ke ESP32
+   SEND CMD to ESP32
    Topic: test/control
    Payload: AUTO | MANUAL | PLN | BAT | BEBAN_OFF
 ════════════════════════════════════════ */
 function sendMode(mode){
-  if(!client||!client.connected){showNotify('MQTT tidak terhubung!','err');return;}
+  if(!client||!client.connected){showNotify('MQTT not connected!','err');return;}
   client.publish('test/control',mode);
   pushTicker('CMD MODE: '+mode,'warn');
-  histAdd('CMD',mode,0,'Kirim mode: '+mode);
-  setStatus('CMD DIKIRIM: '+mode+' — menunggu konfirmasi ESP32...','warn');
+  histAdd('CMD',mode,0,'Send mode: '+mode);
+  setStatus('CMD SENT: '+mode+' — awaiting ESP32 confirmation...','warn');
 }
 
 function sendCmd(cmd){
-  if(!client||!client.connected){showNotify('MQTT tidak terhubung!','err');return;}
-  // Proteksi UI: hanya bisa kirim sumber jika mode MANUAL
-  if(currentMode!=='MANUAL'){showNotify('Aktifkan Mode MANUAL terlebih dahulu!','warn');return;}
+  if(!client||!client.connected){showNotify('MQTT not connected!','err');return;}
+  if(currentMode!=='MANUAL'){showNotify('Activate MANUAL Mode first!','warn');return;}
   client.publish('test/control',cmd);
   pushTicker('CMD: '+cmd,'warn');
-  histAdd('CMD',cmd,0,'Kirim perintah: '+cmd);
-  setStatus('CMD DIKIRIM: '+cmd+' — menunggu validasi AUTO...','warn');
-  showNotify('Perintah '+cmd+' dikirim ke ESP32 — menunggu validasi...','info');
+  histAdd('CMD',cmd,0,'Send command: '+cmd);
+  setStatus('CMD SENT: '+cmd+' — awaiting AUTO validation...','warn');
+  showNotify('Command '+cmd+' sent to ESP32 — awaiting validation...','info');
 }
 
 function setStatus(msg,type){
@@ -1107,7 +1082,7 @@ function initMQTT(){
 
   client.on('connect',()=>{
     client.subscribe('test/monitor');
-    client.subscribe('test/notify'); // ← notifikasi validasi dari ESP32
+    client.subscribe('test/notify');
     document.getElementById('connDot').className='conn-dot online';
     document.getElementById('connLabel').innerText='ONLINE';
     document.getElementById('mqttBadge').className='top-badge ok';
@@ -1130,7 +1105,7 @@ function initMQTT(){
     resetTimer();
     const msg=payload.toString();
 
-    /* ─── test/notify: hasil validasi dari ESP32 ─── */
+    /* ─── test/notify: validation result from ESP32 ─── */
     if(topic==='test/notify'){
       let n;try{n=JSON.parse(msg);}catch{return;}
       const txt=n.msg||n.reason||'—';
@@ -1138,98 +1113,95 @@ function initMQTT(){
       if(n.alarm==='KRITIS'||n.status==='KRITIS'){
         document.getElementById('critMsg').innerText=txt;
         document.getElementById('critOverlay').classList.add('show');
-        setAlarm(true,'🔴 KRITIS: '+txt);
-        pushTicker('⚡ KRITIS: '+txt,'alarm');
-        histAdd('ALARM','—',0,'KRITIS: '+txt);
-        setStatus('⚡ KRITIS: '+txt,'err');
+        setAlarm(true,'🔴 CRITICAL: '+txt);
+        pushTicker('⚡ CRITICAL: '+txt,'alarm');
+        histAdd('ALARM','—',0,'CRITICAL: '+txt);
+        setStatus('⚡ CRITICAL: '+txt,'err');
 
       } else if(n.status==='ACCEPTED'){
-        showNotify('✅ DIIZINKAN: '+txt,'ok');
-        pushTicker('CMD DIIJINKAN','ok');
+        showNotify('✅ ACCEPTED: '+txt,'ok');
+        pushTicker('CMD ACCEPTED','ok');
         histAdd('NOTIFY','—',0,'ACCEPTED: '+txt);
-        setStatus('✅ CMD DITERIMA & DIEKSEKUSI','ok');
+        setStatus('✅ CMD ACCEPTED & EXECUTED','ok');
 
       } else if(n.status==='REJECTED'){
-        showNotify('❌ DITOLAK: '+txt,'err');
-        pushTicker('CMD DITOLAK: '+txt,'alarm');
+        showNotify('❌ REJECTED: '+txt,'err');
+        pushTicker('CMD REJECTED: '+txt,'alarm');
         histAdd('REJECT','—',0,'REJECTED: '+txt);
-        setStatus('❌ CMD DITOLAK: '+txt,'err');
+        setStatus('❌ CMD REJECTED: '+txt,'err');
 
       } else if(n.status==='MODE_AUTO'){
-        showNotify('Mode AUTO aktif','info');
+        showNotify('AUTO Mode active','info');
         pushTicker('MODE: AUTO','ok');
         histAdd('CMD','AUTO',0,txt);
-        setStatus('Mode AUTO aktif','ok');
+        setStatus('AUTO Mode active','ok');
 
       } else if(n.status==='MODE_MANUAL'){
-        showNotify('Mode MANUAL aktif — kirim perintah sumber','warn');
+        showNotify('MANUAL Mode active — send source command','warn');
         pushTicker('MODE: MANUAL','warn');
         histAdd('CMD','MANUAL',0,txt);
-        setStatus('Mode MANUAL aktif — tunggu perintah sumber','warn');
+        setStatus('MANUAL Mode active — waiting for source command','warn');
 
       } else if(n.status==='IGNORED'){
-        showNotify('⚠ Perintah diabaikan: '+txt,'warn');
-        pushTicker('CMD DIABAIKAN','warn');
+        showNotify('⚠ Command ignored: '+txt,'warn');
+        pushTicker('CMD IGNORED','warn');
         histAdd('NOTIFY','—',0,'IGNORED: '+txt);
-        setStatus('⚠ Perintah diabaikan — aktifkan MODE MANUAL dulu','warn');
+        setStatus('⚠ Command ignored — activate MANUAL MODE first','warn');
       }
       return;
     }
 
-    /* ─── test/monitor: data sensor dari ESP32 ─── */
+    /* ─── test/monitor: sensor data from ESP32 ─── */
     if(topic!=='test/monitor')return;
     let d;try{d=JSON.parse(msg);}catch{return;}
 
-    // ── Update mode dari ESP32 ──
     if(d.mode)updateModeUI(d.mode);
 
-    // ── Alarm flags dari ESP32 ──
-    // PLN alarm
+    // PLN alarm flag
     const fp=document.getElementById('flag_pln');
-    if(fp){fp.innerText=d.alarm_pln?'MATI / DROPOUT':'NORMAL';fp.style.color=d.alarm_pln?'var(--red)':'var(--green)';}
-    // BAT alarm
+    if(fp){fp.innerText=d.alarm_pln?'DROPOUT / FAULT':'NORMAL';fp.style.color=d.alarm_pln?'var(--red)':'var(--green)';}
+    // BAT alarm flag
     const fb=document.getElementById('flag_bat');
-    if(fb){fb.innerText=d.alarm_bat?'KRITIS':'NORMAL';fb.style.color=d.alarm_bat?'var(--red)':'var(--green)';}
-    // Beban off
+    if(fb){fb.innerText=d.alarm_bat?'CRITICAL':'NORMAL';fb.style.color=d.alarm_bat?'var(--red)':'var(--green)';}
+    // Load off flag
     const fl=document.getElementById('flag_beban');
-    if(fl){fl.innerText=d.beban_off?'TERPUTUS':'TERSAMBUNG';fl.style.color=d.beban_off?'var(--red)':'var(--green)';}
-    // Manual ok
+    if(fl){fl.innerText=d.beban_off?'DISCONNECTED':'CONNECTED';fl.style.color=d.beban_off?'var(--red)':'var(--green)';}
+    // Manual validation flag
     const fm=document.getElementById('flag_manual');
     if(fm){
       if(d.manual_ok===undefined||d.manual_ok===null){fm.innerText='—';fm.style.color='var(--text3)';}
-      else if(d.manual_ok){fm.innerText='DIIJINKAN';fm.style.color='var(--green)';}
-      else{fm.innerText='DITOLAK';fm.style.color='var(--red)';}
+      else if(d.manual_ok){fm.innerText='ACCEPTED';fm.style.color='var(--green)';}
+      else{fm.innerText='REJECTED';fm.style.color='var(--red)';}
     }
 
     // Alarm strip
     const alarmAktif=d.alarm_pln||d.alarm_bat||d.beban_off;
     let alarmMsg='';
-    if(d.alarm_pln)alarmMsg+='PLN DROPOUT ';
-    if(d.alarm_bat)alarmMsg+='BAT KRITIS ';
-    if(d.beban_off)alarmMsg+='BEBAN TERPUTUS';
+    if(d.alarm_pln)alarmMsg+='GRID DROPOUT ';
+    if(d.alarm_bat)alarmMsg+='BATTERY CRITICAL ';
+    if(d.beban_off)alarmMsg+='LOAD DISCONNECTED';
     setAlarm(!!alarmAktif,alarmMsg.trim());
 
-    // ── Battery SoC (range 10.5V–13.8V sesuai ESP32) ──
+    // Battery SoC (range 10.5V–13.8V)
     let pct=((d.bat_v-10.5)/(13.8-10.5))*100;pct=Math.max(0,Math.min(100,pct));
     const fill=document.getElementById('battFill');
     if(fill){fill.style.width=pct+'%';fill.style.background=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';}
     const pctEl=document.getElementById('s_bat_pct');
     if(pctEl){pctEl.innerText=pct.toFixed(0)+'% SoC';pctEl.style.color=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';}
 
-    // ── Summary cards ──
+    // Summary cards
     document.getElementById('s_pln_v').innerText=d.pln_v.toFixed(2);
     document.getElementById('s_bat_v').innerText=d.bat_v.toFixed(2);
     const totalW=d.beban_off?0:(d.source==='PLN'?d.pln_p:d.bat_p);
     document.getElementById('s_load_w').innerText=totalW.toFixed(0);
-    document.getElementById('s_load_sub').innerText=d.beban_off?'BEBAN TERPUTUS':'Dari: '+(d.source||'—');
-    if(d.pln_Wh!==undefined){}// handled in pln_e below
+    document.getElementById('s_load_sub').innerText=d.beban_off?'LOAD DISCONNECTED':'From: '+(d.source||'—');
 
-    // ── Flow SVG ──
+    // Flow SVG
     document.getElementById('nd_pln_v').textContent=d.pln_v.toFixed(2)+' V';
     document.getElementById('nd_bat_v').textContent=d.bat_v.toFixed(2)+' V';
     document.getElementById('nd_load_w').textContent=totalW.toFixed(0)+' W';
 
-    // ── PLN metrics ──
+    // PLN metrics
     document.getElementById('pln_v').innerText=d.pln_v.toFixed(2);
     document.getElementById('pln_i').innerText=d.pln_i.toFixed(2);
     document.getElementById('pln_p').innerText=d.pln_p.toFixed(2);
@@ -1240,7 +1212,7 @@ function initMQTT(){
     setBar('bar_pln_i',(d.pln_i/12)*100);
     setBar('bar_pln_p',(d.pln_p/2200)*100);
 
-    // ── BAT metrics ──
+    // BAT metrics
     document.getElementById('bat_v').innerText=d.bat_v.toFixed(2);
     document.getElementById('bat_i').innerText=d.bat_i.toFixed(2);
     document.getElementById('bat_p').innerText=d.bat_p.toFixed(2);
@@ -1249,19 +1221,19 @@ function initMQTT(){
     setBar('bar_bat_i',(d.bat_i/22)*100);
     setBar('bar_bat_p',(d.bat_p/320)*100);
 
-    // ── Source pill & flow ──
+    // Source pill & flow
     const pill=document.getElementById('srcPill');
     const pillTxt=document.getElementById('srcPillText');
     const sbSrc=document.getElementById('sbSource');
 
     if(d.beban_off){
-      pill.className='mode-pill off';pillTxt.innerText='BEBAN OFF';
+      pill.className='mode-pill off';pillTxt.innerText='LOAD OFF';
       if(sbSrc)sbSrc.innerText='OFF';
       setFlowState('OFF');
-      pushTicker('BEBAN TERPUTUS — kondisi kritis','alarm');
+      pushTicker('LOAD DISCONNECTED — critical condition','alarm');
 
     } else if(d.source==='PLN'){
-      pill.className='mode-pill pln';pillTxt.innerText='PLN AKTIF';
+      pill.className='mode-pill pln';pillTxt.innerText='PLN ACTIVE';
       if(sbSrc)sbSrc.innerText='PLN';
       document.getElementById('nd_pln_data').textContent=d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W';
       document.getElementById('nd_bat_data').textContent='—';
@@ -1269,7 +1241,7 @@ function initMQTT(){
       pushTicker('SRC: PLN '+d.pln_v.toFixed(1)+'V / '+d.pln_p.toFixed(0)+'W | PF:'+((d.pln_pf||0).toFixed(2)));
 
     } else if(d.source==='BAT'){
-      pill.className='mode-pill bat';pillTxt.innerText='BAT AKTIF';
+      pill.className='mode-pill bat';pillTxt.innerText='BAT ACTIVE';
       if(sbSrc)sbSrc.innerText='BAT';
       document.getElementById('nd_bat_data').textContent=d.bat_v.toFixed(2)+'V / '+d.bat_p.toFixed(0)+'W';
       document.getElementById('nd_pln_data').textContent='—';
@@ -1277,10 +1249,10 @@ function initMQTT(){
       pushTicker('SRC: BAT '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC','warn');
     }
 
-    // ── History: catat saat source berganti ──
+    // History: log when source changes
     if(d.source&&d.source!==lastSource){
       const wh=d.source==='PLN'?(d.pln_Wh||0):(d.bat_Wh||0);
-      const note='Switch ke '+d.source+' | Mode: '+(d.mode||'—')+
+      const note='Switch to '+d.source+' | Mode: '+(d.mode||'—')+
         (d.source==='PLN'?' | '+d.pln_v.toFixed(1)+'V':' | '+d.bat_v.toFixed(2)+'V / '+pct.toFixed(0)+'% SoC');
       histAdd('SWITCH',d.source,wh,note);
       lastSource=d.source;
