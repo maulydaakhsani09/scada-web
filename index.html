@@ -679,7 +679,7 @@ body{height:100%;font-family:var(--font);color:var(--text1);font-size:14px;backg
               <div class="cmd-tag">CMD-SRC-01</div>
               <div class="cmd-icon"><svg viewBox="0 0 24 24"><rect x="2" y="7" width="18" height="11" rx="2"/><path d="M22 11v3M7 7V4M11 7V4"/></svg></div>
               <div class="cmd-name">Battery</div>
-              <div class="cmd-desc">Pindah ke baterai/inverter. Divalidasi AUTO: Vbat harus ≥ 11.8V.</div>
+              <div class="cmd-desc">Pindah ke baterai/inverter. Divalidasi AUTO: Vbat harus ≥ 10.5V.</div>
             </div>
           </div>
           <div class="cmd-card c-pln" id="cmdPln" onclick="sendCmd('PLN')">
@@ -1209,8 +1209,8 @@ function initMQTT(){
     if(d.beban_off)alarmMsg+='BEBAN TERPUTUS';
     setAlarm(!!alarmAktif,alarmMsg.trim());
 
-    // ── Battery SoC (range 11.8V–13V sesuai ESP32) ──
-    let pct=((d.bat_v-11.8)/(13-11.8))*100;pct=Math.max(0,Math.min(100,pct));
+    // ── Battery SoC (range 10.5V–13.8V sesuai ESP32) ──
+    let pct=((d.bat_v-10.5)/(13.8-10.5))*100;pct=Math.max(0,Math.min(100,pct));
     const fill=document.getElementById('battFill');
     if(fill){fill.style.width=pct+'%';fill.style.background=pct>60?'var(--green)':pct>25?'var(--amber)':'var(--red)';}
     const pctEl=document.getElementById('s_bat_pct');
